@@ -16,8 +16,10 @@ References (patterns only): Retro Diffusion isometric + UI panels, isometric tow
 - Stats: each tile its own accent color (top bar, icon, number)
 - StepCards 01–04: shop-sign headers red / blue / gold / teal
 - Type: Silkscreen pixel font for labels, nav, numbers, buttons; Pixelify Sans for headings; Work Sans body
-- Hero: isometric pixel vignette rendered with image-rendering: pixelated, labeled "Preview art"
-- Motion: only 2–4fps stepped idles (lamp flicker, live blink); respect reduced motion
+- Reference images are STYLE GUIDES ONLY — never embed reference photos/PNGs as UI assets
+- Home = tactical pixel HUD: full-bleed procedural SVG stage (isometric diamond grid, multi-color tiles, POL teal core, concentric arena rings, iso houses with red/blue roofs, gold lamps, ash ruins, rectangle agent sprites) with HUD chrome on top: gold corner brackets, hero copy in a framed panel, floating stat pods (one color each), bottom hotbar of StepCards 01–04
+- `pixel-frame`: stair-stepped border via box-shadow + hard offset shadow
+- Motion: only 2–4fps stepped idles (lamp flicker, live blink, agent bob, flag wave) + subtle stepped ring pulse; respect reduced motion. No blur filters faking pixels
 - Forbidden: black+lime only, 1px borders, Inter-only, cute pastel kids UI, curtains
 
 ## Slice 1 (Home)

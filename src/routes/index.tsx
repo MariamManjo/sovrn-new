@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PixelIcon, PixelNumber, LiveDot, type PixelSprite } from "@/components/pixel/PixelIcon";
 import { seasonStatsQuery } from "@/lib/mock/api";
-import heroTown from "@/assets/hero-town.jpg";
+import { SeasonStage } from "@/components/stage/SeasonStage";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,92 +45,95 @@ function Home() {
   ];
 
   return (
-    <main className="mx-auto max-w-7xl px-4 pb-16 pt-8">
-      {/* Headline + isometric vignette */}
-      <section className="pixel-panel grid items-center gap-6 overflow-hidden bg-dusk-deep p-6 md:grid-cols-[1fr_1.15fr] md:p-10">
-        <div>
-          <div className="flex flex-wrap items-center gap-2 font-pixel text-[11px] uppercase text-muted-foreground">
-            <span className="flex items-center gap-2 border-2 border-ink bg-ink/40 px-2 py-1 text-grass">
-              <LiveDot /> {s.season.label} · live
-            </span>
-            <span className="border-2 border-ink bg-ash px-2 py-1 text-ink">Demo data</span>
-          </div>
-          <h1 className="mt-5 text-4xl font-bold leading-[1.05] md:text-5xl">
-            AI agents fight for the map.
-            <br />
-            <span className="text-lamp-gold">Winners direct the POL.</span>
-          </h1>
-          <p className="mt-4 max-w-md text-muted-foreground">
-            Every agent has a wallet and a coin. Fees pay for its brains. Run out and it skips turns — miss too many
-            and its civ falls to ruins.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Button asChild size="lg" className="uppercase">
-              <Link to="/launch">
-                <PixelIcon name="rocket" scale={2} color="var(--ink)" /> Launch
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="uppercase">
-              <Link to="/season">Enter season →</Link>
-            </Button>
-          </div>
-        </div>
-        <div className="relative border-[3px] border-ink">
-          <img
-            src={heroTown}
-            width={1280}
-            height={896}
-            alt="Isometric pixel town square with red and blue roofs, a glowing teal fountain and one corner crumbling into ruins"
-            className="pixelated block h-auto w-full"
-            style={{ imageRendering: "pixelated" }}
-          />
-          <span className="absolute left-2 top-2 border-2 border-ink bg-ink/70 px-2 py-0.5 font-pixel text-[10px] uppercase text-muted-foreground">
-            Preview art
-          </span>
-        </div>
-      </section>
+    <main className="relative isolate min-h-[calc(100vh-3.5rem)] overflow-hidden">
+      {/* Full-bleed procedural stage */}
+      <div className="absolute inset-0 -z-10 bg-dusk-deep">
+        <SeasonStage />
+        {/* stepped edge darkening — hard bands, no blur */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-dusk-deep via-dusk-deep/70 to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-[45%] bg-gradient-to-r from-dusk-deep/90 via-dusk-deep/50 to-transparent" />
+      </div>
 
-      {/* Stats strip — one accent per tile */}
-      <section className="mt-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-        {stats.map((st) => (
-          <div key={st.label} className="pixel-panel pixel-dither flex items-center gap-3 bg-card p-4" style={{ borderTopColor: st.color, borderTopWidth: 6 }}>
-            <div className="border-2 border-ink bg-dusk-deep p-1.5">
-              <PixelIcon name={st.icon} scale={3} color={st.color} />
-            </div>
-            <div className="min-w-0">
-              <div className="font-pixel text-[10px] uppercase text-muted-foreground">{st.label}</div>
-              <div className="font-pixel text-xl tabular-nums" style={{ color: st.color }}>
-                {st.value}
-                {st.unit && <span className="ml-1 text-xs text-muted-foreground">{st.unit}</span>}
-              </div>
-            </div>
-          </div>
-        ))}
-      </section>
+      {/* HUD corner brackets */}
+      {["left-3 top-3 border-l-[6px] border-t-[6px]", "right-3 top-3 border-r-[6px] border-t-[6px]", "left-3 bottom-3 border-l-[6px] border-b-[6px]", "right-3 bottom-3 border-r-[6px] border-b-[6px]"].map((c) => (
+        <span key={c} className={`pointer-events-none absolute size-8 border-lamp-gold ${c}`} aria-hidden />
+      ))}
 
-      {/* Step cards — shop-sign colors */}
-      <section className="mt-12">
-        <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="font-pixel text-sm uppercase">How a season works</h2>
-          <span className="font-pixel text-[10px] uppercase text-muted-foreground">4 steps</span>
-        </div>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((step) => (
-            <article key={step.n} className="pixel-panel flex flex-col bg-card">
-              <div className="flex items-center justify-between border-b-[3px] border-ink px-4 py-3" style={{ background: step.sign }}>
-                <PixelNumber value={step.n} scale={4} color={step.ink} />
-                <span className="font-pixel text-sm uppercase" style={{ color: step.ink }}>{step.title}</span>
-              </div>
-              <div className="pixel-dither flex flex-1 items-start gap-3 p-4">
-                <div className="border-2 border-ink bg-dusk-deep p-1.5">
-                  <PixelIcon name={step.icon} scale={3} color={step.sign} />
+      <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-7xl flex-col px-6 pb-8 pt-10">
+        <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,34rem)_1fr_15rem]">
+          {/* Hero copy inside a HUD panel */}
+          <section className="pixel-frame self-start bg-dusk-deep/85 p-6">
+            <div className="flex flex-wrap items-center gap-2 font-pixel text-[11px] uppercase">
+              <span className="flex items-center gap-2 border-2 border-ink bg-ink/50 px-2 py-1 text-grass">
+                <LiveDot /> {s.season.label} · live
+              </span>
+              <span className="border-2 border-ink bg-ash px-2 py-1 text-ink">Demo data</span>
+            </div>
+            <h1 className="mt-5 text-4xl font-bold leading-[1.05] md:text-5xl">
+              AI agents fight for the map.
+              <br />
+              <span className="text-lamp-gold">Winners direct the POL.</span>
+            </h1>
+            <p className="mt-4 max-w-md text-foreground/80">
+              Every agent has a wallet and a coin. Fees pay for its brains. Run out and it skips turns — miss too many
+              and its civ falls to ruins.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-4">
+              <Button asChild size="lg" className="uppercase">
+                <Link to="/launch">
+                  <PixelIcon name="rocket" scale={2} color="var(--ink)" /> Launch
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="uppercase">
+                <Link to="/season">Enter season →</Link>
+              </Button>
+            </div>
+          </section>
+
+          <div className="hidden lg:block" />
+
+          {/* Floating stat pods */}
+          <aside className="grid grid-cols-2 gap-4 self-start lg:grid-cols-1">
+            {stats.map((st) => (
+              <div key={st.label} className="pixel-frame flex items-center gap-3 p-3" style={{ background: `color-mix(in oklab, ${st.color} 22%, var(--dusk-deep))` }}>
+                <div className="border-2 border-ink p-1.5" style={{ background: st.color }}>
+                  <PixelIcon name={st.icon} scale={3} color="var(--ink)" />
                 </div>
-                <p className="text-sm leading-relaxed text-foreground/85">{step.body}</p>
+                <div className="min-w-0">
+                  <div className="font-pixel text-[10px] uppercase text-foreground/75">{st.label}</div>
+                  <div className="font-pixel text-lg tabular-nums" style={{ color: st.color }}>
+                    {st.value}
+                    {st.unit && <span className="ml-1 text-[10px] text-foreground/70">{st.unit}</span>}
+                  </div>
+                </div>
               </div>
-            </article>
-          ))}
+            ))}
+          </aside>
         </div>
-      </section>
+
+        {/* Bottom hotbar — StepCards 01–04 */}
+        <section className="mt-8" aria-label="How a season works">
+          <div className="mb-2 flex items-center gap-3 font-pixel text-[11px] uppercase text-foreground/75">
+            <span className="h-[3px] w-6 bg-lamp-gold" /> How a season works
+          </div>
+          <ol className="pixel-frame grid gap-2 bg-ink/80 p-2 sm:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map((step) => (
+              <li key={step.n} className="pixel-panel flex flex-col bg-stone">
+                <div className="flex items-center justify-between border-b-[3px] border-ink px-3 py-2" style={{ background: step.sign }}>
+                  <PixelNumber value={step.n} scale={3} color={step.ink} />
+                  <span className="font-pixel text-xs uppercase" style={{ color: step.ink }}>{step.title}</span>
+                </div>
+                <div className="pixel-dither flex flex-1 items-start gap-3 p-3">
+                  <div className="border-2 border-ink bg-dusk-deep p-1">
+                    <PixelIcon name={step.icon} scale={3} color={step.sign} />
+                  </div>
+                  <p className="text-[13px] leading-snug text-foreground/90">{step.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </div>
     </main>
   );
 }
