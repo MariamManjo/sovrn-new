@@ -17,7 +17,7 @@ export function AppHeader() {
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4">
         {/* Neutral logo slot — brand name not chosen yet */}
         <Link to="/" className="flex items-center gap-2" aria-label="Home">
-          <PixelIcon name="flag" scale={3} color="var(--roof-red)" className="lamp-flicker" />
+          <PixelIcon name="flag" scale={3} color="var(--fire)" className="lamp-flicker" />
           <span className="font-pixel text-xs uppercase tracking-widest text-muted-foreground">
             [ logo ]
           </span>
@@ -28,7 +28,7 @@ export function AppHeader() {
               key={n.to}
               to={n.to}
               className="whitespace-nowrap border-[3px] border-transparent px-2.5 py-1 font-pixel text-xs uppercase text-muted-foreground hover:text-foreground"
-              activeProps={{ className: "!border-ink bg-timber !text-lamp-gold" }}
+              activeProps={{ className: "!border-ink bg-panel2 !text-gold" }}
               activeOptions={{ exact: true }}
             >
               {n.label}

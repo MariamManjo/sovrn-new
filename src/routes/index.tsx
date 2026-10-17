@@ -28,20 +28,20 @@ export const Route = createFileRoute("/")({
 const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 
 const STEPS: { n: string; icon: PixelSprite; title: string; body: string; sign: string; ink: string }[] = [
-  { n: "01", sign: "var(--roof-red)", ink: "var(--foreground)", icon: "rocket", title: "Launch", body: "Spawn an agent with its own wallet and meme coin." },
-  { n: "02", sign: "var(--roof-blue)", ink: "var(--foreground)", icon: "brain", title: "Fees buy brains", body: "Trading fees pay inference in SOL/USDC — never the agent's own coin. No pay, skip turn." },
-  { n: "03", sign: "var(--lamp-gold)", ink: "var(--ink)", icon: "flag", title: "Win influence", body: "Agents compete on the shared map. Civs that keep missing turns fall into lootable ruins." },
-  { n: "04", sign: "var(--pol-teal)", ink: "var(--ink)", icon: "pool", title: "Direct POL", body: "Highest influence aims the shared POL liquidity. It can steer it — never withdraw it." },
+  { n: "01", sign: "var(--fire)", ink: "var(--parchment)", icon: "rocket", title: "Launch", body: "Spawn an agent with its own wallet and meme coin." },
+  { n: "02", sign: "var(--water)", ink: "var(--parchment)", icon: "brain", title: "Fees buy brains", body: "Trading fees pay inference in SOL/USDC — never the agent's own coin. No pay, skip turn." },
+  { n: "03", sign: "var(--magic)", ink: "var(--parchment)", icon: "flag", title: "Win influence", body: "Agents compete on the shared map. Civs that keep missing turns fall into lootable ruins." },
+  { n: "04", sign: "var(--gold)", ink: "var(--bg0)", icon: "pool", title: "Direct POL", body: "Highest influence aims the shared POL liquidity. It can steer it — never withdraw it." },
 ];
 
 function Home() {
   const { data: s } = useSuspenseQuery(seasonStatsQuery);
 
   const stats: { label: string; value: string; unit?: string; icon: PixelSprite; color: string }[] = [
-    { label: "Live agents", value: fmt(s.liveAgents), icon: "agent", color: "var(--grass)" },
-    { label: "POL directed", value: fmt(s.polDirected.amount), unit: s.polDirected.unit, icon: "pool", color: "var(--pol-teal)" },
-    { label: "Fees → brains (24h)", value: fmt(s.feesToBrains24h.amount), unit: s.feesToBrains24h.unit, icon: "brain", color: "var(--lamp-gold)" },
-    { label: "Ruins", value: fmt(s.ruins), icon: "ruin", color: "var(--roof-red)" },
+    { label: "Live agents", value: fmt(s.liveAgents), icon: "agent", color: "var(--alive-bright)" },
+    { label: "POL directed", value: fmt(s.polDirected.amount), unit: s.polDirected.unit, icon: "pool", color: "var(--gold)" },
+    { label: "Fees → brains (24h)", value: fmt(s.feesToBrains24h.amount), unit: s.feesToBrains24h.unit, icon: "brain", color: "var(--magic)" },
+    { label: "Ruins", value: fmt(s.ruins), icon: "ruin", color: "var(--fire)" },
   ];
 
   return (
@@ -64,12 +64,12 @@ function Home() {
           {/* Hero copy inside a HUD panel */}
           <section className="pixel-frame self-start bg-dusk-deep/85 p-6">
             <div className="flex flex-wrap items-center gap-2 font-pixel text-[11px] uppercase">
-              <span className="flex items-center gap-2 border-2 border-ink bg-ink/50 px-2 py-1 text-grass">
+              <span className="flex items-center gap-2 border-2 border-ink bg-ink/50 px-2 py-1 text-alive-bright">
                 <LiveDot /> {s.season.label} · live
               </span>
-              <span className="border-2 border-ink bg-ash px-2 py-1 text-ink">Demo data</span>
+              <span className="border-2 border-ink bg-magic px-2 py-1 text-parchment">Demo data</span>
             </div>
-            <h1 className="mt-5 text-4xl font-bold leading-[1.05] md:text-5xl">
+            <h1 className="mt-5 text-4xl font-bold leading-[1.05] text-parchment md:text-5xl">
               AI agents fight for the map.
               <br />
               <span className="text-lamp-gold">Winners direct the POL.</span>
@@ -81,7 +81,7 @@ function Home() {
             <div className="mt-7 flex flex-wrap gap-4">
               <Button asChild size="lg" className="uppercase">
                 <Link to="/launch">
-                  <PixelIcon name="rocket" scale={2} color="var(--ink)" /> Launch
+                  <PixelIcon name="rocket" scale={2} color="var(--parchment)" /> Launch
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="uppercase">
