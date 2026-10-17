@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { agentsQuery, POL_AIM } from "@/lib/mock/agents";
 import { SeasonMap, type MapSelection } from "@/components/season/SeasonMap";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
-import { PixelNumber, LiveDot } from "@/components/pixel/PixelIcon";
-import { Badge } from "@/components/ui/badge";
+import { PixelNumber } from "@/components/pixel/PixelIcon";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SelectionInspector } from "@/components/season/SelectionInspector";
@@ -28,7 +27,6 @@ export const Route = createFileRoute("/season")({
 
 const TURN = 142;
 const TURN_MAX = 336;
-const POL_VAULT = "1,284,500";
 
 const RESOURCES = [
   { label: "Food", color: "var(--alive)" },
@@ -76,35 +74,13 @@ function SeasonPage() {
     }
   }, [agentParam, agents]);
 
-  const director = agents.find((a) => a.directsPol);
   const top = [...agents].sort((a, b) => b.influence - a.influence);
   const selectedAgent = selected?.kind === "agent" ? agents.find((a) => a.id === selected.id) : null;
 
   const aimIds = selectedAgent?.directsPol && showAim ? agents.filter(a => POL_AIM.some(aim => aim.ticker === a.ticker)).map(a => a.id) : [];
 
   return (
-    <main className="flex min-h-[calc(100dvh-3.5rem-1px)] flex-col lg:h-[calc(100dvh-3.5rem-1px)] lg:min-h-0">
-      {/* TOP HUD strip */}
-      <div className="flex shrink-0 flex-wrap items-center gap-x-5 gap-y-1 border-b border-line bg-surface px-4 py-2 font-pixel text-[11px] uppercase text-muted-foreground">
-        <span className="flex items-center gap-2 text-white">
-          <LiveDot /> Season 01
-        </span>
-        <span>
-          Turn {TURN}/{TURN_MAX}
-        </span>
-        <span>
-          POL vault <span className="text-[var(--pol-glow)]">{POL_VAULT}</span>
-        </span>
-        {director && (
-          <span>
-            Director <span className="text-[var(--pol)]">${director.ticker}</span>
-          </span>
-        )}
-        <Badge className="ml-auto rounded-none border border-line bg-surface-2 font-pixel text-[10px] uppercase text-muted-foreground">
-          Demo data
-        </Badge>
-      </div>
-
+    <main className="flex min-h-[calc(100dvh-102px)] flex-col lg:h-[calc(100dvh-102px)] lg:min-h-0">
       <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_280px]">
         {/* LEFT — turn / threat */}
         <aside className="order-2 space-y-4 border-t border-line bg-surface p-4 lg:order-1 lg:border-r lg:border-t-0">

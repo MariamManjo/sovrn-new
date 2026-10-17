@@ -7,3 +7,8 @@
 - [x] Bound the full empire list and keep its header visible while scrolling.
 - [x] Render all map tickers above artwork and protect selected labels from clipping and the inspector.
 - [x] Verify every settlement selection, list scrolling and selection sync.
+
+# Mobile-friendly sitewide header
+- [x] Add compact fixed mobile navigation, accessible drawer and shared scrolling status strip.
+- [x] Keep desktop navigation and move the existing season HUD into the shared header.
+- [x] Verify drawer navigation, touch targets and layouts at 390×844 and 1440×900.
