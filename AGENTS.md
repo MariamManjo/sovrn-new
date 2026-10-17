@@ -12,3 +12,4 @@
 - Mock data lives in `src/lib/mock/` as TanStack Query `queryOptions` shaped like future REST endpoints — swap queryFn for fetch later without touching UI.
 - Pixel art is drawn as SVG rect grids in `src/components/pixel/` (integer scale, crispEdges) — keeps sprites sharp with no image assets.
 - Routing uses TanStack Router (platform-fixed) instead of React Router from the brief.
+- Season selection is owned by the season page and shared with the map, empire rows and inspector; aim previews use only existing mock POL targets to avoid inventing ownership or simulation.
