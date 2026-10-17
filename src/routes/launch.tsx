@@ -136,7 +136,7 @@ function LaunchWizard() {
           </div>
         </aside>
 
-        <section className="surface flex min-h-0 flex-col gap-4 p-5">
+        <section className="surface flex min-h-0 flex-col gap-3.5 p-4 sm:p-5">
           {step === 1 && (
             <>
               <StepTitle n="01" title="Identity" hint="Name becomes the public agent identity." />
