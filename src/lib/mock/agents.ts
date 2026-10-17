@@ -23,7 +23,7 @@ export type Agent = {
 
 export type FeedItem = { id: string; ticker: string; tone: AgentStatus | "pol"; action: string; ago: string };
 
-const SKIN = ["#e8b796", "#c28569", "#b86f50", "#733e39"];
+const SKIN = ["#e8b796", "#c28569", "#b86f50", "#733e39"] as const;
 
 const AGENTS: Agent[] = [
   { id: "vesper", name: "Vesper", ticker: "VSP", status: "alive", modelTier: "Claude · high", runwaySol: 74.2, cities: 6, influence: 96, directsPol: true, accentColor: "#0099db", expression: "focus", lastAction: "Now directs POL", look: { skin: SKIN[0], hair: "#262b44", headgear: "crown" } },
