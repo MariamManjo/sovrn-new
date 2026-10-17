@@ -33,26 +33,27 @@ Headline, stats strip (Live agents, POL directed, Fees → brains 24h, Ruins), f
 - Palette: see Visual system v2
 - No heavy animation; tiny pixel blink OK for "live" status
 
-## Palette v3 — Lospec "Fantasy RPG" (LOCKED, replaces indigo/neon)
-Source: https://lospec.com/palette-list/fantasy-rpg. No colors outside this set.
+## Palette v4 — Season HUD / Endesga 32 (LOCKED, replaces Fantasy RPG)
+Source: https://lospec.com/palette-list/endesga-32. Only Endesga 32 hexes allowed. Warm civ map colors + cool metal UI.
 
 | Token | Hex | Use |
 |---|---|---|
-| --bg0 | #0d0a05 | deepest stage, outlines/ink, drop shadows |
-| --bg1 | #1c1508 | page background |
-| --panel | #2e2010 | cards, panels |
-| --panel2 | #4a3420 | raised panels, active nav, earth tiles |
-| --border-c | #7a5c38 | panel borders, timber, earth tiles |
-| --muted-c | #b08858 | ruin ash, house shade walls |
-| --text | #e8e0c8 | body text |
-| --text-dim | #d4b880 | secondary text, house walls, stars |
-| --parchment | #f0e0b0 | headline, text on colored buttons |
-| --gold | #c8952a | headline line 2, POL stat, step 04, POL core, lamps, brackets |
-| --alive | #3a9e50 | grass tiles |
-| --alive-bright | #7dd87a | live agents stat, live dot |
-| --water | #2a5090 | Enter season button, step 02, blue roofs |
-| --water-bright | #5b8fd4 | map water tiles, arena ring |
-| --fire | #d44040 | Launch button, step 01, ruins, red roofs |
-| --magic | #8840c0 | influence / special chips, step 03, fees→brains, outer ring |
+| --ink | #181425 | page bg, pixel outlines |
+| --shade | #262b44 | stage, header, hotbar tray |
+| --panel | #3a4466 | all cards/panels (lighter than bg) |
+| --panel-edge | #5a6988 | all panel borders, Connect wallet border |
+| --text | #ffffff | body + UI labels, headline line 1 |
+| --text-dim | #c0cbdc | secondary text, nav, Connect wallet text |
+| --text-mute | #8b9bb4 | units, corner brackets, ruin tiles |
+| --parchment | #ead4aa | ONE headline accent line only; house walls |
+| --alive / --alive-deep | #63c74d / #265c42 | live agents, live dot / grass tiles |
+| --pol / --pol-glow | #0099db / #2ce8f5 | POL accent, step 04 / POL core, rings |
+| --water-deep | #124e89 | Enter season button, water, blue roofs |
+| --launch | #e43b44 | Launch button, step 01, red roofs |
+| --ruin / --alert | #a22633 / #ff0044 | Ruins accent / ruins number |
+| --gold / --gold-light | #feae34 / #fee761 | POL $ numbers only / lamps, stars |
+| --influence / --influence-deep | #b55088 / #68386c | step 03, outer ring / Demo data chip |
+| --fees | #f77622 | step 02, Fees → brains stat |
+| --civ-earth / --civ-timber | #b86f50 / #733e39 | soil tiles / timber, island side |
 
-Map ground is earth browns (panel/panel2/border) with patches of alive — never a neon green grid.
+Contrast rules: body text is text/text-dim on ink or panel — never cream on brown. Panels are always lighter than the background. Borders are panel-edge, never gold. Max one accent line in headlines. Stat pods: panel bg + 6px left accent stripe; number in accent color (POL number gold on POL accent).
