@@ -57,3 +57,9 @@ Source: https://lospec.com/palette-list/endesga-32. Only Endesga 32 hexes allowe
 | --civ-earth / --civ-timber | #b86f50 / #733e39 | soil tiles / timber, island side |
 
 Contrast rules: body text is text/text-dim on ink or panel — never cream on brown. Panels are always lighter than the background. Borders are panel-edge, never gold. Max one accent line in headlines. Stat pods: panel bg + 6px left accent stripe; number in accent color (POL number gold on POL accent).
+
+### Warm dark chrome (overrides v4 chrome only — accents unchanged)
+- bg0 #181425, bg1 #3e2731 (main wash). Page bg = radial gradient bg1 → bg0 + subtle 4px dot dither
+- Panels (hero, stat pods, step cards, header tray, Connect wallet): panel #733e39 / panel-2 #4a2f2c with panel-edge #e8b796 borders
+- Text: white #ffffff or text-warm #ead4aa on panels
+- No steel/slate fills in UI chrome; #5a6988 survives only for map ruin tiles

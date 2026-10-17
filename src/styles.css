@@ -80,6 +80,7 @@
   --shade: var(--panel-2);
   --panel: #733e39;
   --panel-edge: #e8b796;
+  --map-slate: #5a6988; /* map ruin tiles only */
   --text: #ffffff;
   --text-dim: var(--text-warm);
   --text-mute: #8b9bb4;
