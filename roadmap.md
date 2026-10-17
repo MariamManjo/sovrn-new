@@ -2,3 +2,8 @@
 - [x] Add map focus, click flash, POL beam, enlarged token and floating ticker.
 - [x] Sync empire rows and rich inspector with aim preview and clear action.
 - [x] Verify selection, deselection, links and small-screen layout.
+
+# Season map bugfix
+- [ ] Bound the full empire list and keep its header visible while scrolling.
+- [ ] Render all map tickers above artwork and protect selected labels from clipping and the inspector.
+- [ ] Verify every settlement selection, list scrolling and selection sync.

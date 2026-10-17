@@ -285,6 +285,10 @@
 }
 
 /* Season-only selection feedback: illustration stays sharp, chrome stays monochrome. */
+.season-empire-scroll { scrollbar-width: thin; scrollbar-color: var(--text-mute) var(--surface-2); scrollbar-gutter: stable; }
+.season-empire-scroll::-webkit-scrollbar { width: 6px; }
+.season-empire-scroll::-webkit-scrollbar-track { background: var(--surface-2); }
+.season-empire-scroll::-webkit-scrollbar-thumb { background: var(--text-mute); }
 .season-map-muted, .season-settlement { transition: opacity 200ms ease; }
 .selection-outline { animation: selection-pulse 1.4s ease-in-out infinite; }
 .selection-beam { animation: selection-beam 1s ease both; opacity: .45; }

@@ -13,3 +13,4 @@
 - Pixel art is drawn as SVG rect grids in `src/components/pixel/` (integer scale, crispEdges) — keeps sprites sharp with no image assets.
 - Routing uses TanStack Router (platform-fixed) instead of React Router from the brief.
 - Season selection is owned by the season page and shared with the map, empire rows and inspector; aim previews use only existing mock POL targets to avoid inventing ownership or simulation.
+- Season map labels render in final SVG layers, and the inspector reserves layout space outside the map; bounded empire scrolling is container-local so selection never scrolls the page.

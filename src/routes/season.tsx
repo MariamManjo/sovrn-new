@@ -55,9 +55,17 @@ function SeasonPage() {
   const [selected, setSelected] = useState<MapSelection>(null);
   const [showAim, setShowAim] = useState(false);
   const empireRows = useRef(new Map<string, HTMLButtonElement>());
+  const empireList = useRef<HTMLDivElement>(null);
   const select = (selection: MapSelection) => { setSelected(selection); setShowAim(false); };
   useEffect(() => {
-    if (selected?.kind === "agent") empireRows.current.get(selected.id)?.scrollIntoView({ block: "nearest", behavior: "auto" });
+    if (selected?.kind !== "agent") return;
+    const list = empireList.current;
+    const row = empireRows.current.get(selected.id);
+    if (!list || !row) return;
+    const listBounds = list.getBoundingClientRect();
+    const rowBounds = row.getBoundingClientRect();
+    if (rowBounds.top < listBounds.top) list.scrollTop += rowBounds.top - listBounds.top;
+    else if (rowBounds.bottom > listBounds.bottom) list.scrollTop += rowBounds.bottom - listBounds.bottom;
   }, [selected]);
   const countdown = useCountdown(12 * 60 + 44);
 
@@ -69,15 +77,15 @@ function SeasonPage() {
   }, [agentParam, agents]);
 
   const director = agents.find((a) => a.directsPol);
-  const top = [...agents].sort((a, b) => b.influence - a.influence).slice(0, 6);
+  const top = [...agents].sort((a, b) => b.influence - a.influence);
   const selectedAgent = selected?.kind === "agent" ? agents.find((a) => a.id === selected.id) : null;
 
   const aimIds = selectedAgent?.directsPol && showAim ? agents.filter(a => POL_AIM.some(aim => aim.ticker === a.ticker)).map(a => a.id) : [];
 
   return (
-    <main className="flex min-h-[calc(100vh-3.5rem)] flex-col">
+    <main className="flex min-h-[calc(100dvh-3.5rem-1px)] flex-col lg:h-[calc(100dvh-3.5rem-1px)] lg:min-h-0">
       {/* TOP HUD strip */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-b border-line bg-surface px-4 py-2 font-pixel text-[11px] uppercase text-muted-foreground">
+      <div className="flex shrink-0 flex-wrap items-center gap-x-5 gap-y-1 border-b border-line bg-surface px-4 py-2 font-pixel text-[11px] uppercase text-muted-foreground">
         <span className="flex items-center gap-2 text-white">
           <LiveDot /> Season 01
         </span>
@@ -97,7 +105,7 @@ function SeasonPage() {
         </Badge>
       </div>
 
-      <div className="grid flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_280px]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_280px]">
         {/* LEFT — turn / threat */}
         <aside className="order-2 space-y-4 border-t border-line bg-surface p-4 lg:order-1 lg:border-r lg:border-t-0">
           <div>
@@ -133,8 +141,10 @@ function SeasonPage() {
         </aside>
 
         {/* CENTER — map */}
-        <section className="relative order-1 min-h-[420px] bg-bg1 lg:order-2">
-          <SeasonMap agents={agents} selected={selected} onSelect={select} aimIds={aimIds} />
+        <section className="relative order-1 min-h-[420px] bg-bg1 lg:order-2 lg:min-h-0" aria-label="Season map stage">
+          <div className={cn("absolute inset-x-0 top-10 bottom-4", selected && "bottom-8")}>
+            <SeasonMap agents={agents} selected={selected} onSelect={select} aimIds={aimIds} />
+          </div>
           {/* shared threat banner on map edge */}
           <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2">
             <span className="chip border-[var(--gold)]/50 bg-black/80 text-[var(--gold)]">
@@ -145,14 +155,14 @@ function SeasonPage() {
         </section>
 
         {/* RIGHT — top empires */}
-        <aside className="order-3 border-t border-line bg-surface p-4 lg:border-l lg:border-t-0">
-          <div className="flex items-baseline justify-between">
+        <aside className="order-3 flex h-[min(420px,60dvh)] min-h-0 flex-col border-t border-line bg-surface p-4 lg:h-full lg:border-l lg:border-t-0">
+          <div className="flex shrink-0 items-baseline justify-between pb-3">
             <p className="font-pixel text-[11px] uppercase text-muted-foreground">Top empires</p>
             <Link to="/agents" className="text-xs text-white hover:underline">
               View all agents
             </Link>
           </div>
-          <div className="mt-3 space-y-2">
+          <div ref={empireList} role="region" aria-label="Top empires list" tabIndex={0} className="season-empire-scroll min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain pr-2">
             {top.map((a, idx) => {
               const isSel = selected?.kind === "agent" && selected.id === a.id;
               const ruin = a.status === "ruin";
@@ -199,7 +209,7 @@ function SeasonPage() {
       </div>
 
       {/* BOTTOM — inspector */}
-      <div className="border-t border-line bg-surface px-4 py-3">
+      <div className="shrink-0 border-t border-line bg-surface px-4 py-3">
         <SelectionInspector agent={selectedAgent} agents={agents} frontier={selected?.kind === "frontier"} showAim={showAim} canShowAim={!!selectedAgent?.directsPol} onAim={() => setShowAim(value => !value)} onClear={() => select(null)} />
       </div>
     </main>
