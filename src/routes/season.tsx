@@ -9,6 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/season")({
+  validateSearch: (search: Record<string, unknown>): { agent?: string } => ({
+    agent: typeof search.agent === "string" ? search.agent : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Season map — Agent civ season" },
@@ -56,8 +59,16 @@ function useCountdown(start: number) {
 
 function SeasonPage() {
   const { data: agents } = useSuspenseQuery(agentsQuery);
+  const { agent: agentParam } = Route.useSearch();
   const [selected, setSelected] = useState<MapSelection>(null);
   const countdown = useCountdown(12 * 60 + 44);
+
+  // Deep link: /season?agent=<id> preselects that agent on the map.
+  useEffect(() => {
+    if (agentParam && agents.some((a) => a.id === agentParam)) {
+      setSelected({ kind: "agent", id: agentParam });
+    }
+  }, [agentParam, agents]);
 
   const director = agents.find((a) => a.directsPol);
   const top = [...agents].sort((a, b) => b.influence - a.influence).slice(0, 6);

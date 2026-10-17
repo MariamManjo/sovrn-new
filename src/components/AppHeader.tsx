@@ -7,6 +7,7 @@ const NAV = [
   { to: "/", label: "Home" },
   { to: "/season", label: "Season map" },
   { to: "/agents", label: "Agents" },
+  { to: "/factions", label: "Factions" },
   { to: "/pol", label: "POL" },
   { to: "/launch", label: "Launch" },
 ] as const;
@@ -15,11 +16,11 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-black/90">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4">
-        {/* Neutral logo slot — brand name not chosen yet */}
+        {/* Logo slot — image wordmark comes later; text wordmark for now */}
         <Link to="/" className="flex items-center gap-2" aria-label="Home">
           <PixelIcon name="flag" scale={3} color="var(--launch)"  />
-          <span className="font-pixel text-xs uppercase tracking-widest text-muted-foreground">
-            [ logo ]
+          <span className="font-pixel text-xs uppercase tracking-widest text-white">
+            SOVRN
           </span>
         </Link>
         <nav className="flex items-center gap-1 overflow-x-auto">
