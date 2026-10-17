@@ -88,8 +88,11 @@ const FILL: Record<string, string> = {
 export function PixelIcon({
   name,
   scale = 3,
+  color,
   className,
 }: {
+  /** CSS color for '#' pixels (defaults to primary) */
+  color?: string;
   name: PixelSprite;
   /** integer pixel scale — keeps the grid crisp */
   scale?: 1 | 2 | 3 | 4 | 5 | 6;
@@ -107,7 +110,9 @@ export function PixelIcon({
     >
       {rows.flatMap((row, y) =>
         [...row].map((c, x) =>
-          FILL[c] ? <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={FILL[c]} /> : null,
+          FILL[c] ? (
+            <rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={c === "#" && color ? color : FILL[c]} />
+          ) : null,
         ),
       )}
     </svg>
@@ -123,7 +128,15 @@ const DIGITS: Record<string, string[]> = {
   "4": ["#.#", "#.#", "###", "..#", "..#"],
 };
 
-export function PixelNumber({ value, scale = 4 }: { value: string; scale?: 1 | 2 | 3 | 4 | 5 | 6 }) {
+export function PixelNumber({
+  value,
+  scale = 4,
+  color = "var(--primary)",
+}: {
+  value: string;
+  scale?: 1 | 2 | 3 | 4 | 5 | 6;
+  color?: string;
+}) {
   const chars = [...value];
   const w = chars.length * 4 - 1;
   return (
@@ -139,7 +152,7 @@ export function PixelNumber({ value, scale = 4 }: { value: string; scale?: 1 | 2
         (DIGITS[ch] ?? []).flatMap((row, y) =>
           [...row].map((c, x) =>
             c === "#" ? (
-              <rect key={`${i}-${x}-${y}`} x={i * 4 + x} y={y} width={1} height={1} fill="var(--primary)" />
+              <rect key={`${i}-${x}-${y}`} x={i * 4 + x} y={y} width={1} height={1} fill={color} />
             ) : null,
           ),
         ),
@@ -153,7 +166,7 @@ export function LiveDot({ tone = "live" }: { tone?: "live" | "danger" }) {
     <span
       className={cn(
         "inline-block size-2 pixel-blink",
-        tone === "live" ? "bg-primary" : "bg-destructive",
+        tone === "live" ? "bg-grass" : "bg-destructive",
       )}
       aria-hidden
     />
