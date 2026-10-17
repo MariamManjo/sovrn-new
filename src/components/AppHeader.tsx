@@ -27,7 +27,7 @@ export function AppHeader() {
             <Link
               key={n.to}
               to={n.to}
-              className="whitespace-nowrap border-[3px] border-transparent px-2.5 py-1 font-pixel text-xs uppercase text-text-dim hover:text-text"
+              className="whitespace-nowrap border-[3px] border-transparent px-2.5 py-1 font-pixel text-xs uppercase text-text-warm hover:text-text"
               activeProps={{ className: "!border-ink bg-panel !border-panel-edge !text-text" }}
               activeOptions={{ exact: true }}
             >

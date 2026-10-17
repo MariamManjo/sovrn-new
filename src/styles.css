@@ -43,6 +43,10 @@
   --color-stone-hi: var(--stone-hi);
   --color-timber: var(--timber);
   --color-parchment: var(--parchment);
+  --color-grass-mid: var(--grass-mid);
+  --color-bark: var(--bark);
+  --color-text-warm: var(--text-warm);
+  --color-panel-2: var(--panel-2);
   --color-alive-deep: var(--alive-deep);
   --color-civ-earth: var(--civ-earth);
   --color-panel-edge: var(--panel-edge);
@@ -72,18 +76,20 @@
 
 :root {
   /* Season HUD / Endesga 32 — ONLY these hex values are allowed */
-  --ink: #181425;
-  --bg0: #181425;
-  --bg1: #3e2731;
-  --panel-2: #4a2f2c;
-  --text-warm: #ead4aa;
-  --shade: var(--panel-2);
-  --panel: #733e39;
-  --panel-edge: #e8b796;
+  --ink: #0a0a0a;
+  --bg0: #0a0a0a;
+  --bg1: #121212;
+  --panel-2: #733e39;
+  --grass-mid: #3e8948;
+  --bark: #c28569;
+  --text-warm: #f0e6d8;
+  --shade: #121212;
+  --panel: #4a3420;
+  --panel-edge: #c28569;
   --map-slate: #5a6988; /* map ruin tiles only */
   --text: #ffffff;
   --text-dim: var(--text-warm);
-  --text-mute: #8b9bb4;
+  --text-mute: #a89f94;
   --parchment: #ead4aa;
   --alive: #63c74d;
   --alive-deep: #265c42;
@@ -152,8 +158,8 @@
     min-height: 100vh;
     background-color: var(--bg0);
     background-image:
-      radial-gradient(color-mix(in oklab, var(--bg0) 45%, transparent) 1px, transparent 1px),
-      radial-gradient(ellipse at 50% 30%, var(--bg1) 0%, var(--bg1) 35%, var(--bg0) 100%);
+      radial-gradient(var(--bg1) 1px, transparent 1px),
+      linear-gradient(var(--bg0), var(--bg0));
     background-size: 4px 4px, 100% 100%;
     background-attachment: fixed;
   }

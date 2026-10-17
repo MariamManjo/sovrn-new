@@ -63,3 +63,12 @@ Contrast rules: body text is text/text-dim on ink or panel — never cream on br
 - Panels (hero, stat pods, step cards, header tray, Connect wallet): panel #733e39 / panel-2 #4a2f2c with panel-edge #e8b796 borders
 - Text: white #ffffff or text-warm #ead4aa on panels
 - No steel/slate fills in UI chrome; #5a6988 survives only for map ruin tiles
+
+## CURRENT LOCK — Black + white type + green/brown illustration system (overrides all palette sections above)
+- Background (page, stage, chrome): #0a0a0a and #121212 only. No navy, purple, steel.
+- Text: #ffffff primary, #f0e6d8 secondary, #a89f94 dim meta.
+- Greens: #3e8948, #63c74d, moss #265c42. Browns: #4a3420 (panels), #733e39, #b86f50, light bark #c28569 (panel edges).
+- Panels/cards: brown wood fills on black with light-bark edges. No steel, no gold frames.
+- Steps: 01 #e43b44 (Launch), 02 #b86f50, 03 #3e8948, 04 #63c74d. Stats: live #63c74d, POL #3e8948, fees #c28569, ruins #a22633.
+- CTAs: Launch = red #e43b44; Enter season = moss #265c42. Color used only for meaning.
+- Map keeps illustration colors (grass, earth, small red/blue roofs, water/POL core) as map detail only.

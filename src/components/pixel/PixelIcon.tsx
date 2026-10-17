@@ -80,7 +80,7 @@ const SPRITES = {
 export type PixelSprite = keyof typeof SPRITES;
 
 const FILL: Record<string, string> = {
-  "#": "var(--pol-glow)",
+  "#": "var(--alive)",
   "+": "var(--pixel-dim)",
   x: "var(--destructive)",
 };
