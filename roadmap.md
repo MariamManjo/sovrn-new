@@ -14,6 +14,6 @@
 - [x] Verify drawer navigation, touch targets and layouts at 390×844 and 1440×900.
 
 # Season map layout priority
-- [ ] Replace the inspector frame with a single-row dock capped at 56px.
-- [ ] Keep the map dominant and place mobile selection details directly beneath it.
-- [ ] Verify Loom selection, ticker visibility, list sync and clearing on desktop and mobile.
+- [x] Replace the inspector frame with a single-row dock capped at 56px.
+- [x] Keep the map dominant and place mobile selection details directly beneath it.
+- [x] Verify Loom selection, ticker visibility, list sync and clearing on desktop and mobile.
