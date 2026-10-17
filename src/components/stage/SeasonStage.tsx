@@ -230,19 +230,19 @@ export function SeasonStage() {
       {HOUSES.map((h) => (
         <House key={`${h.i}-${h.j}`} {...h} />
       ))}
-      {[
+      {([
         [13, 2],
         [12, 1],
         [14, 3],
-      ].map(([i, j]) => (
+      ] as const).map(([i, j]) => (
         <Ruin key={`r${i}-${j}`} i={i} j={j} />
       ))}
-      {[
+      {([
         [5, 8],
         [10, 7],
         [7, 5],
         [8, 11],
-      ].map(([i, j]) => (
+      ] as const).map(([i, j]) => (
         <Lamp key={`l${i}-${j}`} i={i} j={j} />
       ))}
       <Banner i={6} j={4} color="var(--roof-blue)" />
