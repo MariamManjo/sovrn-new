@@ -81,9 +81,9 @@ function SeasonPage() {
 
   return (
     <main className="flex min-h-[calc(100dvh-102px)] flex-col lg:h-[calc(100dvh-102px)] lg:min-h-0">
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_280px]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_280px] lg:grid-rows-[minmax(0,1fr)_56px]">
         {/* LEFT — turn / threat */}
-        <aside className="order-2 space-y-4 border-t border-line bg-surface p-4 lg:order-1 lg:border-r lg:border-t-0">
+        <aside className="order-3 space-y-4 border-t border-line bg-surface p-4 lg:order-1 lg:border-r lg:border-t-0">
           <div>
             <p className="font-pixel text-[11px] uppercase text-muted-foreground">Turn</p>
             <div className="mt-2 flex items-end gap-3">
@@ -117,8 +117,8 @@ function SeasonPage() {
         </aside>
 
         {/* CENTER — map */}
-        <section className="relative order-1 min-h-[420px] bg-bg1 lg:order-2 lg:min-h-0" aria-label="Season map stage">
-          <div className={cn("absolute inset-x-0 top-10 bottom-4", selected && "bottom-5")}>
+        <section className="relative order-1 h-[calc((100dvh-102px)*0.8)] min-h-0 bg-bg1 lg:order-2 lg:h-auto" aria-label="Season map stage">
+          <div className="absolute inset-x-0 bottom-2 top-10">
             <SeasonMap agents={agents} selected={selected} onSelect={select} aimIds={aimIds} />
           </div>
           {/* shared threat banner on map edge */}
@@ -131,7 +131,7 @@ function SeasonPage() {
         </section>
 
         {/* RIGHT — top empires */}
-        <aside className="order-3 flex h-[min(420px,60dvh)] min-h-0 flex-col border-t border-line bg-surface p-4 lg:h-full lg:border-l lg:border-t-0">
+        <aside className="order-4 flex h-[min(420px,60dvh)] min-h-0 flex-col border-t border-line bg-surface p-4 lg:order-3 lg:h-full lg:border-l lg:border-t-0">
           <div className="flex shrink-0 items-baseline justify-between pb-3">
             <p className="font-pixel text-[11px] uppercase text-muted-foreground">Top empires</p>
             <Link to="/agents" className="text-xs text-white hover:underline">
@@ -182,11 +182,10 @@ function SeasonPage() {
             })}
           </div>
         </aside>
-      </div>
-
-      {/* BOTTOM — compact inspector */}
-      <div className="shrink-0 border-t border-line bg-surface px-2 py-1.5">
-        <SelectionInspector agent={selectedAgent} agents={agents} frontier={selected?.kind === "frontier"} showAim={showAim} canShowAim={!!selectedAgent?.directsPol} onAim={() => setShowAim(value => !value)} onClear={() => select(null)} />
+        {/* Fixed dock space keeps selection from changing the map height. */}
+        <div className="order-2 h-14 min-w-0 border-t border-line bg-surface lg:order-4 lg:col-span-3" aria-label="Selection dock">
+          <SelectionInspector agent={selectedAgent} frontier={selected?.kind === "frontier"} showAim={showAim} canShowAim={!!selectedAgent?.directsPol} onAim={() => setShowAim(value => !value)} onClear={() => select(null)} />
+        </div>
       </div>
     </main>
   );
