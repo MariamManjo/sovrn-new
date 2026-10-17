@@ -163,12 +163,12 @@ export function SeasonStage() {
       {Array.from({ length: 60 }, (_, n) => (
         <rect
           key={n}
-          x={minX + rnd(n, 1) * width}
-          y={-120 + rnd(n, 2) * 140}
+          x={Math.round(minX + rnd(n, 1) * width)}
+          y={Math.round(-120 + rnd(n, 2) * 140)}
           width={3}
           height={3}
           fill={n % 7 === 0 ? "var(--lamp-gold)" : "var(--foreground)"}
-          opacity={0.25 + rnd(n, 3) * 0.5}
+          opacity={[0.3, 0.5, 0.7][n % 3]}
           className={n % 9 === 0 ? "pixel-blink" : undefined}
         />
       ))}
@@ -185,7 +185,7 @@ export function SeasonStage() {
       {tiles.map(({ i, j, k }) => {
         const { x, y } = iso(i, j);
         const pal = TOP[k];
-        const fill = pal[Math.floor(rnd(i, j) * pal.length)];
+        const fill = pal[(i * 7 + j * 13 + i * j) % pal.length];
         return (
           <polygon
             key={`${i}-${j}`}
