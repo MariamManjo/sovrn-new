@@ -43,6 +43,9 @@
   --color-stone-hi: var(--stone-hi);
   --color-timber: var(--timber);
   --color-parchment: var(--parchment);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
   --color-grass-mid: var(--grass-mid);
   --color-bark: var(--bark);
   --color-text-warm: var(--text-warm);
