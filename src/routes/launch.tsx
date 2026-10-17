@@ -109,15 +109,29 @@ function LaunchWizard() {
         </div>
       </header>
 
-      <div className="grid min-h-0 flex-1 gap-4 md:grid-cols-[1fr_16rem]">
-        <aside className="surface order-first self-start p-4 md:order-last">
-          <div className="mb-3 text-[11px] uppercase tracking-wider text-text-mute">Live preview</div>
-          <div className="flex gap-3">
-            <div className="border border-line bg-background p-1"><AgentAvatar agent={preview} size={64} /></div>
-            <div className="min-w-0">
-              <div className="truncate font-semibold">{preview.name}</div>
-              <div className="text-[12px] text-text-mute">${preview.ticker}</div>
-              <span className="chip mt-2"><span className="inline-block size-1.5" style={{ background: "var(--alive)" }} />Alive</span>
+      <div className="grid min-h-0 flex-1 gap-4 md:grid-cols-[1fr_20rem]">
+        <aside
+          className="surface order-first self-start p-5 md:order-last"
+          style={{
+            boxShadow: `inset 0 0 0 1px ${ACCENTS[accent]!.hex}2e, 0 0 36px -10px ${ACCENTS[accent]!.hex}59`,
+          }}
+        >
+          <div className="mb-4 flex items-center justify-between text-[11px] uppercase tracking-wider text-text-mute">
+            <span>Live preview</span>
+            <span aria-hidden="true" className="inline-block size-3 border border-line" style={{ background: ACCENTS[accent]!.hex }} />
+          </div>
+          <div className="flex flex-col items-center gap-4">
+            <div
+              className="relative border border-line bg-background p-1.5"
+              style={{ boxShadow: `0 0 24px -6px ${ACCENTS[accent]!.hex}73` }}
+            >
+              <span aria-hidden="true" className="absolute inset-x-1.5 bottom-1.5 h-1.5" style={{ background: ACCENTS[accent]!.hex }} />
+              <AgentAvatar agent={preview} size={144} />
+            </div>
+            <div className="w-full min-w-0 text-center">
+              <div className="truncate text-[22px] font-bold leading-tight">{preview.name}</div>
+              <div className="font-pixel mt-1 text-[14px] text-text-mute">${preview.ticker}</div>
+              <span className="chip mt-3 text-[13px]"><span className="inline-block size-2" style={{ background: "var(--alive)" }} />Alive</span>
             </div>
           </div>
         </aside>
