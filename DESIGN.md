@@ -72,3 +72,17 @@ Contrast rules: body text is text/text-dim on ink or panel — never cream on br
 - Steps: 01 #e43b44 (Launch), 02 #b86f50, 03 #3e8948, 04 #63c74d. Stats: live #63c74d, POL #3e8948, fees #c28569, ruins #a22633.
 - CTAs: Launch = red #e43b44; Enter season = moss #265c42. Color used only for meaning.
 - Map keeps illustration colors (grass, earth, small red/blue roofs, water/POL core) as map detail only.
+
+## CURRENT LOCK v2 — Advanced B&W chrome + illustration color on map; readable sans for body (overrides all above)
+- Chrome: page #000000/#0a0a0a; surfaces #111111 / #161616; borders 1px #2a2a2a, hover white 30%, focus solid white
+- Text: #ffffff primary, #a1a1a1 secondary, #737373 meta
+- One card style everywhere (`surface` utility): sharp 0px corners, 1px border, 16–32px padding. No brown fills, thick frames, or corner brackets
+- Green/brown/red/blue illustration colors live on the MAP only; in UI they appear only as tiny semantic accents (3px stat stripe, 6px step dot)
+- Semantic accents: live green #63c74d, POL blue #0099db, fees amber #f77622, ruins red #e43b44, influence #b55088
+- Buttons: Launch red fill white text; Enter season white outline (fills white on hover); default = white fill black text; Connect wallet black + white border, disabled
+- Type: Pixel fonts ONLY for nav labels (Silkscreen 12px), headline (Pixelify Sans 40/48px), step numbers and stat values. Everything else Geist sans
+  - Body/hero sub: 16px, line-height 1.6, max 38ch, #a1a1a1
+  - Step titles 14px semibold; step descriptions 13px #a1a1a1, ≤2–3 lines
+  - Stat labels 11px uppercase tracking-wider #737373; stat values 22px white tabular
+  - Chips 11px uppercase medium
+- Mobile: grids stack (stats 2-col, steps 1–2 col); no pixel font for body

@@ -13,11 +13,11 @@ const NAV = [
 
 export function AppHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b-[3px] border-ink bg-dusk-deep">
+    <header className="sticky top-0 z-40 border-b border-line bg-black/90">
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4">
         {/* Neutral logo slot — brand name not chosen yet */}
         <Link to="/" className="flex items-center gap-2" aria-label="Home">
-          <PixelIcon name="flag" scale={3} color="var(--launch)" className="lamp-flicker" />
+          <PixelIcon name="flag" scale={3} color="var(--launch)"  />
           <span className="font-pixel text-xs uppercase tracking-widest text-muted-foreground">
             [ logo ]
           </span>
@@ -27,8 +27,8 @@ export function AppHeader() {
             <Link
               key={n.to}
               to={n.to}
-              className="whitespace-nowrap border-[3px] border-transparent px-2.5 py-1 font-pixel text-xs uppercase text-text-warm hover:text-text"
-              activeProps={{ className: "!border-ink bg-panel !border-panel-edge !text-text" }}
+              className="whitespace-nowrap border border-transparent px-2.5 py-1 font-pixel text-xs uppercase text-muted-foreground hover:text-white"
+              activeProps={{ className: "!border-line bg-surface-2 !text-white" }}
               activeOptions={{ exact: true }}
             >
               {n.label}
@@ -40,7 +40,7 @@ export function AppHeader() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <span tabIndex={0}>
-                  <Button size="sm" variant="secondary" disabled className="text-xs uppercase">
+                  <Button size="sm" variant="secondary" disabled className="border-white/60 text-xs uppercase text-white">
                     Connect wallet
                   </Button>
                 </span>
