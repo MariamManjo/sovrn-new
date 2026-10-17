@@ -121,20 +121,29 @@ export function SeasonMap({
     }
 
   const seated = agents.filter((a) => SEATS[a.id]);
+  const selectedAgent = seated.find(a => a.id === focused);
+  let nameplateY = focusPoint ? focusPoint.y - 100 : 0;
+  // Move the selected plate above any nearby resting label, never hide it.
+  while (focusPoint && seated.some(a => {
+    const seat = SEATS[a.id];
+    if (!seat || a.id === focused) return false;
+    const point = iso(seat.i, seat.j);
+    return Math.abs(point.x - focusPoint.x) < 82 && Math.abs(point.y + TH + 14 - (nameplateY + 15)) < 26;
+  })) nameplateY -= 28;
   const core = iso(C, C);
   const minX = -N * (TW / 2) - 40;
   const width = N * TW + 80;
 
   return (
     <svg
-      viewBox={`${minX + 60} -60 ${width - 120} ${N * TH + 120}`}
+      viewBox={`${minX} -120 ${width} ${N * TH + 200}`}
       preserveAspectRatio="xMidYMid meet"
       className="h-full w-full"
       role="img"
       aria-label="Season map — isometric grid with agent settlements"
       onClick={() => onSelect(null)}
     >
-      <rect x={minX + 60} y={-60} width={width - 120} height={N * TH + 120} fill="transparent" />
+      <rect x={minX} y={-120} width={width} height={N * TH + 200} fill="transparent" />
       <g className="season-map-muted" opacity={focused ? 0.62 : 1}>
       {/* stars */}
       {Array.from({ length: 50 }, (_, n) => (
@@ -267,25 +276,22 @@ export function SeasonMap({
               <rect x={x + 17} y={y + 1} width={2} height={2} fill="var(--ink)" className="pixel-blink" style={{ animationDelay: `${n * 0.3}s` }} />
             </g>
             </g>
-            {isSel && <g className="selection-nameplate" pointerEvents="none">
-              <rect x={x - 38} y={y - 96} width={76} height={23} fill="var(--surface)" stroke="var(--text)" />
-              <text x={x} y={y - 80} textAnchor="middle" fill="var(--text)" fontSize={12} fontFamily="Silkscreen, monospace">${a.ticker}</text>
-            </g>}
-            {/* name tag */}
-            <text
-              x={x}
-              y={y + TH + 14}
-              textAnchor="middle"
-              fill={isSel ? "var(--text)" : "var(--text-dim)"}
-              fontSize={11}
-              fontFamily="Silkscreen, monospace"
-              style={{ textTransform: "uppercase" }}
-            >
-              ${a.ticker}
-            </text>
           </g>
         );
       })}
+      {/* SVG paint order is the label z-index: all labels sit above all artwork. */}
+      <g pointerEvents="none" aria-label="Settlement tickers">
+        {seated.map(a => {
+          const seat = SEATS[a.id];
+          if (!seat) return null;
+          const { x, y } = iso(seat.i, seat.j);
+          return <text key={a.id} data-settlement-label={a.id} x={x} y={y + TH + 14} textAnchor="middle" fill="var(--text)" opacity={focused && focused !== a.id ? 0.8 : 1} stroke="var(--ink)" strokeWidth={4} paintOrder="stroke" strokeLinejoin="round" fontSize={11} fontFamily="Silkscreen, monospace">${a.ticker}</text>;
+        })}
+      </g>
+      {selectedAgent && focusPoint && <g key={selectedAgent.id} data-selected-nameplate={selectedAgent.id} className="selection-nameplate" pointerEvents="none">
+        <rect x={focusPoint.x - 38} y={nameplateY} width={76} height={24} fill="var(--surface)" stroke="var(--text)" />
+        <text x={focusPoint.x} y={nameplateY + 16} textAnchor="middle" fill="var(--text)" fontSize={12} fontFamily="Silkscreen, monospace">${selectedAgent.ticker}</text>
+      </g>}
     </svg>
   );
 }
