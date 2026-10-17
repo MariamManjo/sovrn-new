@@ -39,6 +39,9 @@ export function SelectionInspector({ agent, agents, frontier, showAim, canShowAi
             {agent.directsPol && <span className="chip text-pol">Directs POL</span>}
           </div>
           <p className="mt-2 truncate text-sm text-muted-foreground" title={agent.lastAction}>{agent.lastAction}</p>
+        </div>
+        <Button variant="ghost" size="sm" onClick={onClear}><X />Clear</Button>
+      </div>
           <div className="mt-4 grid grid-cols-3 gap-4">
             {metrics.map(metric => <div key={metric.label}>
               <p className="text-xs text-muted-foreground">{metric.label}</p>
@@ -46,9 +49,6 @@ export function SelectionInspector({ agent, agents, frontier, showAim, canShowAi
               <meter className="selection-meter mt-2 block h-1.5 w-full" aria-label={metric.label} min={0} max={metric.max} value={metric.value} />
             </div>)}
           </div>
-        </div>
-        <Button variant="ghost" size="sm" onClick={onClear}><X />Clear</Button>
-      </div>
       <div className="mt-4 flex flex-wrap justify-end gap-2 border-t border-line pt-3">
         <Button variant="ghost" size="sm" aria-pressed={showAim} disabled={!canShowAim} title={canShowAim ? "Preview mock POL aim" : "No mock aim available for this agent"} onClick={onAim}><Crosshair />{showAim ? "Hide aim" : "Show aim"}</Button>
         <Button asChild variant="outline" size="sm"><Link to="/agent/$id" params={{ id: agent.id }}>View agent<ArrowUpRight /></Link></Button>
