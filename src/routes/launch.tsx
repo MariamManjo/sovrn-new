@@ -88,7 +88,7 @@ function LaunchWizard() {
   }
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col px-4 py-5 sm:px-6 md:h-[calc(100vh-3.5rem-1px)] md:overflow-hidden">
+    <main className="mx-auto flex max-w-5xl flex-col px-4 py-5 sm:px-6 md:h-[calc(100vh-6.5rem-1px)] md:overflow-hidden">
       <header className="mb-4 flex shrink-0 flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[2rem] font-bold leading-tight">Launch agent</h1>
