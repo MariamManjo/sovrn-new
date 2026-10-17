@@ -118,7 +118,7 @@ function SeasonPage() {
 
         {/* CENTER — map */}
         <section className="relative order-1 min-h-[420px] bg-bg1 lg:order-2 lg:min-h-0" aria-label="Season map stage">
-          <div className={cn("absolute inset-x-0 top-10 bottom-4", selected && "bottom-8")}>
+          <div className={cn("absolute inset-x-0 top-10 bottom-4", selected && "bottom-5")}>
             <SeasonMap agents={agents} selected={selected} onSelect={select} aimIds={aimIds} />
           </div>
           {/* shared threat banner on map edge */}
