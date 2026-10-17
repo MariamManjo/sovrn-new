@@ -156,3 +156,39 @@
 @media (prefers-reduced-motion: reduce) {
   .pixel-blink, .lamp-flicker { animation: none; }
 }
+
+/* Stage idles — stepped, 2–4fps */
+@utility agent-idle {
+  animation: agent-idle 1s steps(2, end) infinite;
+}
+@utility ring-pulse {
+  animation: ring-pulse 2s steps(4, end) infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@utility core-glow {
+  animation: core-glow 1.5s steps(3, end) infinite;
+}
+@utility flag-wave {
+  animation: flag-wave 0.75s steps(2, end) infinite;
+  transform-box: fill-box;
+  transform-origin: left center;
+}
+@keyframes agent-idle { 0% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes ring-pulse { 0% { opacity: .9; transform: scale(1); } 100% { opacity: .25; transform: scale(1.08); } }
+@keyframes core-glow { 0%,100% { opacity: 1; } 50% { opacity: .8; } }
+@keyframes flag-wave { 0% { transform: scaleX(1); } 50% { transform: scaleX(.8); } }
+
+/* Stair-stepped pixel corner bracket frame */
+@utility pixel-frame {
+  border: 3px solid var(--ink);
+  box-shadow:
+    0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink),
+    inset 3px 3px 0 0 color-mix(in oklab, white 14%, transparent),
+    inset -3px -3px 0 0 color-mix(in oklab, black 30%, transparent),
+    6px 6px 0 0 color-mix(in oklab, var(--ink) 80%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-idle, .ring-pulse, .core-glow, .flag-wave { animation: none; }
+}
