@@ -155,7 +155,7 @@ export function SeasonMap({
         const pal = TOP[k];
         const fill = pal[(i * 7 + j * 13 + i * j) % pal.length];
         const key = `${i}-${j}`;
-        const occupied = seated.some((a) => SEATS[a.id].i === i && SEATS[a.id].j === j);
+        const occupied = seated.some((a) => SEATS[a.id]?.i === i && SEATS[a.id]?.j === j);
         return (
           <polygon
             key={key}
@@ -206,7 +206,9 @@ export function SeasonMap({
 
       {/* settlements */}
       {seated.map((a, n) => {
-        const { i, j } = SEATS[a.id];
+        const seat = SEATS[a.id];
+        if (!seat) return null;
+        const { i, j } = seat;
         const { x, y } = iso(i, j);
         const ruin = a.status === "ruin";
         const isSel = selected?.kind === "agent" && selected.id === a.id;
