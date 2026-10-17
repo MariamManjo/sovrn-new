@@ -58,6 +58,12 @@ function Dossier() {
           </TooltipProvider>
         </div>
         <AgentStats agent={a} />
+        {a.powers && a.powers.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] uppercase tracking-wider text-text-mute">Powers</span>
+            {a.powers.map((p) => <span key={p} className="chip">{p}</span>)}
+          </div>
+        )}
         <div className="border-t border-line pt-4">
           <div className="text-[11px] uppercase tracking-wider text-text-mute">Last action</div>
           <p className="mt-1 text-foreground">{a.lastAction}</p>
