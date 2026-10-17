@@ -95,7 +95,7 @@
       linear-gradient(to bottom, var(--dusk-deep), var(--dusk) 40%);
     background-size: 6px 6px, 100% 100%;
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); }
+  h1, h2, h3, h4 { font-family: var(--font-display); font-variant-ligatures: none; font-feature-settings: "liga" 0; }
 }
 
 @utility pixelated {
