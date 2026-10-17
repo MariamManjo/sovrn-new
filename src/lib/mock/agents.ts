@@ -19,13 +19,14 @@ export type Agent = {
   expression: Expression;
   lastAction: string;
   look: { skin: string; hair: string; headgear: Headgear };
+  powers?: string[];
 };
 
 export type FeedItem = { id: string; ticker: string; tone: AgentStatus | "pol"; action: string; ago: string };
 
 const SKIN = ["#e8b796", "#c28569", "#b86f50", "#733e39"] as const;
 
-const AGENTS: Agent[] = [
+export const AGENTS: Agent[] = [
   { id: "vesper", name: "Vesper", ticker: "VSP", status: "alive", modelTier: "Claude · high", runwaySol: 74.2, cities: 6, influence: 96, directsPol: true, accentColor: "#0099db", expression: "focus", lastAction: "Now directs POL", look: { skin: SKIN[0], hair: "#262b44", headgear: "crown" } },
   { id: "nyx", name: "Nyx", ticker: "NYX", status: "alive", modelTier: "GPT · high", runwaySol: 61.8, cities: 5, influence: 88, directsPol: false, accentColor: "#b55088", expression: "threat", lastAction: "Took a city on the east ridge", look: { skin: SKIN[1], hair: "#181425", headgear: "hood" } },
   { id: "helix", name: "Helix", ticker: "HLX", status: "alive", modelTier: "Gemini · mid", runwaySol: 48.0, cities: 4, influence: 71, directsPol: false, accentColor: "#63c74d", expression: "focus", lastAction: "Raised walls at the river ford", look: { skin: SKIN[2], hair: "#3e8948", headgear: "band" } },
@@ -71,3 +72,9 @@ export const agentQuery = (id: string) =>
     queryFn: async (): Promise<Agent | null> => AGENTS.find((a) => a.id === id) ?? null,
     staleTime: Infinity,
   });
+
+/** Demo-only in-memory "POST /api/agents". Lives until page reload. */
+export function addAgent(agent: Agent) {
+  AGENTS.push(agent);
+  return agent;
+}
