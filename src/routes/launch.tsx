@@ -6,6 +6,7 @@ import { AGENTS, addAgent, agentsQuery, type Agent, type Headgear } from "@/lib/
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { LaunchSprite } from "@/components/pixel/LaunchSprites";
 
 export const Route = createFileRoute("/launch")({
   head: () => ({
@@ -28,9 +29,9 @@ const ACCENTS = [
 ];
 const HEADGEAR: Headgear[] = ["band", "hood", "helm", "horns", "crown", "none", "band", "hood"];
 const MODELS = [
-  { id: "haiku", label: "Haiku · cheap", line: "Runway lasts longer, weaker plays.", burn: 1.5 },
-  { id: "sonnet", label: "Sonnet · mid", line: "Balanced plays and burn.", burn: 4 },
-  { id: "opus", label: "Opus · high", line: "Stronger plays, burns runway faster.", burn: 10 },
+  { id: "haiku", label: "Haiku · cheap", line: "Long runway, weaker plays.", burn: 1.5, core: "coreS", color: "var(--alive)" },
+  { id: "sonnet", label: "Sonnet · mid", line: "Balanced plays and burn.", burn: 4, core: "coreM", color: "var(--gold)" },
+  { id: "opus", label: "Opus · high", line: "Strong plays, fast burn.", burn: 10, core: "coreL", color: "var(--influence)" },
 ];
 const POWERS = ["Scout", "Builder", "Trader", "Diplomat", "Raider"];
 const FEES = [5, 15, 40];
@@ -87,8 +88,8 @@ function LaunchWizard() {
   }
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <header className="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <main className="mx-auto flex max-w-5xl flex-col px-4 py-5 sm:px-6 md:h-[calc(100vh-3.5rem-1px)] md:overflow-hidden">
+      <header className="mb-4 flex shrink-0 flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[2rem] font-bold leading-tight">Launch agent</h1>
           <span className="chip mt-2">Demo only — nothing is sent on-chain</span>
@@ -108,7 +109,7 @@ function LaunchWizard() {
         </div>
       </header>
 
-      <div className="grid gap-6 md:grid-cols-[1fr_16rem]">
+      <div className="grid min-h-0 flex-1 gap-4 md:grid-cols-[1fr_16rem]">
         <aside className="surface order-first self-start p-4 md:order-last">
           <div className="mb-3 text-[11px] uppercase tracking-wider text-text-mute">Live preview</div>
           <div className="flex gap-3">
@@ -121,7 +122,7 @@ function LaunchWizard() {
           </div>
         </aside>
 
-        <section className="surface flex flex-col gap-6 p-5 sm:p-6">
+        <section className="surface flex min-h-0 flex-col gap-4 p-5">
           {step === 1 && (
             <>
               <StepTitle n="01" title="Identity" hint="Name becomes the public agent identity." />
@@ -151,66 +152,81 @@ function LaunchWizard() {
 
           {step === 2 && (
             <>
-              <StepTitle n="02" title="Choose its brain" hint="Stronger brains burn runway faster." />
-              <div className="grid gap-3 sm:grid-cols-3">
-                {MODELS.map((x) => (
-                  <button key={x.id} aria-pressed={model === x.id} onClick={() => setModel(x.id)}
-                    className={cn("flex min-h-32 flex-col items-start gap-2 border bg-background p-4 text-left",
-                      model === x.id ? "border-foreground" : "border-line hover:border-foreground/30")}>
-                    <span className="font-semibold">{x.label}</span>
-                    <span className="text-[13px] text-muted-foreground">{x.line}</span>
-                    <span className="mt-auto font-pixel text-[12px]">~{x.burn} SOL / day</span>
-                  </button>
-                ))}
+              <StepTitle n="02" title="Choose its brain" />
+              <div className="grid grid-cols-3 gap-3">
+                {MODELS.map((x) => {
+                  const on = model === x.id;
+                  return (
+                    <button key={x.id} aria-pressed={on} onClick={() => setModel(x.id)}
+                      className={cn("flex flex-col items-center gap-2 border bg-background px-3 py-4 text-center transition-opacity",
+                        on ? "border-foreground shadow-[inset_0_0_24px_color-mix(in_oklab,var(--foreground)_12%,transparent)]" : "border-line opacity-60 hover:opacity-100")}>
+                      <LaunchSprite name={x.core} color={x.color} scale={6} />
+                      <span className="font-semibold">{x.label}</span>
+                      <span className="text-[12px] text-muted-foreground">{x.line}</span>
+                      <span className="mt-1 h-1.5 w-full bg-surface-2"><span className="block h-full" style={{ width: `${(x.burn / 10) * 100}%`, background: x.color }} /></span>
+                      <span className="text-[11px] text-text-mute">~{x.burn} SOL/day</span>
+                    </button>
+                  );
+                })}
               </div>
-              <Field label="Powers (pick at least one)">
+              <div className="flex flex-col gap-2">
+                <span className="text-[12px] text-muted-foreground">Powers · pick 1+</span>
                 <div className="flex flex-wrap gap-2">
                   {POWERS.map((p) => {
                     const on = powers.includes(p);
                     return (
                       <button key={p} aria-pressed={on} onClick={() => setPowers(on ? powers.filter((q) => q !== p) : [...powers, p])}
-                        className={cn("min-h-11 border px-4 text-[13px]", on ? "border-foreground bg-foreground text-background" : "border-line text-muted-foreground hover:border-foreground/30")}>
-                        {p}
+                        className={cn("flex min-h-11 items-center gap-2 border px-3 text-[13px]",
+                          on ? "border-alive bg-foreground/10 text-foreground" : "border-line text-muted-foreground hover:border-foreground/30")}>
+                        <LaunchSprite name={p} color={on ? "var(--alive)" : "var(--text-mute)"} scale={2} />{p}
                       </button>
                     );
                   })}
                 </div>
-              </Field>
+              </div>
             </>
           )}
 
           {step === 3 && (
             <>
-              <StepTitle n="03" title="Stake" hint="The launch fee becomes its starting runway." />
-              <Field label="Launch fee">
-                <div className="flex gap-2">
-                  {FEES.map((f) => (
+              <StepTitle n="03" title="Stake" />
+              <div className="grid grid-cols-3 gap-3">
+                {FEES.map((f, i) => {
+                  const on = fee === f;
+                  return (
                     <button key={f} aria-pressed={fee === f} onClick={() => setFee(f)}
-                      className={cn("min-h-11 flex-1 border font-pixel", fee === f ? "border-foreground bg-foreground text-background" : "border-line hover:border-foreground/30")}>
-                      {f} SOL
+                      className={cn("flex flex-col items-center gap-2 border py-3", on ? "border-gold bg-foreground text-background" : "border-line bg-background hover:border-foreground/30")}>
+                      <span className="flex items-end gap-0.5">
+                        {Array.from({ length: i + 1 }).map((_, k) => <LaunchSprite key={k} name="coins" color="var(--gold)" scale={3} />)}
+                      </span>
+                      <span className="font-pixel text-[18px]">{f} SOL</span>
                     </button>
+                  );
+                })}
+              </div>
+              <div className="border border-line bg-background p-4">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-[11px] uppercase tracking-wider text-text-mute">Runway</span>
+                  <span><span className="font-pixel text-[22px]">{fee} SOL</span> <span className="ml-2 text-[13px] text-muted-foreground">~{turns} turns</span></span>
+                </div>
+                <div className="mt-3 flex h-3 gap-0.5">
+                  {Array.from({ length: 20 }).map((_, k) => (
+                    <span key={k} className="flex-1" style={{ background: k < Math.round((fee / 40) * 20) ? "var(--alive)" : "var(--surface-2)" }} />
                   ))}
                 </div>
-              </Field>
-              <div className="grid grid-cols-2 gap-3">
-                <Readout label="Starting runway" value={`${fee} SOL`} />
-                <Readout label="Est. turns before skip" value={`~${turns}`} />
               </div>
-              <dl className="grid grid-cols-[6rem_1fr] gap-y-2 border border-line p-4 text-[13px]">
-                <dt className="text-text-mute">Name</dt><dd>{nameTrim}</dd>
-                <dt className="text-text-mute">Ticker</dt><dd>${t}</dd>
-                <dt className="text-text-mute">Brain</dt><dd>{m?.label}</dd>
-                <dt className="text-text-mute">Powers</dt><dd>{powers.join(" · ")}</dd>
-                <dt className="text-text-mute">Fee</dt><dd>{fee} SOL</dd>
-              </dl>
-              <label className="flex min-h-11 cursor-pointer items-start gap-3 text-[13px]">
-                <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="mt-0.5 size-4 accent-foreground" />
-                <span>I understand broke agents skip turns and can fall to ruins.</span>
+              <div className="flex flex-wrap gap-1.5">
+                <span className="chip">{nameTrim}</span><span className="chip">${t}</span>
+                <span className="chip">{m?.label}</span>{powers.map((p) => <span key={p} className="chip">{p}</span>)}
+              </div>
+              <label className="flex cursor-pointer items-center gap-2 text-[12px] text-muted-foreground">
+                <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="size-3.5 accent-foreground" />
+                I understand broke agents skip turns and can fall to ruins.
               </label>
             </>
           )}
 
-          <div className="mt-2 flex items-center justify-between border-t border-line pt-4">
+          <div className="mt-auto flex shrink-0 items-center justify-between border-t border-line pt-4">
             {step > 1 ? <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button> : <span />}
             {step === 1 && <Button disabled={!step1ok} onClick={() => go(2)}>Continue</Button>}
             {step === 2 && <Button disabled={!step2ok} onClick={() => go(3)}>Continue</Button>}
@@ -222,12 +238,12 @@ function LaunchWizard() {
   );
 }
 
-function StepTitle({ n, title, hint }: { n: string; title: string; hint: string }) {
+function StepTitle({ n, title, hint }: { n: string; title: string; hint?: string }) {
   return (
     <div>
       <div className="font-pixel text-[12px] text-text-mute">{n} / 03</div>
       <h2 className="mt-1 text-[1.5rem] font-bold">{title}</h2>
-      <p className="mt-1 text-[13px] text-muted-foreground">{hint}</p>
+      {hint && <p className="mt-1 text-[13px] text-muted-foreground">{hint}</p>}
     </div>
   );
 }
