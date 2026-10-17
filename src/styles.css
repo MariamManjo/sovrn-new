@@ -42,47 +42,74 @@
   --color-stone: var(--stone);
   --color-stone-hi: var(--stone-hi);
   --color-timber: var(--timber);
+  --color-parchment: var(--parchment);
+  --color-gold: var(--gold);
+  --color-alive: var(--alive);
+  --color-alive-bright: var(--alive-bright);
+  --color-water: var(--water);
+  --color-water-bright: var(--water-bright);
+  --color-fire: var(--fire);
+  --color-magic: var(--magic);
+  --color-panel: var(--panel);
+  --color-panel2: var(--panel2);
   --font-pixel: "Silkscreen", ui-monospace, monospace;
   --font-display: "Pixelify Sans", "Work Sans", sans-serif;
 }
 
-/* Single dark theme: near-black, acid lime, muted gray, one danger red */
 :root {
-  --radius: 0px;
-  /* Dusk town palette */
-  --dusk: oklch(0.22 0.07 285);          /* deep indigo wash */
-  --dusk-deep: oklch(0.17 0.06 285);
-  --ink: oklch(0.13 0.04 285);           /* pixel outline */
-  --roof-red: oklch(0.6 0.19 32);
-  --roof-blue: oklch(0.55 0.15 258);
-  --lamp-gold: oklch(0.84 0.16 82);
-  --grass: oklch(0.7 0.17 140);
-  --pol-teal: oklch(0.78 0.13 185);
-  --ash: oklch(0.6 0.01 270);
-  --stone: oklch(0.36 0.03 300);         /* warm stone panel */
-  --stone-hi: oklch(0.46 0.035 300);
-  --timber: oklch(0.42 0.07 50);
+  /* Palette: Lospec "Fantasy RPG" — ONLY these hex values are allowed */
+  --bg0: #0d0a05;
+  --bg1: #1c1508;
+  --panel: #2e2010;
+  --panel2: #4a3420;
+  --border-c: #7a5c38;
+  --muted-c: #b08858;
+  --text: #e8e0c8;
+  --text-dim: #d4b880;
+  --parchment: #f0e0b0;
+  --gold: #c8952a;
+  --alive: #3a9e50;
+  --alive-bright: #7dd87a;
+  --water: #2a5090;
+  --water-bright: #5b8fd4;
+  --fire: #d44040;
+  --magic: #8840c0;
 
-  --background: var(--dusk);
-  --foreground: oklch(0.95 0.02 85);     /* warm off-white */
-  --card: var(--stone);
-  --card-foreground: var(--foreground);
-  --popover: var(--stone);
-  --popover-foreground: var(--foreground);
-  --primary: var(--lamp-gold);
-  --primary-foreground: var(--ink);
-  --secondary: var(--roof-blue);
-  --secondary-foreground: var(--foreground);
-  --muted: var(--dusk-deep);
-  --muted-foreground: oklch(0.8 0.03 290);
-  --accent: var(--stone-hi);
-  --accent-foreground: var(--foreground);
-  --destructive: var(--roof-red);
-  --destructive-foreground: var(--foreground);
-  --border: var(--ink);
-  --input: var(--ink);
-  --ring: var(--lamp-gold);
-  --pixel-dim: var(--ash);
+  --radius: 0px;
+  /* legacy aliases used by components */
+  --dusk: var(--bg1);
+  --dusk-deep: var(--bg0);
+  --ink: var(--bg0);
+  --roof-red: var(--fire);
+  --roof-blue: var(--water);
+  --lamp-gold: var(--gold);
+  --grass: var(--alive);
+  --pol-teal: var(--gold);
+  --ash: var(--muted-c);
+  --stone: var(--panel);
+  --stone-hi: var(--panel2);
+  --timber: var(--border-c);
+
+  --background: var(--bg1);
+  --foreground: var(--text);
+  --card: var(--panel);
+  --card-foreground: var(--text);
+  --popover: var(--panel);
+  --popover-foreground: var(--text);
+  --primary: var(--fire);
+  --primary-foreground: var(--parchment);
+  --secondary: var(--water);
+  --secondary-foreground: var(--parchment);
+  --muted: var(--panel);
+  --muted-foreground: var(--text-dim);
+  --accent: var(--panel2);
+  --accent-foreground: var(--parchment);
+  --destructive: var(--fire);
+  --destructive-foreground: var(--parchment);
+  --border: var(--border-c);
+  --input: var(--border-c);
+  --ring: var(--gold);
+  --pixel-dim: var(--muted-c);
 }
 
 @layer base {
@@ -109,31 +136,31 @@
 
 /* Chunky pixel panel: 3px ink border, inner highlight + shade, hard drop */
 @utility pixel-panel {
-  border: 3px solid var(--ink);
+  border: 3px solid var(--border-c);
   box-shadow:
-    inset 3px 3px 0 0 color-mix(in oklab, white 14%, transparent),
-    inset -3px -3px 0 0 color-mix(in oklab, black 28%, transparent),
+    inset 3px 3px 0 0 color-mix(in oklab, var(--parchment) 14%, transparent),
+    inset -3px -3px 0 0 color-mix(in oklab, var(--bg0) 28%, transparent),
     4px 4px 0 0 var(--ink);
 }
 
 /* micro dither fill */
 @utility pixel-dither {
-  background-image: radial-gradient(color-mix(in oklab, black 18%, transparent) 1px, transparent 1px);
+  background-image: radial-gradient(color-mix(in oklab, var(--bg0) 18%, transparent) 1px, transparent 1px);
   background-size: 4px 4px;
 }
 
 /* Raised block button with pressed offset */
 @utility pixel-btn {
-  border: 3px solid var(--ink);
+  border: 3px solid var(--border-c);
   box-shadow:
-    inset 3px 3px 0 0 color-mix(in oklab, white 30%, transparent),
-    inset -3px -3px 0 0 color-mix(in oklab, black 25%, transparent),
+    inset 3px 3px 0 0 color-mix(in oklab, var(--parchment) 30%, transparent),
+    inset -3px -3px 0 0 color-mix(in oklab, var(--bg0) 25%, transparent),
     0 4px 0 0 var(--ink);
   transition: transform 60ms steps(1), box-shadow 60ms steps(1);
   &:active:not(:disabled) {
     transform: translateY(4px);
     box-shadow:
-      inset 3px 3px 0 0 color-mix(in oklab, black 20%, transparent),
+      inset 3px 3px 0 0 color-mix(in oklab, var(--bg0) 20%, transparent),
       0 0 0 0 var(--ink);
   }
 }
@@ -181,11 +208,11 @@
 
 /* Stair-stepped pixel corner bracket frame */
 @utility pixel-frame {
-  border: 3px solid var(--ink);
+  border: 3px solid var(--border-c);
   box-shadow:
     0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink),
-    inset 3px 3px 0 0 color-mix(in oklab, white 14%, transparent),
-    inset -3px -3px 0 0 color-mix(in oklab, black 30%, transparent),
+    inset 3px 3px 0 0 color-mix(in oklab, var(--parchment) 14%, transparent),
+    inset -3px -3px 0 0 color-mix(in oklab, var(--bg0) 30%, transparent),
     6px 6px 0 0 color-mix(in oklab, var(--ink) 80%, transparent);
 }
 

@@ -15,11 +15,12 @@ const rnd = (i: number, j: number, k = 0) => {
   return s - Math.floor(s);
 };
 
-type Kind = "core" | "plaza" | "cobble" | "grass" | "ash";
+type Kind = "core" | "water" | "plaza" | "cobble" | "grass" | "ash";
 
 function tileKind(i: number, j: number): Kind {
   const d = Math.max(Math.abs(i - C), Math.abs(j - C));
   if (d < 1) return "core";
+  if (d < 1.6) return "water";
   if (d < 2.6) return "plaza";
   // ruins corner (east)
   if (i > N - 5 && j < 5) return "ash";
@@ -28,11 +29,12 @@ function tileKind(i: number, j: number): Kind {
 }
 
 const TOP: Record<Kind, string[]> = {
-  core: ["var(--pol-teal)"],
-  plaza: ["var(--stone-hi)", "var(--stone)"],
-  cobble: ["var(--stone)", "oklch(0.33 0.03 300)"],
-  grass: ["var(--grass)", "oklch(0.62 0.16 140)", "oklch(0.56 0.14 145)"],
-  ash: ["var(--ash)", "oklch(0.5 0.01 270)"],
+  core: ["var(--gold)"],
+  water: ["var(--water)", "var(--water-bright)"],
+  plaza: ["var(--panel2)", "var(--border-c)"],
+  cobble: ["var(--panel)", "var(--panel2)"],
+  grass: ["var(--panel2)", "var(--alive)", "var(--panel)", "var(--border-c)"],
+  ash: ["var(--muted-c)", "var(--border-c)"],
 };
 
 function diamond(x: number, y: number) {
@@ -48,14 +50,14 @@ function House({ i, j, h, roof }: { i: number; j: number; h: number; roof: strin
       {/* left wall */}
       <polygon
         points={`${x - TW / 2},${y + TH / 2 - h} ${x},${y + TH - h} ${x},${y + TH} ${x - TW / 2},${y + TH / 2}`}
-        fill="oklch(0.78 0.05 75)"
+        fill="var(--text-dim)"
         stroke="var(--ink)"
         strokeWidth={2}
       />
       {/* right wall */}
       <polygon
         points={`${x},${y + TH - h} ${x + TW / 2},${y + TH / 2 - h} ${x + TW / 2},${y + TH / 2} ${x},${y + TH}`}
-        fill="oklch(0.66 0.05 70)"
+        fill="var(--muted-c)"
         stroke="var(--ink)"
         strokeWidth={2}
       />
@@ -72,7 +74,7 @@ function House({ i, j, h, roof }: { i: number; j: number; h: number; roof: strin
         fill={roof}
         stroke="var(--ink)"
         strokeWidth={2}
-        style={{ filter: "brightness(0.78)" }}
+        opacity={0.8}
       />
     </g>
   );
@@ -83,7 +85,7 @@ function Ruin({ i, j }: { i: number; j: number }) {
   return (
     <g>
       <rect x={x - 14} y={y - 10} width={10} height={26} fill="var(--ash)" stroke="var(--ink)" strokeWidth={2} />
-      <rect x={x + 2} y={y + 2} width={10} height={14} fill="oklch(0.5 0.01 270)" stroke="var(--ink)" strokeWidth={2} />
+      <rect x={x + 2} y={y + 2} width={10} height={14} fill="var(--border-c)" stroke="var(--ink)" strokeWidth={2} />
       <rect x={x - 4} y={y - 18} width={4} height={4} fill="var(--roof-red)" className="pixel-blink" />
     </g>
   );
@@ -104,7 +106,7 @@ function Agent({ i, j, color, delay }: { i: number; j: number; color: string; de
   return (
     <g className="agent-idle" style={{ animationDelay: `${delay}s` }}>
       <rect x={x - 5} y={y - 2} width={10} height={12} fill={color} stroke="var(--ink)" strokeWidth={2} />
-      <rect x={x - 4} y={y - 10} width={8} height={8} fill="oklch(0.85 0.06 60)" stroke="var(--ink)" strokeWidth={2} />
+      <rect x={x - 4} y={y - 10} width={8} height={8} fill="var(--parchment)" stroke="var(--ink)" strokeWidth={2} />
       <rect x={x - 2} y={y - 7} width={2} height={2} fill="var(--ink)" className="pixel-blink" style={{ animationDelay: `${delay}s` }} />
     </g>
   );
@@ -135,7 +137,7 @@ const AGENTS = [
   { i: 9, j: 6, color: "var(--roof-blue)" },
   { i: 8, j: 10, color: "var(--lamp-gold)" },
   { i: 6, j: 9.5, color: "var(--grass)" },
-  { i: 10, j: 8, color: "var(--pol-teal)" },
+  { i: 10, j: 8, color: "var(--magic)" },
   { i: 5, j: 5.5, color: "var(--roof-blue)" },
   { i: 11, j: 5, color: "var(--roof-red)" },
 ];
@@ -167,7 +169,7 @@ export function SeasonStage() {
           y={Math.round(-120 + rnd(n, 2) * 140)}
           width={3}
           height={3}
-          fill={n % 7 === 0 ? "var(--lamp-gold)" : "var(--foreground)"}
+          fill={n % 7 === 0 ? "var(--gold)" : "var(--text-dim)"}
           opacity={[0.3, 0.5, 0.7][n % 3]}
           className={n % 9 === 0 ? "pixel-blink" : undefined}
         />
@@ -208,7 +210,7 @@ export function SeasonStage() {
           rx={TW * r * 1.25}
           ry={TH * r * 1.25}
           fill="none"
-          stroke={r === 1 ? "var(--pol-teal)" : r === 2 ? "var(--lamp-gold)" : "var(--roof-red)"}
+          stroke={r === 1 ? "var(--gold)" : r === 2 ? "var(--water-bright)" : "var(--magic)"}
           strokeWidth={3}
           strokeDasharray="8 6"
           className="ring-pulse"
@@ -224,7 +226,7 @@ export function SeasonStage() {
           stroke="var(--ink)"
           strokeWidth={3}
         />
-        <rect x={core.x - 4} y={core.y - 30} width={6} height={6} fill="var(--foreground)" />
+        <rect x={core.x - 4} y={core.y - 30} width={6} height={6} fill="var(--parchment)" />
       </g>
 
       {HOUSES.map((h) => (
