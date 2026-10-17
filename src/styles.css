@@ -104,7 +104,7 @@
   /* aliases used by components */
   --dusk: var(--bg1);
   --dusk-deep: var(--bg1);
-  --panel2: var(--panel-edge);
+  --panel2: var(--panel-2);
   --border-c: var(--panel-edge);
   --muted-c: var(--text-mute);
   --fire: var(--launch);
