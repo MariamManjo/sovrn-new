@@ -100,12 +100,18 @@ export function SeasonMap({
   agents,
   selected,
   onSelect,
+  aimIds = [],
 }: {
   agents: Agent[];
   selected: MapSelection;
   onSelect: (s: MapSelection) => void;
+  aimIds?: string[];
 }) {
   const [hover, setHover] = useState<string | null>(null);
+  const [flash, setFlash] = useState<{ i: number; j: number; time: number } | null>(null);
+  const focused = selected?.kind === "agent" ? selected.id : null;
+  const focusSeat = focused ? SEATS[focused] : undefined;
+  const focusPoint = focusSeat ? iso(focusSeat.i, focusSeat.j) : null;
 
   const tiles: { i: number; j: number; k: Kind }[] = [];
   for (let s = 0; s < 2 * N - 1; s++)
@@ -126,7 +132,10 @@ export function SeasonMap({
       className="h-full w-full"
       role="img"
       aria-label="Season map — isometric grid with agent settlements"
+      onClick={() => onSelect(null)}
     >
+      <rect x={minX + 60} y={-60} width={width - 120} height={N * TH + 120} fill="transparent" />
+      <g className="season-map-muted" opacity={focused ? 0.62 : 1}>
       {/* stars */}
       {Array.from({ length: 50 }, (_, n) => (
         <rect
@@ -161,14 +170,16 @@ export function SeasonMap({
             key={key}
             points={diamond(x, y)}
             fill={fill}
-            stroke={hover === key ? "#ffffff" : "var(--ink)"}
+             stroke={hover === key ? "var(--text)" : "var(--ink)"}
             strokeOpacity={hover === key ? 0.9 : 0.55}
             strokeWidth={hover === key ? 2.5 : 1.5}
             className={k === "core" ? "core-glow" : undefined}
             style={{ cursor: "pointer" }}
             onMouseEnter={() => setHover(key)}
             onMouseLeave={() => setHover(null)}
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
+              setFlash({ i, j, time: Date.now() });
               if (occupied) return; // settlement's own handler fires
               onSelect({ kind: "frontier" });
             }}
@@ -203,6 +214,20 @@ export function SeasonMap({
         />
         <rect x={core.x - 4} y={core.y - 30} width={6} height={6} fill="var(--text)" />
       </g>
+      </g>
+
+      {aimIds.map(id => {
+        const seat = SEATS[id];
+        if (!seat) return null;
+        const point = iso(seat.i, seat.j);
+        return <polygon key={id} points={diamond(point.x, point.y)} fill="var(--text)" fillOpacity={0.16} stroke="var(--text-warm)" strokeWidth={2} className="selection-aim" pointerEvents="none" />;
+      })}
+      {focusPoint && <g key={focused} pointerEvents="none">
+        {focusSeat && <polygon points={diamond(focusPoint.x, focusPoint.y)} fill={TOP[tileKind(focusSeat.i, focusSeat.j)][(focusSeat.i * 7 + focusSeat.j * 13 + focusSeat.i * focusSeat.j) % TOP[tileKind(focusSeat.i, focusSeat.j)].length]} />}
+        <path d={`M ${core.x} ${core.y + TH / 2} L ${focusPoint.x} ${focusPoint.y + TH / 2}`} pathLength={1} className="selection-beam" fill="none" stroke="var(--text-warm)" strokeWidth={2} strokeDasharray="1" />
+        <polygon points={diamond(focusPoint.x, focusPoint.y)} fill="none" stroke="var(--text)" strokeWidth={3} vectorEffect="non-scaling-stroke" className="selection-outline" />
+      </g>}
+      {flash && <polygon key={flash.time} points={diamond(iso(flash.i, flash.j).x, iso(flash.i, flash.j).y)} fill="var(--text)" className="selection-flash" pointerEvents="none" />}
 
       {/* settlements */}
       {seated.map((a, n) => {
@@ -216,28 +241,42 @@ export function SeasonMap({
         return (
           <g
             key={a.id}
+            role="button"
+            tabIndex={0}
+            aria-label={`Select ${a.name}`}
+            aria-pressed={isSel}
+            data-agent-id={a.id}
+            opacity={focused && !isSel && !aimIds.includes(a.id) ? 0.6 : 1}
+            className="season-settlement"
             style={{ cursor: "pointer" }}
-            onClick={() => onSelect({ kind: "agent", id: a.id })}
+            onClick={(event) => { event.stopPropagation(); setFlash({ i, j, time: Date.now() }); onSelect({ kind: "agent", id: a.id }); }}
+            onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setFlash({ i, j, time: Date.now() }); onSelect({ kind: "agent", id: a.id }); } }}
             onMouseEnter={() => setHover(`${i}-${j}`)}
             onMouseLeave={() => setHover(null)}
           >
             {/* selection outline */}
             {isSel && (
-              <polygon points={diamond(x, y)} fill="none" stroke="#ffffff" strokeWidth={3} strokeDasharray="6 4" />
+              <polygon points={diamond(x, y)} fill="var(--text)" fillOpacity={0.1} stroke="var(--text-warm)" strokeWidth={2} pointerEvents="none" />
             )}
             {ruin ? <Ruin x={x} y={y} /> : <House x={x} y={y} h={30 + ((n * 7) % 12)} roof={roof} />}
             {/* agent token */}
+            <g transform={isSel ? `translate(${x + 19} ${y + 6}) scale(1.25) translate(${-x - 19} ${-y - 6})` : undefined}>
             <g className="agent-idle" style={{ animationDelay: `${n * 0.3}s` }}>
               <rect x={x + 14} y={y + 6} width={10} height={12} fill={a.accentColor} stroke="var(--ink)" strokeWidth={2} />
               <rect x={x + 15} y={y - 2} width={8} height={8} fill="var(--parchment)" stroke="var(--ink)" strokeWidth={2} />
               <rect x={x + 17} y={y + 1} width={2} height={2} fill="var(--ink)" className="pixel-blink" style={{ animationDelay: `${n * 0.3}s` }} />
             </g>
+            </g>
+            {isSel && <g className="selection-nameplate" pointerEvents="none">
+              <rect x={x - 38} y={y - 96} width={76} height={23} fill="var(--surface)" stroke="var(--text)" />
+              <text x={x} y={y - 80} textAnchor="middle" fill="var(--text)" fontSize={12} fontFamily="Silkscreen, monospace">${a.ticker}</text>
+            </g>}
             {/* name tag */}
             <text
               x={x}
               y={y + TH + 14}
               textAnchor="middle"
-              fill={isSel ? "#ffffff" : "var(--text-dim)"}
+              fill={isSel ? "var(--text)" : "var(--text-dim)"}
               fontSize={11}
               fontFamily="Silkscreen, monospace"
               style={{ textTransform: "uppercase" }}

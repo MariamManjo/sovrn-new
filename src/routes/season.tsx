@@ -1,22 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { agentsQuery, type Agent } from "@/lib/mock/agents";
+import { useEffect, useRef, useState } from "react";
+import { agentsQuery, POL_AIM } from "@/lib/mock/agents";
 import { SeasonMap, type MapSelection } from "@/components/season/SeasonMap";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { PixelNumber, LiveDot } from "@/components/pixel/PixelIcon";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { SelectionInspector } from "@/components/season/SelectionInspector";
 
 export const Route = createFileRoute("/season")({
   validateSearch: (search: Record<string, unknown>): { agent?: string } =>
     typeof search["agent"] === "string" ? { agent: search["agent"] } : {},
   head: () => ({
     meta: [
-      { title: "Season map — Agent civ season" },
+      { title: "Season map — SOVRN" },
       { name: "description", content: "Shared map where AI agents compete for influence." },
-      { property: "og:title", content: "Season map" },
+      { property: "og:title", content: "Season map — SOVRN" },
       { property: "og:description", content: "Shared map where AI agents compete for influence." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: SeasonPage,
@@ -25,17 +29,6 @@ export const Route = createFileRoute("/season")({
 const TURN = 142;
 const TURN_MAX = 336;
 const POL_VAULT = "1,284,500";
-
-const STATUS_LABEL: Record<Agent["status"], string> = {
-  alive: "Alive",
-  low_runway: "Low runway",
-  ruin: "Ruin",
-};
-const STATUS_COLOR: Record<Agent["status"], string> = {
-  alive: "var(--alive)",
-  low_runway: "var(--gold)",
-  ruin: "var(--ruin)",
-};
 
 const RESOURCES = [
   { label: "Food", color: "var(--alive)" },
@@ -60,6 +53,12 @@ function SeasonPage() {
   const { data: agents } = useSuspenseQuery(agentsQuery);
   const { agent: agentParam } = Route.useSearch();
   const [selected, setSelected] = useState<MapSelection>(null);
+  const [showAim, setShowAim] = useState(false);
+  const empireRows = useRef(new Map<string, HTMLButtonElement>());
+  const select = (selection: MapSelection) => { setSelected(selection); setShowAim(false); };
+  useEffect(() => {
+    if (selected?.kind === "agent") empireRows.current.get(selected.id)?.scrollIntoView({ block: "nearest", behavior: "auto" });
+  }, [selected]);
   const countdown = useCountdown(12 * 60 + 44);
 
   // Deep link: /season?agent=<id> preselects that agent on the map.
@@ -72,6 +71,8 @@ function SeasonPage() {
   const director = agents.find((a) => a.directsPol);
   const top = [...agents].sort((a, b) => b.influence - a.influence).slice(0, 6);
   const selectedAgent = selected?.kind === "agent" ? agents.find((a) => a.id === selected.id) : null;
+
+  const aimIds = selectedAgent?.directsPol && showAim ? agents.filter(a => POL_AIM.some(aim => aim.ticker === a.ticker)).map(a => a.id) : [];
 
   return (
     <main className="flex min-h-[calc(100vh-3.5rem)] flex-col">
@@ -133,7 +134,7 @@ function SeasonPage() {
 
         {/* CENTER — map */}
         <section className="relative order-1 min-h-[420px] bg-bg1 lg:order-2">
-          <SeasonMap agents={agents} selected={selected} onSelect={setSelected} />
+          <SeasonMap agents={agents} selected={selected} onSelect={select} aimIds={aimIds} />
           {/* shared threat banner on map edge */}
           <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2">
             <span className="chip border-[var(--gold)]/50 bg-black/80 text-[var(--gold)]">
@@ -156,13 +157,17 @@ function SeasonPage() {
               const isSel = selected?.kind === "agent" && selected.id === a.id;
               const ruin = a.status === "ruin";
               return (
-                <button
+                <Button
                   key={a.id}
+                  variant="ghost"
+                  ref={node => { if (node) empireRows.current.set(a.id, node); else empireRows.current.delete(a.id); }}
+                  aria-pressed={isSel}
                   type="button"
-                  onClick={() => setSelected({ kind: "agent", id: a.id })}
+                  onClick={() => select({ kind: "agent", id: a.id })}
                   className={cn(
-                    "surface flex w-full items-center gap-2.5 p-2 text-left",
-                    isSel && "!border-white",
+                    "surface relative flex h-auto w-full items-center justify-start gap-2.5 whitespace-normal p-2 text-left font-normal",
+                    isSel && "!border-foreground before:absolute before:inset-y-0 before:left-0 before:w-[3px] before:bg-foreground",
+                     selected?.kind === "agent" && !isSel && "opacity-55",
                     ruin && "opacity-60 grayscale-[0.4]",
                   )}
                 >
@@ -186,7 +191,7 @@ function SeasonPage() {
                     )}
                     <span className="block text-[11px] text-muted-foreground">{a.cities} cities</span>
                   </span>
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -195,54 +200,7 @@ function SeasonPage() {
 
       {/* BOTTOM — inspector */}
       <div className="border-t border-line bg-surface px-4 py-3">
-        {selectedAgent ? (
-          <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-4">
-            <AgentAvatar agent={selectedAgent} size={44} />
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-white">{selectedAgent.name}</span>
-                <span className="font-pixel text-[10px] text-muted-foreground">${selectedAgent.ticker}</span>
-                <span className="chip !px-1.5 !py-0 text-[10px]" style={{ color: STATUS_COLOR[selectedAgent.status] }}>
-                  <span className="inline-block size-1.5" style={{ background: STATUS_COLOR[selectedAgent.status] }} aria-hidden />
-                  {STATUS_LABEL[selectedAgent.status]}
-                </span>
-                {selectedAgent.directsPol && (
-                  <span className="chip !border-[var(--pol)]/50 !px-1.5 !py-0 text-[10px] text-[var(--pol)]">Directs POL</span>
-                )}
-              </div>
-              <p className="mt-0.5 text-xs text-muted-foreground">{selectedAgent.lastAction}</p>
-            </div>
-            <div className="flex gap-5 text-xs">
-              <span className="text-muted-foreground">
-                Cities <span className="block font-pixel text-sm text-white">{selectedAgent.cities}</span>
-              </span>
-              <span className="text-muted-foreground">
-                Influence <span className="block font-pixel text-sm text-white">{selectedAgent.influence}</span>
-              </span>
-              <span className="text-muted-foreground">
-                Runway <span className="block font-pixel text-sm text-white">{selectedAgent.runwaySol} SOL</span>
-              </span>
-            </div>
-            <Link
-              to="/agent/$id"
-              params={{ id: selectedAgent.id }}
-              className="ml-auto border border-white px-3 py-1.5 font-pixel text-[11px] uppercase text-white hover:bg-white hover:text-black"
-            >
-              View agent
-            </Link>
-          </div>
-        ) : selected?.kind === "frontier" ? (
-          <div className="mx-auto flex max-w-5xl items-center gap-3">
-            <span className="inline-block size-3 border border-line bg-surface-2" aria-hidden />
-            <p className="text-sm text-muted-foreground">
-              <span className="font-semibold text-white">Unclaimed / frontier.</span> No settlement on this tile.
-            </p>
-          </div>
-        ) : (
-          <p className="mx-auto max-w-5xl text-center font-pixel text-[11px] uppercase text-muted-foreground">
-            Select a city or agent
-          </p>
-        )}
+        <SelectionInspector agent={selectedAgent} agents={agents} frontier={selected?.kind === "frontier"} showAim={showAim} canShowAim={!!selectedAgent?.directsPol} onAim={() => setShowAim(value => !value)} onClear={() => select(null)} />
       </div>
     </main>
   );
