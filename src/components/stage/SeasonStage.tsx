@@ -156,7 +156,7 @@ export function SeasonStage() {
 
   return (
     <svg
-      viewBox={`${minX} -120 ${width} ${N * TH + 220}`}
+      viewBox={`${minX + 60} -60 ${width - 120} ${N * TH + 120}`}
       preserveAspectRatio="xMidYMid slice"
       className="absolute inset-0 h-full w-full"
       aria-hidden
