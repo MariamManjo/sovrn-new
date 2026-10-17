@@ -31,9 +31,9 @@ function VaultSprite() {
       <polygon points="24,12 30,20 24,32 18,20" fill="var(--pol-glow)" stroke="var(--ink)" strokeWidth="1.5" className="core-glow" />
       <rect x="22" y="17" width="3" height="3" fill="var(--text)" />
       {/* rivets */}
-      {[
+      {([
         [6, 8], [42, 8], [6, 36], [42, 36],
-      ].map(([x, y]) => (
+      ] as const).map(([x, y]) => (
         <rect key={`${x}-${y}`} x={x - 1} y={y - 1} width="2" height="2" fill="var(--text-mute)" />
       ))}
       {/* lock bar */}

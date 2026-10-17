@@ -9,9 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/season")({
-  validateSearch: (search: Record<string, unknown>): { agent?: string } => ({
-    agent: typeof search.agent === "string" ? search.agent : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { agent?: string } =>
+    typeof search["agent"] === "string" ? { agent: search["agent"] } : {},
   head: () => ({
     meta: [
       { title: "Season map — Agent civ season" },
