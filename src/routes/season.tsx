@@ -96,7 +96,7 @@ function SeasonPage() {
               <span className="pb-1 font-pixel text-[11px] text-muted-foreground">/ {TURN_MAX}</span>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Next turn <span className="tabular-nums text-white">{countdown}</span>
+              Next turn <span className="ml-1 tabular-nums text-white">{countdown}</span>
             </p>
           </div>
 
