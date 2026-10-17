@@ -34,7 +34,7 @@ const TOP: Record<Kind, string[]> = {
   plaza: ["var(--civ-earth)", "var(--civ-timber)"],
   cobble: ["var(--civ-earth)", "var(--civ-timber)", "var(--civ-earth)"],
   grass: ["var(--alive)", "var(--alive-deep)", "var(--alive-deep)"],
-  ash: ["var(--text-mute)", "var(--panel-edge)"],
+  ash: ["var(--text-mute)", "var(--map-slate)"],
 };
 
 function diamond(x: number, y: number) {

@@ -73,11 +73,16 @@
 :root {
   /* Season HUD / Endesga 32 — ONLY these hex values are allowed */
   --ink: #181425;
-  --shade: #262b44;
-  --panel: #3a4466;
-  --panel-edge: #5a6988;
+  --bg0: #181425;
+  --bg1: #3e2731;
+  --panel-2: #4a2f2c;
+  --text-warm: #ead4aa;
+  --shade: var(--panel-2);
+  --panel: #733e39;
+  --panel-edge: #e8b796;
+  --map-slate: #5a6988; /* map ruin tiles only */
   --text: #ffffff;
-  --text-dim: #c0cbdc;
+  --text-dim: var(--text-warm);
   --text-mute: #8b9bb4;
   --parchment: #ead4aa;
   --alive: #63c74d;
@@ -98,11 +103,9 @@
 
   --radius: 0px;
   /* aliases used by components */
-  --bg0: var(--ink);
-  --bg1: var(--ink);
-  --dusk: var(--ink);
-  --dusk-deep: var(--shade);
-  --panel2: var(--panel-edge);
+  --dusk: var(--bg1);
+  --dusk-deep: var(--bg1);
+  --panel2: var(--panel-2);
   --border-c: var(--panel-edge);
   --muted-c: var(--text-mute);
   --fire: var(--launch);
@@ -120,7 +123,7 @@
   --stone-hi: var(--panel-edge);
   --timber: var(--civ-timber);
 
-  --background: var(--ink);
+  --background: var(--bg1);
   --foreground: var(--text);
   --card: var(--panel);
   --card-foreground: var(--text);
@@ -146,11 +149,13 @@
   * { @apply border-border; }
   body {
     @apply text-foreground font-sans antialiased;
-    background-color: var(--dusk);
+    min-height: 100vh;
+    background-color: var(--bg0);
     background-image:
-      radial-gradient(var(--dusk-deep) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--dusk-deep), var(--dusk) 40%);
-    background-size: 6px 6px, 100% 100%;
+      radial-gradient(color-mix(in oklab, var(--bg0) 45%, transparent) 1px, transparent 1px),
+      radial-gradient(ellipse at 50% 30%, var(--bg1) 0%, var(--bg1) 35%, var(--bg0) 100%);
+    background-size: 4px 4px, 100% 100%;
+    background-attachment: fixed;
   }
   h1, h2, h3, h4 { font-family: var(--font-display); font-variant-ligatures: none; font-feature-settings: "liga" 0; }
 }
