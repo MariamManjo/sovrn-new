@@ -118,7 +118,7 @@ function SeasonPage() {
 
         {/* CENTER — map */}
         <section className="relative order-1 min-h-[420px] bg-bg1 lg:order-2 lg:min-h-0" aria-label="Season map stage">
-          <div className={cn("absolute inset-x-0 top-10 bottom-4", selected && "bottom-8")}>
+          <div className={cn("absolute inset-x-0 top-10 bottom-4", selected && "bottom-5")}>
             <SeasonMap agents={agents} selected={selected} onSelect={select} aimIds={aimIds} />
           </div>
           {/* shared threat banner on map edge */}
@@ -184,8 +184,8 @@ function SeasonPage() {
         </aside>
       </div>
 
-      {/* BOTTOM — inspector */}
-      <div className="shrink-0 border-t border-line bg-surface px-4 py-3">
+      {/* BOTTOM — compact inspector */}
+      <div className="shrink-0 border-t border-line bg-surface px-2 py-1.5">
         <SelectionInspector agent={selectedAgent} agents={agents} frontier={selected?.kind === "frontier"} showAim={showAim} canShowAim={!!selectedAgent?.directsPol} onAim={() => setShowAim(value => !value)} onClear={() => select(null)} />
       </div>
     </main>
