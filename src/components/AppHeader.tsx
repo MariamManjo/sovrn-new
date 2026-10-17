@@ -13,12 +13,12 @@ const NAV = [
 
 export function AppHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-12 max-w-7xl items-center gap-6 px-4">
+    <header className="sticky top-0 z-40 border-b-[3px] border-ink bg-dusk-deep">
+      <div className="mx-auto flex h-14 max-w-7xl items-center gap-6 px-4">
         {/* Neutral logo slot — brand name not chosen yet */}
         <Link to="/" className="flex items-center gap-2" aria-label="Home">
-          <PixelIcon name="flag" scale={2} />
-          <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
+          <PixelIcon name="flag" scale={3} color="var(--roof-red)" className="lamp-flicker" />
+          <span className="font-pixel text-xs uppercase tracking-widest text-muted-foreground">
             [ logo ]
           </span>
         </Link>
@@ -27,8 +27,8 @@ export function AppHeader() {
             <Link
               key={n.to}
               to={n.to}
-              className="whitespace-nowrap px-2.5 py-1.5 font-mono text-xs uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
-              activeProps={{ className: "text-primary" }}
+              className="whitespace-nowrap border-[3px] border-transparent px-2.5 py-1 font-pixel text-xs uppercase text-muted-foreground hover:text-foreground"
+              activeProps={{ className: "!border-ink bg-timber !text-lamp-gold" }}
               activeOptions={{ exact: true }}
             >
               {n.label}
@@ -40,7 +40,7 @@ export function AppHeader() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <span tabIndex={0}>
-                  <Button size="sm" variant="outline" disabled className="font-mono text-xs uppercase">
+                  <Button size="sm" variant="secondary" disabled className="text-xs uppercase">
                     Connect wallet
                   </Button>
                 </span>
