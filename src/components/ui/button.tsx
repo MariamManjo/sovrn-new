@@ -9,11 +9,11 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-fire text-parchment hover:brightness-110",
+        default: "bg-launch text-text hover:brightness-110",
         destructive: "bg-destructive text-destructive-foreground hover:brightness-110",
         outline:
-          "bg-water text-parchment hover:bg-water-bright",
-        secondary: "bg-panel2 text-muted-foreground hover:brightness-110",
+          "bg-water-deep text-text hover:brightness-125",
+        secondary: "bg-panel border-panel-edge text-text-dim hover:brightness-110",
         ghost: "border-transparent shadow-none hover:bg-accent hover:text-accent-foreground",
         link: "border-transparent shadow-none text-primary underline-offset-4 hover:underline",
       },

@@ -29,12 +29,12 @@ function tileKind(i: number, j: number): Kind {
 }
 
 const TOP: Record<Kind, string[]> = {
-  core: ["var(--gold)"],
-  water: ["var(--water)", "var(--water-bright)"],
-  plaza: ["var(--panel2)", "var(--border-c)"],
-  cobble: ["var(--panel)", "var(--panel2)"],
-  grass: ["var(--panel2)", "var(--alive)", "var(--panel)", "var(--border-c)"],
-  ash: ["var(--muted-c)", "var(--border-c)"],
+  core: ["var(--pol-glow)"],
+  water: ["var(--water-deep)", "var(--pol)"],
+  plaza: ["var(--civ-earth)", "var(--civ-timber)"],
+  cobble: ["var(--civ-earth)", "var(--civ-timber)", "var(--civ-earth)"],
+  grass: ["var(--alive)", "var(--alive-deep)", "var(--alive-deep)"],
+  ash: ["var(--text-mute)", "var(--panel-edge)"],
 };
 
 function diamond(x: number, y: number) {
@@ -50,14 +50,14 @@ function House({ i, j, h, roof }: { i: number; j: number; h: number; roof: strin
       {/* left wall */}
       <polygon
         points={`${x - TW / 2},${y + TH / 2 - h} ${x},${y + TH - h} ${x},${y + TH} ${x - TW / 2},${y + TH / 2}`}
-        fill="var(--text-dim)"
+        fill="var(--parchment)"
         stroke="var(--ink)"
         strokeWidth={2}
       />
       {/* right wall */}
       <polygon
         points={`${x},${y + TH - h} ${x + TW / 2},${y + TH / 2 - h} ${x + TW / 2},${y + TH / 2} ${x},${y + TH}`}
-        fill="var(--muted-c)"
+        fill="var(--civ-earth)"
         stroke="var(--ink)"
         strokeWidth={2}
       />
@@ -169,7 +169,7 @@ export function SeasonStage() {
           y={Math.round(-120 + rnd(n, 2) * 140)}
           width={3}
           height={3}
-          fill={n % 7 === 0 ? "var(--gold)" : "var(--text-dim)"}
+          fill={n % 7 === 0 ? "var(--gold-light)" : "var(--text-dim)"}
           opacity={[0.3, 0.5, 0.7][n % 3]}
           className={n % 9 === 0 ? "pixel-blink" : undefined}
         />
@@ -178,7 +178,7 @@ export function SeasonStage() {
       {/* island side skirt */}
       <polygon
         points={`${iso(0, N).x},${iso(0, N).y} ${iso(N, N).x},${iso(N, N).y} ${iso(N, 0).x},${iso(N, 0).y} ${iso(N, 0).x},${iso(N, 0).y + 40} ${iso(N, N).x},${iso(N, N).y + 40} ${iso(0, N).x},${iso(0, N).y + 40}`}
-        fill="var(--dusk-deep)"
+        fill="var(--civ-timber)"
         stroke="var(--ink)"
         strokeWidth={3}
       />
@@ -210,7 +210,7 @@ export function SeasonStage() {
           rx={TW * r * 1.25}
           ry={TH * r * 1.25}
           fill="none"
-          stroke={r === 1 ? "var(--gold)" : r === 2 ? "var(--water-bright)" : "var(--magic)"}
+          stroke={r === 1 ? "var(--pol-glow)" : r === 2 ? "var(--pol)" : "var(--influence)"}
           strokeWidth={3}
           strokeDasharray="8 6"
           className="ring-pulse"
@@ -222,11 +222,11 @@ export function SeasonStage() {
       <g className="core-glow">
         <polygon
           points={`${core.x},${core.y - 40} ${core.x + 14},${core.y - 12} ${core.x},${core.y + 16} ${core.x - 14},${core.y - 12}`}
-          fill="var(--pol-teal)"
+          fill="var(--pol-glow)"
           stroke="var(--ink)"
           strokeWidth={3}
         />
-        <rect x={core.x - 4} y={core.y - 30} width={6} height={6} fill="var(--parchment)" />
+        <rect x={core.x - 4} y={core.y - 30} width={6} height={6} fill="var(--text)" />
       </g>
 
       {HOUSES.map((h) => (

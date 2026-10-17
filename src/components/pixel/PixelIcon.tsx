@@ -80,7 +80,7 @@ const SPRITES = {
 export type PixelSprite = keyof typeof SPRITES;
 
 const FILL: Record<string, string> = {
-  "#": "var(--gold)",
+  "#": "var(--pol-glow)",
   "+": "var(--pixel-dim)",
   x: "var(--destructive)",
 };
@@ -166,7 +166,7 @@ export function LiveDot({ tone = "live" }: { tone?: "live" | "danger" }) {
     <span
       className={cn(
         "inline-block size-2 pixel-blink",
-        tone === "live" ? "bg-alive-bright" : "bg-fire",
+        tone === "live" ? "bg-alive" : "bg-alert",
       )}
       aria-hidden
     />
