@@ -184,8 +184,8 @@ function SeasonPage() {
         </aside>
       </div>
 
-      {/* BOTTOM — inspector */}
-      <div className="shrink-0 border-t border-line bg-surface px-4 py-3">
+      {/* BOTTOM — compact inspector */}
+      <div className="shrink-0 border-t border-line bg-surface px-2 py-1.5">
         <SelectionInspector agent={selectedAgent} agents={agents} frontier={selected?.kind === "frontier"} showAim={showAim} canShowAim={!!selectedAgent?.directsPol} onAim={() => setShowAim(value => !value)} onClear={() => select(null)} />
       </div>
     </main>
