@@ -40,7 +40,7 @@ export function AppHeader() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <span tabIndex={0}>
-                  <Button size="sm" variant="secondary" disabled className="text-xs uppercase">
+                  <Button size="sm" variant="secondary" disabled className="border-white/60 text-xs uppercase text-white">
                     Connect wallet
                   </Button>
                 </span>
