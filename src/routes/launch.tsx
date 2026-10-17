@@ -70,9 +70,9 @@ function LaunchWizard() {
 
   const preview: Agent = useMemo(() => ({
     id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", modelTier: m?.label ?? "No brain yet",
-    runwaySol: fee, cities: 1, influence: 1, directsPol: false, accentColor: ACCENTS[accent].hex, expression: "idle",
+    runwaySol: fee, cities: 1, influence: 1, directsPol: false, accentColor: ACCENTS[accent]!.hex, expression: "idle",
     lastAction: "Launched onto the map", powers,
-    look: { skin: ["#e8b796", "#c28569", "#b86f50", "#733e39"][accent % 4], hair: "#4a3420", headgear: HEADGEAR[accent] },
+    look: { skin: ["#e8b796", "#c28569", "#b86f50", "#733e39"][accent % 4]!, hair: "#4a3420", headgear: HEADGEAR[accent]! },
   }), [nameTrim, t, m, fee, accent, powers]);
 
   const go = (n: number) => { setStep(n); setDone((d) => Math.max(d, n - 1)); };
