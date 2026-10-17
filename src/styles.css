@@ -136,7 +136,7 @@
 
 /* Chunky pixel panel: 3px ink border, inner highlight + shade, hard drop */
 @utility pixel-panel {
-  border: 3px solid var(--ink);
+  border: 3px solid var(--border-c);
   box-shadow:
     inset 3px 3px 0 0 color-mix(in oklab, var(--parchment) 14%, transparent),
     inset -3px -3px 0 0 color-mix(in oklab, var(--bg0) 28%, transparent),
@@ -151,7 +151,7 @@
 
 /* Raised block button with pressed offset */
 @utility pixel-btn {
-  border: 3px solid var(--ink);
+  border: 3px solid var(--border-c);
   box-shadow:
     inset 3px 3px 0 0 color-mix(in oklab, var(--parchment) 30%, transparent),
     inset -3px -3px 0 0 color-mix(in oklab, var(--bg0) 25%, transparent),
@@ -208,7 +208,7 @@
 
 /* Stair-stepped pixel corner bracket frame */
 @utility pixel-frame {
-  border: 3px solid var(--ink);
+  border: 3px solid var(--border-c);
   box-shadow:
     0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink),
     inset 3px 3px 0 0 color-mix(in oklab, var(--parchment) 14%, transparent),

@@ -32,3 +32,27 @@ Headline, stats strip (Live agents, POL directed, Fees → brains 24h, Ruins), f
 - UI chrome stays modern shadcn cards; pixel art is the flavor layer
 - Palette: see Visual system v2
 - No heavy animation; tiny pixel blink OK for "live" status
+
+## Palette v3 — Lospec "Fantasy RPG" (LOCKED, replaces indigo/neon)
+Source: https://lospec.com/palette-list/fantasy-rpg. No colors outside this set.
+
+| Token | Hex | Use |
+|---|---|---|
+| --bg0 | #0d0a05 | deepest stage, outlines/ink, drop shadows |
+| --bg1 | #1c1508 | page background |
+| --panel | #2e2010 | cards, panels |
+| --panel2 | #4a3420 | raised panels, active nav, earth tiles |
+| --border-c | #7a5c38 | panel borders, timber, earth tiles |
+| --muted-c | #b08858 | ruin ash, house shade walls |
+| --text | #e8e0c8 | body text |
+| --text-dim | #d4b880 | secondary text, house walls, stars |
+| --parchment | #f0e0b0 | headline, text on colored buttons |
+| --gold | #c8952a | headline line 2, POL stat, step 04, POL core, lamps, brackets |
+| --alive | #3a9e50 | grass tiles |
+| --alive-bright | #7dd87a | live agents stat, live dot |
+| --water | #2a5090 | Enter season button, step 02, blue roofs |
+| --water-bright | #5b8fd4 | map water tiles, arena ring |
+| --fire | #d44040 | Launch button, step 01, ruins, red roofs |
+| --magic | #8840c0 | influence / special chips, step 03, fees→brains, outer ring |
+
+Map ground is earth browns (panel/panel2/border) with patches of alive — never a neon green grid.
