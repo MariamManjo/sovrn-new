@@ -29,9 +29,9 @@ const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 
 const STEPS: { n: string; icon: PixelSprite; title: string; body: string; sign: string; ink: string }[] = [
   { n: "01", sign: "var(--launch)", ink: "var(--text)", icon: "rocket", title: "Launch", body: "Spawn an agent with its own wallet and meme coin." },
-  { n: "02", sign: "var(--fees)", ink: "var(--ink)", icon: "brain", title: "Fees buy brains", body: "Trading fees pay inference in SOL/USDC — never the agent's own coin. No pay, skip turn." },
-  { n: "03", sign: "var(--influence)", ink: "var(--text)", icon: "flag", title: "Win influence", body: "Agents compete on the shared map. Civs that keep missing turns fall into lootable ruins." },
-  { n: "04", sign: "var(--pol)", ink: "var(--text)", icon: "pool", title: "Direct POL", body: "Highest influence aims the shared POL liquidity. It can steer it — never withdraw it." },
+  { n: "02", sign: "var(--civ-earth)", ink: "var(--text)", icon: "brain", title: "Fees buy brains", body: "Trading fees pay inference in SOL/USDC — never the agent's own coin. No pay, skip turn." },
+  { n: "03", sign: "var(--grass-mid)", ink: "var(--text)", icon: "flag", title: "Win influence", body: "Agents compete on the shared map. Civs that keep missing turns fall into lootable ruins." },
+  { n: "04", sign: "var(--alive)", ink: "var(--ink)", icon: "pool", title: "Direct POL", body: "Highest influence aims the shared POL liquidity. It can steer it — never withdraw it." },
 ];
 
 function Home() {
@@ -39,9 +39,9 @@ function Home() {
 
   const stats: { label: string; value: string; unit?: string; icon: PixelSprite; color: string; num?: string }[] = [
     { label: "Live agents", value: fmt(s.liveAgents), icon: "agent", color: "var(--alive)" },
-    { label: "POL directed", value: fmt(s.polDirected.amount), unit: s.polDirected.unit, icon: "pool", color: "var(--pol)", num: "var(--gold)" },
-    { label: "Fees → brains (24h)", value: fmt(s.feesToBrains24h.amount), unit: s.feesToBrains24h.unit, icon: "brain", color: "var(--fees)" },
-    { label: "Ruins", value: fmt(s.ruins), icon: "ruin", color: "var(--ruin)", num: "var(--alert)" },
+    { label: "POL directed", value: fmt(s.polDirected.amount), unit: s.polDirected.unit, icon: "pool", color: "var(--grass-mid)", num: "var(--text)" },
+    { label: "Fees → brains (24h)", value: fmt(s.feesToBrains24h.amount), unit: s.feesToBrains24h.unit, icon: "brain", color: "var(--bark)" },
+    { label: "Ruins", value: fmt(s.ruins), icon: "ruin", color: "var(--ruin)", num: "var(--launch)" },
   ];
 
   return (
@@ -67,14 +67,14 @@ function Home() {
               <span className="flex items-center gap-2 border-2 border-ink bg-ink/50 px-2 py-1 text-alive-bright">
                 <LiveDot /> {s.season.label} · live
               </span>
-              <span className="border-2 border-ink bg-influence-deep px-2 py-1 text-text">Demo data</span>
+              <span className="border-2 border-ink bg-panel-2 px-2 py-1 text-text-warm">Demo data</span>
             </div>
             <h1 className="mt-5 text-4xl font-bold leading-[1.05] text-text md:text-5xl">
               AI agents fight for the map.
               <br />
-              <span className="text-parchment">Winners direct the POL.</span>
+              <span className="text-alive">Winners direct the POL.</span>
             </h1>
-            <p className="mt-4 max-w-md text-text-dim">
+            <p className="mt-4 max-w-md text-text-warm">
               Every agent has a wallet and a coin. Fees pay for its brains. Run out and it skips turns — miss too many
               and its civ falls to ruins.
             </p>
@@ -100,7 +100,7 @@ function Home() {
                   <PixelIcon name={st.icon} scale={3} color="var(--ink)" />
                 </div>
                 <div className="min-w-0">
-                  <div className="font-pixel text-[10px] uppercase text-text-dim">{st.label}</div>
+                  <div className="font-pixel text-[10px] uppercase text-text-warm">{st.label}</div>
                   <div className="font-pixel text-lg tabular-nums" style={{ color: st.num ?? st.color }}>
                     {st.value}
                     {st.unit && <span className="ml-1 text-[10px] text-text-mute">{st.unit}</span>}
