@@ -283,3 +283,24 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
+
+/* Season-only selection feedback: illustration stays sharp, chrome stays monochrome. */
+.season-map-muted, .season-settlement { transition: opacity 200ms ease; }
+.selection-outline { animation: selection-pulse 1.4s ease-in-out infinite; }
+.selection-beam { animation: selection-beam 1s ease both; opacity: .45; }
+.selection-flash { animation: selection-flash 300ms ease-out forwards; }
+.selection-nameplate { animation: selection-nameplate 250ms ease-out both; }
+.selection-inspector { animation: selection-nameplate 180ms ease-out both; }
+.selection-meter { appearance: none; background: var(--line); border: 0; }
+.selection-meter::-webkit-meter-bar { background: var(--line); border: 0; border-radius: 0; }
+.selection-meter::-webkit-meter-optimum-value { background: var(--text); }
+.selection-meter::-moz-meter-bar { background: var(--text); }
+@keyframes selection-pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
+@keyframes selection-beam { from { stroke-dashoffset: 1; opacity: 0; } to { stroke-dashoffset: 0; opacity: .45; } }
+@keyframes selection-flash { from { opacity: .65; } to { opacity: 0; } }
+@keyframes selection-nameplate { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .season-map-muted, .season-settlement { transition: none; }
+  .selection-outline, .selection-beam, .selection-nameplate, .selection-inspector { animation: none; }
+  .selection-flash { display: none; }
+}
