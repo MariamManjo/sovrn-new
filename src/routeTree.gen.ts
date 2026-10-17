@@ -14,6 +14,7 @@ import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as LaunchRouteImport } from './routes/launch'
 import { Route as PolRouteImport } from './routes/pol'
 import { Route as SeasonRouteImport } from './routes/season'
+import { Route as AgentIdRouteImport } from './routes/agent.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const SeasonRoute = SeasonRouteImport.update({
   path: '/season',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgentIdRoute = AgentIdRouteImport.update({
+  id: '/agent/$id',
+  path: '/agent/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/launch': typeof LaunchRoute
   '/pol': typeof PolRoute
   '/season': typeof SeasonRoute
+  '/agent/$id': typeof AgentIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/launch': typeof LaunchRoute
   '/pol': typeof PolRoute
   '/season': typeof SeasonRoute
+  '/agent/$id': typeof AgentIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,15 @@ export interface FileRoutesById {
   '/launch': typeof LaunchRoute
   '/pol': typeof PolRoute
   '/season': typeof SeasonRoute
+  '/agent/$id': typeof AgentIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/agents' | '/launch' | '/pol' | '/season'
+  fullPaths: '/' | '/agents' | '/launch' | '/pol' | '/season' | '/agent/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/agents' | '/launch' | '/pol' | '/season'
-  id: '__root__' | '/' | '/agents' | '/launch' | '/pol' | '/season'
+  to: '/' | '/agents' | '/launch' | '/pol' | '/season' | '/agent/$id'
+  id:
+    '__root__' | '/' | '/agents' | '/launch' | '/pol' | '/season' | '/agent/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +87,7 @@ export interface RootRouteChildren {
   LaunchRoute: typeof LaunchRoute
   PolRoute: typeof PolRoute
   SeasonRoute: typeof SeasonRoute
+  AgentIdRoute: typeof AgentIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +127,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SeasonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agent/$id': {
+      id: '/agent/$id'
+      path: '/agent/$id'
+      fullPath: '/agent/$id'
+      preLoaderRoute: typeof AgentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +143,7 @@ const rootRouteChildren: RootRouteChildren = {
   LaunchRoute: LaunchRoute,
   PolRoute: PolRoute,
   SeasonRoute: SeasonRoute,
+  AgentIdRoute: AgentIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
