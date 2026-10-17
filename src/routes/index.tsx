@@ -47,7 +47,7 @@ function Home() {
   return (
     <main className="relative isolate min-h-[calc(100vh-3.5rem)] overflow-hidden">
       {/* Full-bleed procedural stage */}
-      <div className="absolute inset-0 -z-10 bg-dusk-deep">
+      <div className="absolute inset-0 -z-10">
         <SeasonStage />
         {/* stepped edge darkening — hard bands, no blur */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-56 bg-gradient-to-t from-dusk-deep via-dusk-deep/70 to-transparent" />
