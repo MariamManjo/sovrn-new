@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, MousePointer2, X } from "lucide-react";
 import type { Agent } from "@/lib/mock/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
+import { Button } from "@/components/ui/button";
 
 export function SelectionInspector({ agent, agents, frontier, showAim, canShowAim, onAim, onClear }: {
   agent: Agent | null | undefined;
