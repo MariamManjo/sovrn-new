@@ -43,6 +43,20 @@
   --color-stone-hi: var(--stone-hi);
   --color-timber: var(--timber);
   --color-parchment: var(--parchment);
+  --color-alive-deep: var(--alive-deep);
+  --color-civ-earth: var(--civ-earth);
+  --color-panel-edge: var(--panel-edge);
+  --color-shade: var(--shade);
+  --color-text-dim: var(--text-dim);
+  --color-text-mute: var(--text-mute);
+  --color-gold-light: var(--gold-light);
+  --color-influence: var(--influence);
+  --color-fees: var(--fees);
+  --color-ruin: var(--ruin);
+  --color-launch: var(--launch);
+  --color-water-deep: var(--water-deep);
+  --color-pol-glow: var(--pol-glow);
+  --color-pol: var(--pol);
   --color-gold: var(--gold);
   --color-alive: var(--alive);
   --color-alive-bright: var(--alive-bright);
@@ -57,59 +71,75 @@
 }
 
 :root {
-  /* Palette: Lospec "Fantasy RPG" — ONLY these hex values are allowed */
-  --bg0: #0d0a05;
-  --bg1: #1c1508;
-  --panel: #2e2010;
-  --panel2: #4a3420;
-  --border-c: #7a5c38;
-  --muted-c: #b08858;
-  --text: #e8e0c8;
-  --text-dim: #d4b880;
-  --parchment: #f0e0b0;
-  --gold: #c8952a;
-  --alive: #3a9e50;
-  --alive-bright: #7dd87a;
-  --water: #2a5090;
-  --water-bright: #5b8fd4;
-  --fire: #d44040;
-  --magic: #8840c0;
+  /* Season HUD / Endesga 32 — ONLY these hex values are allowed */
+  --ink: #181425;
+  --shade: #262b44;
+  --panel: #3a4466;
+  --panel-edge: #5a6988;
+  --text: #ffffff;
+  --text-dim: #c0cbdc;
+  --text-mute: #8b9bb4;
+  --parchment: #ead4aa;
+  --alive: #63c74d;
+  --alive-deep: #265c42;
+  --pol: #0099db;
+  --pol-glow: #2ce8f5;
+  --water-deep: #124e89;
+  --launch: #e43b44;
+  --ruin: #a22633;
+  --alert: #ff0044;
+  --gold: #feae34;
+  --gold-light: #fee761;
+  --influence: #b55088;
+  --influence-deep: #68386c;
+  --fees: #f77622;
+  --civ-earth: #b86f50;
+  --civ-timber: #733e39;
 
   --radius: 0px;
-  /* legacy aliases used by components */
-  --dusk: var(--bg1);
-  --dusk-deep: var(--bg0);
-  --ink: var(--bg0);
-  --roof-red: var(--fire);
-  --roof-blue: var(--water);
-  --lamp-gold: var(--gold);
+  /* aliases used by components */
+  --bg0: var(--ink);
+  --bg1: var(--ink);
+  --dusk: var(--ink);
+  --dusk-deep: var(--shade);
+  --panel2: var(--panel-edge);
+  --border-c: var(--panel-edge);
+  --muted-c: var(--text-mute);
+  --fire: var(--launch);
+  --water: var(--water-deep);
+  --water-bright: var(--pol);
+  --magic: var(--influence);
+  --alive-bright: var(--alive);
+  --roof-red: var(--launch);
+  --roof-blue: var(--water-deep);
+  --lamp-gold: var(--gold-light);
   --grass: var(--alive);
-  --pol-teal: var(--gold);
-  --ash: var(--muted-c);
+  --pol-teal: var(--pol);
+  --ash: var(--text-mute);
   --stone: var(--panel);
-  --stone-hi: var(--panel2);
-  --timber: var(--border-c);
+  --stone-hi: var(--panel-edge);
+  --timber: var(--civ-timber);
 
-  --background: var(--bg1);
+  --background: var(--ink);
   --foreground: var(--text);
   --card: var(--panel);
   --card-foreground: var(--text);
   --popover: var(--panel);
   --popover-foreground: var(--text);
-  --primary: var(--fire);
-  --primary-foreground: var(--parchment);
-  --secondary: var(--water);
-  --secondary-foreground: var(--parchment);
-  --muted: var(--panel);
+  --primary: var(--launch);
+  --primary-foreground: var(--text);
+  --secondary: var(--water-deep);
+  --secondary-foreground: var(--text);
+  --muted: var(--shade);
   --muted-foreground: var(--text-dim);
-  --accent: var(--panel2);
-  --accent-foreground: var(--parchment);
-  --destructive: var(--fire);
-  --destructive-foreground: var(--parchment);
-  --border: var(--border-c);
-  --input: var(--border-c);
-  --ring: var(--gold);
-  --pixel-dim: var(--muted-c);
+  --accent: var(--panel-edge);
+  --accent-foreground: var(--text);
+  --destructive: var(--ruin);
+  --destructive-foreground: var(--text);
+  --border: var(--panel-edge);
+  --input: var(--panel-edge);
+  --ring: var(--pol-glow);
+  --pixel-dim: var(--text-mute);
 }
 
 @layer base {
@@ -138,7 +168,7 @@
 @utility pixel-panel {
   border: 3px solid var(--border-c);
   box-shadow:
-    inset 3px 3px 0 0 color-mix(in oklab, var(--parchment) 14%, transparent),
+    inset 3px 3px 0 0 color-mix(in oklab, var(--text) 14%, transparent),
     inset -3px -3px 0 0 color-mix(in oklab, var(--bg0) 28%, transparent),
     4px 4px 0 0 var(--ink);
 }
@@ -153,7 +183,7 @@
 @utility pixel-btn {
   border: 3px solid var(--border-c);
   box-shadow:
-    inset 3px 3px 0 0 color-mix(in oklab, var(--parchment) 30%, transparent),
+    inset 3px 3px 0 0 color-mix(in oklab, var(--text) 30%, transparent),
     inset -3px -3px 0 0 color-mix(in oklab, var(--bg0) 25%, transparent),
     0 4px 0 0 var(--ink);
   transition: transform 60ms steps(1), box-shadow 60ms steps(1);
@@ -211,7 +241,7 @@
   border: 3px solid var(--border-c);
   box-shadow:
     0 -3px 0 0 var(--ink), 0 3px 0 0 var(--ink), -3px 0 0 0 var(--ink), 3px 0 0 0 var(--ink),
-    inset 3px 3px 0 0 color-mix(in oklab, var(--parchment) 14%, transparent),
+    inset 3px 3px 0 0 color-mix(in oklab, var(--text) 14%, transparent),
     inset -3px -3px 0 0 color-mix(in oklab, var(--bg0) 30%, transparent),
     6px 6px 0 0 color-mix(in oklab, var(--ink) 80%, transparent);
 }

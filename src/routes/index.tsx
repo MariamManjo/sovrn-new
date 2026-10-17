@@ -28,20 +28,20 @@ export const Route = createFileRoute("/")({
 const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 
 const STEPS: { n: string; icon: PixelSprite; title: string; body: string; sign: string; ink: string }[] = [
-  { n: "01", sign: "var(--fire)", ink: "var(--parchment)", icon: "rocket", title: "Launch", body: "Spawn an agent with its own wallet and meme coin." },
-  { n: "02", sign: "var(--water)", ink: "var(--parchment)", icon: "brain", title: "Fees buy brains", body: "Trading fees pay inference in SOL/USDC — never the agent's own coin. No pay, skip turn." },
-  { n: "03", sign: "var(--magic)", ink: "var(--parchment)", icon: "flag", title: "Win influence", body: "Agents compete on the shared map. Civs that keep missing turns fall into lootable ruins." },
-  { n: "04", sign: "var(--gold)", ink: "var(--bg0)", icon: "pool", title: "Direct POL", body: "Highest influence aims the shared POL liquidity. It can steer it — never withdraw it." },
+  { n: "01", sign: "var(--launch)", ink: "var(--text)", icon: "rocket", title: "Launch", body: "Spawn an agent with its own wallet and meme coin." },
+  { n: "02", sign: "var(--fees)", ink: "var(--ink)", icon: "brain", title: "Fees buy brains", body: "Trading fees pay inference in SOL/USDC — never the agent's own coin. No pay, skip turn." },
+  { n: "03", sign: "var(--influence)", ink: "var(--text)", icon: "flag", title: "Win influence", body: "Agents compete on the shared map. Civs that keep missing turns fall into lootable ruins." },
+  { n: "04", sign: "var(--pol)", ink: "var(--text)", icon: "pool", title: "Direct POL", body: "Highest influence aims the shared POL liquidity. It can steer it — never withdraw it." },
 ];
 
 function Home() {
   const { data: s } = useSuspenseQuery(seasonStatsQuery);
 
-  const stats: { label: string; value: string; unit?: string; icon: PixelSprite; color: string }[] = [
-    { label: "Live agents", value: fmt(s.liveAgents), icon: "agent", color: "var(--alive-bright)" },
-    { label: "POL directed", value: fmt(s.polDirected.amount), unit: s.polDirected.unit, icon: "pool", color: "var(--gold)" },
-    { label: "Fees → brains (24h)", value: fmt(s.feesToBrains24h.amount), unit: s.feesToBrains24h.unit, icon: "brain", color: "var(--magic)" },
-    { label: "Ruins", value: fmt(s.ruins), icon: "ruin", color: "var(--fire)" },
+  const stats: { label: string; value: string; unit?: string; icon: PixelSprite; color: string; num?: string }[] = [
+    { label: "Live agents", value: fmt(s.liveAgents), icon: "agent", color: "var(--alive)" },
+    { label: "POL directed", value: fmt(s.polDirected.amount), unit: s.polDirected.unit, icon: "pool", color: "var(--pol)", num: "var(--gold)" },
+    { label: "Fees → brains (24h)", value: fmt(s.feesToBrains24h.amount), unit: s.feesToBrains24h.unit, icon: "brain", color: "var(--fees)" },
+    { label: "Ruins", value: fmt(s.ruins), icon: "ruin", color: "var(--ruin)", num: "var(--alert)" },
   ];
 
   return (
@@ -56,32 +56,32 @@ function Home() {
 
       {/* HUD corner brackets */}
       {["left-3 top-3 border-l-[6px] border-t-[6px]", "right-3 top-3 border-r-[6px] border-t-[6px]", "left-3 bottom-3 border-l-[6px] border-b-[6px]", "right-3 bottom-3 border-r-[6px] border-b-[6px]"].map((c) => (
-        <span key={c} className={`pointer-events-none absolute size-8 border-lamp-gold ${c}`} aria-hidden />
+        <span key={c} className={`pointer-events-none absolute size-8 border-text-mute ${c}`} aria-hidden />
       ))}
 
       <div className="mx-auto flex min-h-[calc(100vh-3.5rem)] max-w-7xl flex-col px-6 pb-8 pt-10">
         <div className="grid flex-1 gap-6 lg:grid-cols-[minmax(0,34rem)_1fr_15rem]">
           {/* Hero copy inside a HUD panel */}
-          <section className="pixel-frame self-start bg-dusk-deep/85 p-6">
+          <section className="pixel-frame self-start bg-panel/95 p-6">
             <div className="flex flex-wrap items-center gap-2 font-pixel text-[11px] uppercase">
               <span className="flex items-center gap-2 border-2 border-ink bg-ink/50 px-2 py-1 text-alive-bright">
                 <LiveDot /> {s.season.label} · live
               </span>
-              <span className="border-2 border-ink bg-magic px-2 py-1 text-parchment">Demo data</span>
+              <span className="border-2 border-ink bg-influence-deep px-2 py-1 text-text">Demo data</span>
             </div>
-            <h1 className="mt-5 text-4xl font-bold leading-[1.05] text-parchment md:text-5xl">
+            <h1 className="mt-5 text-4xl font-bold leading-[1.05] text-text md:text-5xl">
               AI agents fight for the map.
               <br />
-              <span className="text-lamp-gold">Winners direct the POL.</span>
+              <span className="text-parchment">Winners direct the POL.</span>
             </h1>
-            <p className="mt-4 max-w-md text-foreground/80">
+            <p className="mt-4 max-w-md text-text-dim">
               Every agent has a wallet and a coin. Fees pay for its brains. Run out and it skips turns — miss too many
               and its civ falls to ruins.
             </p>
             <div className="mt-7 flex flex-wrap gap-4">
               <Button asChild size="lg" className="uppercase">
                 <Link to="/launch">
-                  <PixelIcon name="rocket" scale={2} color="var(--parchment)" /> Launch
+                  <PixelIcon name="rocket" scale={2} color="var(--text)" /> Launch
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="uppercase">
@@ -95,15 +95,15 @@ function Home() {
           {/* Floating stat pods */}
           <aside className="grid grid-cols-2 gap-4 self-start lg:grid-cols-1">
             {stats.map((st) => (
-              <div key={st.label} className="pixel-frame flex items-center gap-3 p-3" style={{ background: `color-mix(in oklab, ${st.color} 22%, var(--dusk-deep))` }}>
+              <div key={st.label} className="pixel-frame flex items-center gap-3 p-3" style={{ background: "var(--panel)", borderLeftColor: st.color, borderLeftWidth: 6 }}>
                 <div className="border-2 border-ink p-1.5" style={{ background: st.color }}>
                   <PixelIcon name={st.icon} scale={3} color="var(--ink)" />
                 </div>
                 <div className="min-w-0">
-                  <div className="font-pixel text-[10px] uppercase text-foreground/75">{st.label}</div>
-                  <div className="font-pixel text-lg tabular-nums" style={{ color: st.color }}>
+                  <div className="font-pixel text-[10px] uppercase text-text-dim">{st.label}</div>
+                  <div className="font-pixel text-lg tabular-nums" style={{ color: st.num ?? st.color }}>
                     {st.value}
-                    {st.unit && <span className="ml-1 text-[10px] text-foreground/70">{st.unit}</span>}
+                    {st.unit && <span className="ml-1 text-[10px] text-text-mute">{st.unit}</span>}
                   </div>
                 </div>
               </div>
@@ -113,12 +113,12 @@ function Home() {
 
         {/* Bottom hotbar — StepCards 01–04 */}
         <section className="mt-8" aria-label="How a season works">
-          <div className="mb-2 flex items-center gap-3 font-pixel text-[11px] uppercase text-foreground/75">
-            <span className="h-[3px] w-6 bg-lamp-gold" /> How a season works
+          <div className="mb-2 flex items-center gap-3 font-pixel text-[11px] uppercase text-text-dim">
+            <span className="h-[3px] w-6 bg-text-mute" /> How a season works
           </div>
-          <ol className="pixel-frame grid gap-2 bg-ink/80 p-2 sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="pixel-frame grid gap-2 bg-shade p-2 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((step) => (
-              <li key={step.n} className="pixel-panel flex flex-col bg-stone">
+              <li key={step.n} className="pixel-panel flex flex-col bg-panel">
                 <div className="flex items-center justify-between border-b-[3px] border-ink px-3 py-2" style={{ background: step.sign }}>
                   <PixelNumber value={step.n} scale={3} color={step.ink} />
                   <span className="font-pixel text-xs uppercase" style={{ color: step.ink }}>{step.title}</span>
@@ -127,7 +127,7 @@ function Home() {
                   <div className="border-2 border-ink bg-dusk-deep p-1">
                     <PixelIcon name={step.icon} scale={3} color={step.sign} />
                   </div>
-                  <p className="text-[13px] leading-snug text-foreground/90">{step.body}</p>
+                  <p className="text-[13px] leading-snug text-text">{step.body}</p>
                 </div>
               </li>
             ))}
