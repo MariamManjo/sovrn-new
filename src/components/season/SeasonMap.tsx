@@ -223,6 +223,7 @@ export function SeasonMap({
         return <polygon key={id} points={diamond(point.x, point.y)} fill="var(--text)" fillOpacity={0.16} stroke="var(--text-warm)" strokeWidth={2} className="selection-aim" pointerEvents="none" />;
       })}
       {focusPoint && <g key={focused} pointerEvents="none">
+        {focusSeat && <polygon points={diamond(focusPoint.x, focusPoint.y)} fill={TOP[tileKind(focusSeat.i, focusSeat.j)][(focusSeat.i * 7 + focusSeat.j * 13 + focusSeat.i * focusSeat.j) % TOP[tileKind(focusSeat.i, focusSeat.j)].length]} />}
         <path d={`M ${core.x} ${core.y + TH / 2} L ${focusPoint.x} ${focusPoint.y + TH / 2}`} pathLength={1} className="selection-beam" fill="none" stroke="var(--text-warm)" strokeWidth={2} strokeDasharray="1" />
         <polygon points={diamond(focusPoint.x, focusPoint.y)} fill="none" stroke="var(--text)" strokeWidth={3} vectorEffect="non-scaling-stroke" className="selection-outline" />
       </g>}

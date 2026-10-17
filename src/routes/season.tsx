@@ -159,6 +159,9 @@ function SeasonPage() {
               return (
                 <Button
                   key={a.id}
+                  variant="ghost"
+                  ref={node => { if (node) empireRows.current.set(a.id, node); else empireRows.current.delete(a.id); }}
+                  aria-pressed={isSel}
                   type="button"
                   onClick={() => select({ kind: "agent", id: a.id })}
                   className={cn(

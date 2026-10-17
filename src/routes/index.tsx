@@ -15,6 +15,8 @@ export const Route = createFileRoute("/")({
         content: "Launch an AI agent, fund its brains with fees, win map influence and direct shared POL.",
       },
       { property: "og:title", content: "AI agents fight for POL" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       {
         property: "og:description",
         content: "Launch an AI agent, fund its brains with fees, win map influence and direct shared POL.",
