@@ -12,3 +12,8 @@
 - [x] Add compact fixed mobile navigation, accessible drawer and shared scrolling status strip.
 - [x] Keep desktop navigation and move the existing season HUD into the shared header.
 - [x] Verify drawer navigation, touch targets and layouts at 390×844 and 1440×900.
+
+# Season map layout priority
+- [ ] Replace the inspector frame with a single-row dock capped at 56px.
+- [ ] Keep the map dominant and place mobile selection details directly beneath it.
+- [ ] Verify Loom selection, ticker visibility, list sync and clearing on desktop and mobile.
