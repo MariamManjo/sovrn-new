@@ -3,7 +3,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { agentsQuery, polQuery } from "@/lib/mock/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { PixelNumber } from "@/components/pixel/PixelIcon";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/pol")({
   head: () => ({
