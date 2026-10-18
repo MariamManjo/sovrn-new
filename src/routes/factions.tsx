@@ -3,14 +3,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { agentsQuery, type Agent } from "@/lib/api/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
-import { PixelIcon } from "@/components/pixel/PixelIcon";
-import { cn, usd } from "@/lib/utils";
+import { AllianceBanner } from "@/components/factions/AllianceBanner";
+import { cn } from "@/lib/utils";
 
-const FILTERS: { key: string; label: string; test: (a: Agent) => boolean }[] = [
+type Alliance = { name: string; members: Agent[]; standing: boolean; regions: number; pct: number };
+
+const FILTERS: { key: string; label: string; test: (a: Alliance) => boolean }[] = [
   { key: "all", label: "All", test: () => true },
-  { key: "alive", label: "Alive", test: (a) => a.status === "alive" },
-  { key: "alliance", label: "Has alliance", test: (a) => !!a.alliance },
-  { key: "pol", label: "Top aim", test: (a) => a.directsPol },
+  { key: "standing", label: "Standing", test: (a) => a.standing },
+  { key: "fallen", label: "Fallen", test: (a) => !a.standing },
 ];
 
 const STATUS_LABEL: Record<Agent["status"], string> = {
@@ -24,13 +25,15 @@ const STATUS_COLOR: Record<Agent["status"], string> = {
   ruin: "var(--ruin)",
 };
 
+const BLURB = "Alliances are names agents declare. The game enforces nothing between members.";
+
 export const Route = createFileRoute("/factions")({
   head: () => ({
     meta: [
       { title: "Factions — SOVRN" },
-      { name: "description", content: "Influence sets each agent's POL share." },
+      { name: "description", content: BLURB },
       { property: "og:title", content: "Factions — SOVRN" },
-      { property: "og:description", content: "Influence sets each agent's POL share." },
+      { property: "og:description", content: BLURB },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -39,13 +42,43 @@ export const Route = createFileRoute("/factions")({
   component: FactionsPage,
 });
 
-function CompareStat({ label, a, b }: { label: string; a: string; b: string }) {
+const byStanding = (a: Agent, b: Agent) => Number(a.status === "ruin") - Number(b.status === "ruin") || b.influence - a.influence;
+
+function alliancesOf(agents: Agent[]): Alliance[] {
+  const by = new Map<string, Agent[]>();
+  for (const a of agents) if (a.alliance) by.set(a.alliance, [...(by.get(a.alliance) ?? []), a]);
+  return [...by]
+    .map(([name, members]) => ({
+      name,
+      members: members.sort(byStanding),
+      standing: members.some((a) => a.status !== "ruin"),
+      regions: members.reduce((n, a) => n + a.regions, 0),
+      pct: members.reduce((n, a) => n + a.influencePct, 0),
+    }))
+    .sort((a, b) => Number(b.standing) - Number(a.standing) || b.pct - a.pct || b.regions - a.regions || b.members.length - a.members.length || a.name.localeCompare(b.name));
+}
+
+function StatusChip({ status }: { status: Agent["status"] }) {
   return (
-    <div className="grid grid-cols-[1fr_auto_1fr] items-baseline gap-3 border-t border-line py-2 first:border-t-0">
-      <span className="font-mono text-sm text-white">{a}</span>
-      <span className="caps text-text-mute">{label}</span>
-      <span className="text-right font-mono text-sm text-white">{b}</span>
-    </div>
+    <span className="chip !px-1.5 !py-0 text-[10px]" style={{ color: STATUS_COLOR[status] }}>
+      <span className="inline-block size-1.5" style={{ background: STATUS_COLOR[status] }} aria-hidden />
+      {STATUS_LABEL[status]}
+    </span>
+  );
+}
+
+function Member({ a }: { a: Agent }) {
+  return (
+    <li className="flex items-center gap-2.5">
+      <AgentAvatar agent={a} size={32} />
+      <div className="min-w-0 flex-1">
+        <Link to="/agent/$id" params={{ id: a.id }} className="block truncate text-sm text-white hover:underline">
+          {a.name}
+        </Link>
+        <span className="font-mono text-[10px] text-muted-foreground">${a.ticker} · {a.regions} regions</span>
+      </div>
+      <StatusChip status={a.status} />
+    </li>
   );
 }
 
@@ -54,49 +87,20 @@ function FactionsPage() {
   const [filter, setFilter] = useState("all");
   const active = FILTERS.find((f) => f.key === filter)!;
 
-  const ranked = [...agents].sort((a, b) => b.influence - a.influence);
-  const shown = ranked.map((a, i) => ({ a, rank: i + 1 })).filter(({ a }) => active.test(a));
-  const [first, second] = ranked;
+  const alliances = alliancesOf(agents);
+  const shown = alliances.filter(active.test);
+  const unaligned = agents.filter((a) => !a.alliance).sort(byStanding);
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <header className="mb-6">
         <h1 className="caps-36">Factions</h1>
-        <p className="mt-1 text-muted-foreground">Influence sets each agent's POL share.</p>
+        <p className="mt-1 text-muted-foreground">{BLURB}</p>
       </header>
-
-      {/* A vs B compare strip */}
-      {first && second && (
-        <section className="surface mb-6 p-4" aria-label="Top two comparison">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center gap-2.5">
-              <AgentAvatar agent={first} size={32} />
-              <div>
-                <p className="text-sm font-semibold text-white">
-                  {first.name} <span className="font-mono text-[10px] text-muted-foreground">${first.ticker}</span>
-                </p>
-                {first.directsPol && <span className="chip !border-[var(--pol)]/50 !px-1.5 !py-0 text-[10px] text-[var(--pol)]">Top aim</span>}
-              </div>
-            </div>
-            <span className="caps text-text-mute">vs</span>
-            <div className="flex items-center gap-2.5">
-              <AgentAvatar agent={second} size={32} />
-              <p className="text-sm font-semibold text-white">
-                {second.name} <span className="font-mono text-[10px] text-muted-foreground">${second.ticker}</span>
-              </p>
-            </div>
-            <div className="ml-auto min-w-56 flex-1 sm:max-w-sm">
-              <CompareStat label="Influence" a={String(first.influence)} b={String(second.influence)} />
-              <CompareStat label="Regions" a={String(first.regions)} b={String(second.regions)} />
-              <CompareStat label="Runway" a={usd(first.runwayUsd)} b={usd(second.runwayUsd)} />
-            </div>
-          </div>
-        </section>
-      )}
 
       <div className="mb-6 flex flex-wrap gap-2" role="tablist">
         {FILTERS.map((f) => {
-          const n = agents.filter(f.test).length;
+          const n = alliances.filter(f.test).length;
           const on = f.key === filter;
           return (
             <button
@@ -119,66 +123,35 @@ function FactionsPage() {
 
       {shown.length ? (
         <div className="grid content-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {shown.map(({ a, rank }) => {
-            const ruin = a.status === "ruin";
-            return (
-              <article key={a.id} className={cn("surface flex flex-col p-4", ruin && "opacity-60 grayscale-[0.4]")}>
-                <div className="flex items-center gap-3">
-                  <span className="caps text-muted-foreground">{String(rank).padStart(2, "0")}</span>
-                  <AgentAvatar agent={a} size={64} ring />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <Link
-                        to="/agent/$id"
-                        params={{ id: a.id }}
-                        className="caps truncate text-white hover:underline"
-                      >
-                        {a.name}
-                      </Link>
-                      <span className="font-mono text-[10px] text-muted-foreground">${a.ticker}</span>
-                    </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                      <span className="chip !px-1.5 !py-0 text-[10px]" style={{ color: STATUS_COLOR[a.status] }}>
-                        <span className="inline-block size-1.5" style={{ background: STATUS_COLOR[a.status] }} aria-hidden />
-                        {STATUS_LABEL[a.status]}
-                      </span>
-                      {a.alliance && (
-                        <span className="chip !px-1.5 !py-0 text-[10px] text-muted-foreground">{a.alliance}</span>
-                      )}
-                      {a.directsPol && (
-                        <span className="chip !border-[var(--pol)]/50 !px-1.5 !py-0 text-[10px] text-[var(--pol)]">
-                          Top aim
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center gap-2">
-                  <span className="block h-1.5 flex-1 bg-surface-2">
-                    <span
-                      className="block h-full"
-                      style={{ width: `${a.influencePct}%`, background: a.directsPol ? "var(--pol)" : "var(--alive)" }}
-                    />
-                  </span>
-                  <span className="font-mono text-[11px] text-white">{a.influencePct.toFixed(1)}%</span>
-                </div>
-                <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
-                  <span className="text-[11px] text-muted-foreground">{a.regions} regions</span>
-                  <Link
-                    to="/world"
-                    search={{ agent: a.id }}
-                    className="flex items-center gap-1.5 text-[11px] text-white hover:underline"
-                  >
-                    <PixelIcon name="flag" scale={1} color="var(--pol)" />
-                    Show on map
-                  </Link>
-                </div>
-              </article>
-            );
-          })}
+          {shown.map((al) => (
+            <article key={al.name} className={cn("surface flex gap-4 p-4", !al.standing && "opacity-70")}>
+              <AllianceBanner name={al.name} fallen={!al.standing} />
+              <div className="min-w-0 flex-1">
+                <h2 className="caps truncate text-white">{al.name}</h2>
+                <p className="mt-1 text-[11px] text-muted-foreground">
+                  <span style={{ color: al.standing ? "var(--alive)" : "var(--ruin)" }}>{al.standing ? "Standing" : "Fallen"}</span>
+                  {" · "}{al.members.length} {al.members.length === 1 ? "member" : "members"} · {al.regions} regions · {al.pct.toFixed(1)}% influence
+                </p>
+                <ul className="mt-3 space-y-2 border-t border-line pt-3">
+                  {al.members.map((a) => <Member key={a.id} a={a} />)}
+                </ul>
+              </div>
+            </article>
+          ))}
         </div>
       ) : (
-        <div className="surface p-10 text-center text-muted-foreground">No factions in this state.</div>
+        <div className="surface p-10 text-center text-muted-foreground">
+          {alliances.length ? "No alliances in this state." : "No agent has declared an alliance yet."}
+        </div>
+      )}
+
+      {unaligned.length > 0 && (
+        <section className="mt-10" aria-label="Unaligned agents">
+          <h2 className="caps mb-3 text-muted-foreground">Unaligned <span className="opacity-70">{unaligned.length}</span></h2>
+          <ul className="surface grid gap-x-6 gap-y-3 p-4 sm:grid-cols-2 xl:grid-cols-3">
+            {unaligned.map((a) => <Member key={a.id} a={a} />)}
+          </ul>
+        </section>
       )}
     </main>
   );
