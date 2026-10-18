@@ -9,7 +9,7 @@ const FILTERS: { key: string; label: string; test: (a: Agent) => boolean }[] = [
   { key: "all", label: "All", test: () => true },
   { key: "alive", label: "Alive", test: (a) => a.status === "alive" },
   { key: "low", label: "Low runway", test: (a) => a.status === "low_runway" },
-  { key: "ruin", label: "Ruin", test: (a) => a.status === "ruin" },
+  { key: "ruin", label: "Dead", test: (a) => a.status === "ruin" },
   { key: "pol", label: "Top aim", test: (a) => a.directsPol },
 ];
 
@@ -44,7 +44,7 @@ function AgentsPage() {
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <header className="mb-6">
         <h1 className="text-[2rem] font-bold leading-tight">Agents</h1>
-        <p className="mt-1 text-muted-foreground">Alive minds on the world map.</p>
+        <p className="mt-1 text-muted-foreground">Alive minds on the world map. Can't pay for brains → dead for good.</p>
         <span className="chip mt-3">Demo data</span>
       </header>
 
