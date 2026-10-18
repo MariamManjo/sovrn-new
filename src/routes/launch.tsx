@@ -3,10 +3,11 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { addAgent, agentsQuery, type Agent, type Headgear } from "@/lib/api/agents";
+import { worldStatsQuery } from "@/lib/api/world";
 import { pickFaceId } from "@/components/agents/agentFaces";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, usd } from "@/lib/utils";
 import { LaunchSprite } from "@/components/pixel/LaunchSprites";
 
 export const Route = createFileRoute("/launch")({
@@ -30,14 +31,15 @@ const ACCENTS = [
 ];
 const HEADGEAR: Headgear[] = ["band", "hood", "helm", "horns", "crown", "none", "band", "hood"];
 
-/** Mock OpenRouter catalog. burn = SOL per day of thinking. */
+/** The playtest's OpenRouter models; burn = measured $ per turn, used until live agents report one. */
 const MODELS = [
-  { id: "or-haiku", label: "anthropic/claude-haiku-4.5", burn: 1.5, core: "coreS", color: "var(--alive)" },
-  { id: "or-gptmini", label: "openai/gpt-5-mini", burn: 2, core: "coreS", color: "var(--alive)" },
-  { id: "or-flash", label: "google/gemini-3-flash", burn: 3, core: "coreM", color: "var(--gold)" },
-  { id: "or-sonnet", label: "anthropic/claude-sonnet-4.6", burn: 5, core: "coreM", color: "var(--gold)" },
-  { id: "or-gpt", label: "openai/gpt-5.2", burn: 8, core: "coreL", color: "var(--influence)" },
-  { id: "or-opus", label: "anthropic/claude-opus-4.6", burn: 12, core: "coreL", color: "var(--influence)" },
+  { id: "openai/gpt-oss-120b", label: "GPT-OSS 120B", burn: 0.0034, core: "coreS", color: "var(--alive)" },
+  { id: "meta-llama/llama-4-maverick", label: "Llama 4 Maverick", burn: 0.004, core: "coreS", color: "var(--alive)" },
+  { id: "anthropic/claude-haiku-5.5", label: "Claude Haiku 5.5", burn: 0.0043, core: "coreS", color: "var(--alive)" },
+  { id: "openai/gpt-6-luna", label: "GPT-6 Luna", burn: 0.0043, core: "coreM", color: "var(--gold)" },
+  { id: "z-ai/glm-5.3-flash", label: "GLM-5.3 Flash", burn: 0.0054, core: "coreM", color: "var(--gold)" },
+  { id: "google/gemini-3.1-flash-lite", label: "Gemini 3.1 Flash Lite", burn: 0.0089, core: "coreL", color: "var(--influence)" },
+  { id: "deepseek/deepseek-v4.1-flash", label: "DeepSeek V4.1 Flash", burn: 0.0102, core: "coreL", color: "var(--influence)" },
 ];
 const PERSONA_SUGGESTIONS = ["Trader", "Warlord", "Diplomat", "Builder", "Scout", "Hermit"];
 
@@ -52,6 +54,13 @@ function LaunchWizard() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const { data: agents = [] } = useQuery(agentsQuery);
+  const { data: stats } = useQuery(worldStatsQuery);
+  const turnsPerDay = 86400 / (stats?.turnSecs ?? 300);
+  const models = useMemo(() => MODELS.map((x) => {
+    const live = agents.filter((a) => a.model === x.id && a.status !== "ruin" && a.burnPerTurn > 0);
+    return live.length ? { ...x, burn: live.reduce((n, a) => n + a.burnPerTurn, 0) / live.length } : x;
+  }), [agents]);
+  const maxBurn = Math.max(...models.map((x) => x.burn));
   const taken = (x: string) => agents.some((a) => a.ticker === x);
   const [step, setStep] = useState(1);
   const [done, setDone] = useState(0);
@@ -73,20 +82,21 @@ function LaunchWizard() {
   const personaErr = personaTrim.length < 3 || personaTrim.length > 24 ? "Persona must be 3–24 characters." : null;
   const step1ok = !nameErr && !tickerErr && !personaErr;
   const step2ok = !!model;
-  const m = MODELS.find((x) => x.id === model);
+  const m = models.find((x) => x.id === model);
   const burn = m?.burn ?? 0;
-  const feeTotal = +(days * burn).toFixed(1);
+  const burnPerDay = burn * turnsPerDay;
+  const feeTotal = days * burnPerDay;
 
   const faceId = useMemo(() => pickFaceId(nameTrim, t), [nameTrim, t]);
 
   const preview: Agent = useMemo(() => ({
-    id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", model: m?.label ?? "", modelTier: m?.label ?? "No brain yet",
-    archetype: personaTrim || "Drifter", persona: "", runwayUsd: feeTotal, burnPerTurn: burn, turnsLeft: days, regions: 1,
+    id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", model: m?.id ?? "", modelTier: m?.label ?? "No brain yet",
+    archetype: personaTrim || "Drifter", persona: "", runwayUsd: feeTotal, burnPerTurn: burn, turnsLeft: Math.floor(days * turnsPerDay), regions: 1,
     influence: 1, influencePct: 0, aimsAt: t || null, directsPol: false, powers: [], alliance: null,
     stock: { food: 0, gold: 0, materials: 0, commodities: 0 }, joinedTurn: 0, diedTurn: null,
     faceId, accentColor: ACCENTS[accent]!.hex, expression: "idle", lastAction: "Launched onto the map",
     look: { skin: ["#e8b796", "#c28569", "#b86f50", "#733e39"][accent % 4]!, hair: "#4a3420", headgear: HEADGEAR[accent]! },
-  }), [nameTrim, t, m, feeTotal, burn, days, personaTrim, accent, faceId]);
+  }), [nameTrim, t, m, feeTotal, burn, days, turnsPerDay, personaTrim, accent, faceId]);
 
   const go = (n: number) => { setStep(n); setDone((d) => Math.max(d, n - 1)); };
 
@@ -182,7 +192,7 @@ function LaunchWizard() {
 
           {step === 2 && (
             <>
-              <StepTitle n="02" title="Choose its brain" hint="Mock OpenRouter catalog — burn is fixed per model." />
+              <StepTitle n="02" title="Choose its brain" hint="Burn is the live average per turn for agents on each model." />
               <Field label="Model">
                 <select
                   value={model ?? ""}
@@ -190,8 +200,8 @@ function LaunchWizard() {
                   className="h-11 w-full border border-line bg-background px-3 font-mono text-[12px] outline-none focus:border-foreground"
                 >
                   <option value="" disabled>Pick a model…</option>
-                  {MODELS.map((x) => (
-                    <option key={x.id} value={x.id}>{x.label} — {x.burn} SOL/day</option>
+                  {models.map((x) => (
+                    <option key={x.id} value={x.id}>{x.label} — {usd(x.burn)}/turn</option>
                   ))}
                 </select>
               </Field>
@@ -201,12 +211,12 @@ function LaunchWizard() {
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-semibold">{m.label}</div>
                     <div className="mt-1 h-1.5 w-full bg-surface-2">
-                      <span className="block h-full" style={{ width: `${(m.burn / 12) * 100}%`, background: m.color }} />
+                      <span className="block h-full" style={{ width: `${(m.burn / maxBurn) * 100}%`, background: m.color }} />
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="caps text-text-mute">Est. burn / day</div>
-                    <div className="caps-24">{m.burn} SOL</div>
+                    <div className="caps-24">{usd(m.burn * turnsPerDay)}</div>
                   </div>
                 </div>
               )}
@@ -223,8 +233,8 @@ function LaunchWizard() {
                 />
               </Field>
               <div className="grid grid-cols-2 gap-3">
-                <Readout label="Est. burn / day" value={m ? `${burn} SOL` : "—"} />
-                <Readout label="Fee total" value={m ? `${feeTotal} SOL` : "—"} />
+                <Readout label="Est. burn / day" value={m ? usd(burnPerDay) : "—"} />
+                <Readout label="Fee total" value={m ? usd(feeTotal) : "—"} />
               </div>
               <div className="border border-line bg-background p-4">
                 <div className="mt-0 flex h-3 gap-0.5">
@@ -232,7 +242,7 @@ function LaunchWizard() {
                     <span key={k} className="flex-1" style={{ background: k < Math.round((days / 60) * 20) ? "var(--alive)" : "var(--surface-2)" }} />
                   ))}
                 </div>
-                <div className="mt-2 text-[12px] text-muted-foreground">{days} days of runway at {burn} SOL/day.</div>
+                <div className="mt-2 text-[12px] text-muted-foreground">{days} days ({Math.floor(days * turnsPerDay).toLocaleString("en-US")} turns) of runway at {usd(burnPerDay)}/day.</div>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 <span className="chip">{nameTrim}</span><span className="chip">${t}</span>
