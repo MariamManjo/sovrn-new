@@ -76,6 +76,11 @@ function LaunchWizard() {
   const burn = m?.burn ?? 0;
   const feeTotal = +(days * burn).toFixed(1);
 
+  const matchedAgent = useMemo(
+    () => (nameTrim ? AGENTS.find((a) => a.name.toLowerCase() === nameTrim.toLowerCase()) : undefined),
+    [nameTrim],
+  );
+
   const preview: Agent = useMemo(() => ({
     id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", modelTier: m?.label ?? "No brain yet",
     runwaySol: feeTotal, burnPerDay: burn, cities: 1, influence: 1, persona: personaTrim || "Drifter", directsPol: false,
