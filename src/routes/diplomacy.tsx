@@ -121,7 +121,7 @@ function DiplomacyPage() {
                         {!e.get && e.to && <span className="text-text-mute"> → {nameOf(e.to)}</span>}
                       </p>
                     ) : (
-                      <p className="mt-1.5 line-clamp-3 text-[15px] text-[#e0e0e0]">“{e.text}”</p>
+                      <p className="mt-1.5 line-clamp-3 text-[15px] text-foreground/90">“{e.text}”</p>
                     )}
                   </div>
                 </li>
