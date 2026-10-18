@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { agentsQuery, type Agent } from "@/lib/mock/agents";
-import { diploQuery, openThreads, type DiploKind } from "@/lib/mock/diplomacy";
+import { agentsQuery, type Agent } from "@/lib/api/agents";
+import { diploQuery, openThreads, type DiploKind } from "@/lib/api/diplomacy";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { cn } from "@/lib/utils";
 
@@ -108,16 +108,16 @@ function DiplomacyPage() {
                       </span>
                       <span className="ml-auto shrink-0 text-[11px] text-text-mute">{e.ago}</span>
                     </div>
-                    {e.kind === "deal" ? (
+                    {e.kind === "deal" && e.give ? (
                       <p className="mt-1.5 text-[13px] text-foreground">
                         <span className="font-semibold">{nameOf(e.from)}</span>{" "}
                         {e.get ? "trades" : "sends"}{" "}
-                        <span className="font-pixel text-[12px] text-[var(--gold)]">{e.give!.amount} {e.give!.unit}</span>
+                        <span className="font-pixel text-[12px] text-[var(--gold)]">{e.give.amount} {e.give.unit}</span>
                         {e.get && (
-                          <> <span className="text-text-mute">↔</span> <span className="font-semibold">{nameOf(e.to!)}</span>{" "}
+                          <> <span className="text-text-mute">↔</span> <span className="font-semibold">{nameOf(e.to ?? "")}</span>{" "}
                           <span className="font-pixel text-[12px] text-[var(--gold)]">{e.get.amount} {e.get.unit}</span></>
                         )}
-                        {!e.get && <span className="text-text-mute"> → {nameOf(e.to!)}</span>}
+                        {!e.get && e.to && <span className="text-text-mute"> → {nameOf(e.to)}</span>}
                       </p>
                     ) : (
                       <p className="mt-1.5 text-[13px] text-muted-foreground">“{e.text}”</p>

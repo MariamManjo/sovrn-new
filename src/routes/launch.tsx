@@ -1,8 +1,8 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { AGENTS, addAgent, agentsQuery, type Agent, type Headgear } from "@/lib/mock/agents";
+import { addAgent, agentsQuery, type Agent, type Headgear } from "@/lib/api/agents";
 import { agentFaceUrl, pickFaceId } from "@/components/agents/agentFaces";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -41,8 +41,7 @@ const MODELS = [
 const PERSONA_SUGGESTIONS = ["Trader", "Warlord", "Diplomat", "Builder", "Scout", "Hermit"];
 
 const tickerFrom = (n: string) => n.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3);
-const taken = (t: string) => AGENTS.some((a) => a.ticker === t);
-function suggest(t: string) {
+function suggest(t: string, taken: (t: string) => boolean) {
   const base = t.slice(0, 4);
   for (const c of "XYZQKVABCDEFGHIJLMNOPRSTUW") if (!taken(base + c)) return base + c;
   return base;
@@ -51,6 +50,8 @@ function suggest(t: string) {
 function LaunchWizard() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { data: agents = [] } = useQuery(agentsQuery);
+  const taken = (x: string) => agents.some((a) => a.ticker === x);
   const [step, setStep] = useState(1);
   const [done, setDone] = useState(0);
   const [name, setName] = useState("");
@@ -67,7 +68,7 @@ function LaunchWizard() {
   const nameTrim = name.trim();
   const personaTrim = persona.trim();
   const nameErr = nameTrim.length < 3 || nameTrim.length > 16 ? "Name must be 3–16 characters." : null;
-  const tickerErr = !/^[A-Z]{3,5}$/.test(t) ? "Ticker must be 3–5 letters A–Z." : taken(t) ? `$${t} is taken. Try $${suggest(t)}.` : null;
+  const tickerErr = !/^[A-Z]{3,5}$/.test(t) ? "Ticker must be 3–5 letters A–Z." : taken(t) ? `$${t} is taken. Try $${suggest(t, taken)}.` : null;
   const personaErr = personaTrim.length < 3 || personaTrim.length > 24 ? "Persona must be 3–24 characters." : null;
   const step1ok = !nameErr && !tickerErr && !personaErr;
   const step2ok = !!model;
@@ -81,19 +82,21 @@ function LaunchWizard() {
   }, [nameTrim, t]);
 
   const preview: Agent = useMemo(() => ({
-    id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", modelTier: m?.label ?? "No brain yet",
-    runwaySol: feeTotal, burnPerDay: burn, cities: 1, influence: 1, persona: personaTrim || "Drifter", directsPol: false,
+    id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", model: m?.label ?? "", modelTier: m?.label ?? "No brain yet",
+    archetype: personaTrim || "Drifter", persona: "", runwayUsd: feeTotal, burnPerTurn: burn, turnsLeft: days, regions: 1,
+    influence: 1, influencePct: 0, aimsAt: t || null, directsPol: false, powers: [], alliance: null,
+    stock: { food: 0, gold: 0, materials: 0, commodities: 0 }, joinedTurn: 0, diedTurn: null,
     faceId: portrait.id, accentColor: ACCENTS[accent]!.hex, expression: "idle", lastAction: "Launched onto the map",
     look: { skin: ["#e8b796", "#c28569", "#b86f50", "#733e39"][accent % 4]!, hair: "#4a3420", headgear: HEADGEAR[accent]! },
-  }), [nameTrim, t, m, feeTotal, burn, personaTrim, accent, portrait.id]);
+  }), [nameTrim, t, m, feeTotal, burn, days, personaTrim, accent, portrait.id]);
 
   const go = (n: number) => { setStep(n); setDone((d) => Math.max(d, n - 1)); };
 
   function launch() {
     let id = nameTrim.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    while (AGENTS.some((a) => a.id === id)) id += "-2";
-    addAgent({ ...preview, id, influence: 1 + Math.floor(Math.random() * 5) });
-    qc.setQueryData(agentsQuery.queryKey, [...AGENTS]);
+    while (agents.some((a) => a.id === id)) id += "-2";
+    const agent = addAgent({ ...preview, id, influence: 1 + Math.floor(Math.random() * 5) });
+    qc.setQueryData(agentsQuery.queryKey, [...agents, agent]);
     toast("Agent launched.");
     navigate({ to: "/agent/$id", params: { id } });
   }
@@ -147,7 +150,7 @@ function LaunchWizard() {
             <div className="w-full min-w-0 text-center">
               <div className="truncate text-[22px] font-bold leading-tight">{preview.name}</div>
               <div className="font-pixel mt-1 text-[14px] text-text-mute">${preview.ticker}</div>
-              <div className="mt-1 truncate text-[12px] text-muted-foreground">{preview.persona}</div>
+              <div className="mt-1 truncate text-[12px] text-muted-foreground">{preview.archetype}</div>
               <span className="chip mt-3 text-[13px]"><span className="inline-block size-2" style={{ background: "var(--alive)" }} />Alive</span>
             </div>
           </div>

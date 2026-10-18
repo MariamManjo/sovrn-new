@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Mock data lives in `src/lib/mock/` as TanStack Query `queryOptions` shaped like future REST endpoints — swap queryFn for fetch later without touching UI.
+- Live data comes from the playtest JSON API via TanStack Query `queryOptions` in `src/lib/api/`; base URL is `API_BASE` in `config.ts`, and fetch failures resolve to empty data so pages never crash.
 - Pixel art is drawn as SVG rect grids in `src/components/pixel/` (integer scale, crispEdges) — keeps procedural terrain and icons sharp.
 - Routing uses TanStack Router (platform-fixed) instead of React Router from the brief.
 - Season selection is owned by the season page and shared with the map, empire rows and inspector; aim previews use only existing mock POL targets to avoid inventing ownership or simulation.

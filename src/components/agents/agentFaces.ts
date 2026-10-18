@@ -41,6 +41,9 @@ export function pickFaceId(name: string, ticker: string): string {
   return FACE_POOL[h % FACE_POOL.length] ?? DEFAULT_FACE_ID;
 }
 
-/** Face URL for any agent: own ID, saved faceId, then default — never empty. */
+// Live playtest ids (A0, A1, …) cycle through the pool in roster order.
+const liveFaceId = (id: string) => (/^A\d+$/.test(id) ? FACE_POOL[+id.slice(1) % FACE_POOL.length] : undefined);
+
+/** Face URL for any agent: own ID, live ID, saved faceId, then default — never empty. */
 export const resolveFaceUrl = (agent: { id: string; faceId?: string }): string =>
-  faces[agent.id] ?? (agent.faceId ? faces[agent.faceId] : undefined) ?? faces[DEFAULT_FACE_ID]!;
+  faces[agent.id] ?? faces[liveFaceId(agent.id) ?? ""] ?? (agent.faceId ? faces[agent.faceId] : undefined) ?? faces[DEFAULT_FACE_ID]!;

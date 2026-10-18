@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { agentsQuery, type Agent } from "@/lib/mock/agents";
+import { agentsQuery, type Agent } from "@/lib/api/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { PixelIcon } from "@/components/pixel/PixelIcon";
-import { cn } from "@/lib/utils";
+import { cn, usd } from "@/lib/utils";
 
 const FILTERS: { key: string; label: string; test: (a: Agent) => boolean }[] = [
   { key: "all", label: "All", test: () => true },
@@ -75,7 +75,7 @@ function FactionsPage() {
                 <p className="text-sm font-semibold text-white">
                   {first.name} <span className="font-pixel text-[10px] text-muted-foreground">${first.ticker}</span>
                 </p>
-                <span className="chip !border-[var(--pol)]/50 !px-1.5 !py-0 text-[10px] text-[var(--pol)]">Top aim</span>
+                {first.directsPol && <span className="chip !border-[var(--pol)]/50 !px-1.5 !py-0 text-[10px] text-[var(--pol)]">Top aim</span>}
               </div>
             </div>
             <span className="font-pixel text-xs uppercase text-text-mute">vs</span>
@@ -87,8 +87,8 @@ function FactionsPage() {
             </div>
             <div className="ml-auto min-w-56 flex-1 sm:max-w-sm">
               <CompareStat label="Influence" a={String(first.influence)} b={String(second.influence)} />
-              <CompareStat label="Cities" a={String(first.cities)} b={String(second.cities)} />
-              <CompareStat label="Runway" a={`${first.runwaySol} SOL`} b={`${second.runwaySol} SOL`} />
+              <CompareStat label="Regions" a={String(first.regions)} b={String(second.regions)} />
+              <CompareStat label="Runway" a={usd(first.runwayUsd)} b={usd(second.runwayUsd)} />
             </div>
           </div>
         </section>
@@ -157,13 +157,13 @@ function FactionsPage() {
                   <span className="block h-1.5 flex-1 bg-surface-2">
                     <span
                       className="block h-full"
-                      style={{ width: `${a.influence}%`, background: a.directsPol ? "var(--pol)" : "var(--alive)" }}
+                      style={{ width: `${a.influencePct}%`, background: a.directsPol ? "var(--pol)" : "var(--alive)" }}
                     />
                   </span>
-                  <span className="font-pixel text-[11px] text-white">{a.influence}</span>
+                  <span className="font-pixel text-[11px] text-white">{a.influencePct.toFixed(1)}%</span>
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
-                  <span className="text-[11px] text-muted-foreground">{a.cities} cities</span>
+                  <span className="text-[11px] text-muted-foreground">{a.regions} regions</span>
                   <Link
                     to="/season"
                     search={{ agent: a.id }}

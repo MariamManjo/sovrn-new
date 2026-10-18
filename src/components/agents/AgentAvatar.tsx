@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Agent } from "@/lib/mock/agents";
+import type { Agent } from "@/lib/api/agents";
 import { resolveFaceUrl } from "./agentFaces";
 
 /** Uploaded square portrait; unassigned or unavailable faces use a gray placeholder. */
