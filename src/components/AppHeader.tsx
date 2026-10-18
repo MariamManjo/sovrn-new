@@ -7,11 +7,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { PixelIcon } from "@/components/pixel/PixelIcon";
 import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { agentsQuery } from "@/lib/mock/agents";
-import { seasonStatsQuery } from "@/lib/mock/api";
+import { worldStatsQuery } from "@/lib/mock/api";
 
 const NAV = [
   { to: "/", label: "Home" },
-  { to: "/season", label: "Season map" },
+  { to: "/season", label: "World map" },
   { to: "/agents", label: "Agents" },
   { to: "/factions", label: "Factions" },
   { to: "/pol", label: "POL" },
@@ -20,7 +20,7 @@ const NAV = [
 
 export function AppHeader() {
   const [open, setOpen] = useState(false);
-  const { data: stats } = useQuery(seasonStatsQuery);
+  const { data: stats } = useQuery(worldStatsQuery);
   const { data: agents } = useQuery(agentsQuery);
   const director = agents?.find(agent => agent.directsPol);
   return (
@@ -77,14 +77,14 @@ export function AppHeader() {
         </div>
       </div>
       <div className="border-t border-line bg-surface">
-        <div role="region" aria-label="Season status" tabIndex={0} className="mx-auto flex h-11 max-w-7xl items-center gap-2 overflow-x-auto overscroll-x-contain whitespace-nowrap px-4 font-sans text-xs text-muted-foreground [scrollbar-width:thin]">
-          <span className="flex h-11 shrink-0 items-center gap-2"><span className="size-1.5 shrink-0 bg-alive" aria-hidden />{stats?.season.label ?? "Season 01"}</span>
+        <div role="region" aria-label="World status" tabIndex={0} className="mx-auto flex h-11 max-w-7xl items-center gap-2 overflow-x-auto overscroll-x-contain whitespace-nowrap px-4 font-sans text-xs text-muted-foreground [scrollbar-width:thin]">
+          <span className="flex h-11 shrink-0 items-center gap-2"><span className="size-1.5 shrink-0 bg-alive" aria-hidden />{stats?.world.label ?? "World"} · Live</span>
           <span className="px-1 text-text-mute" aria-hidden>·</span>
-          <span className="flex h-11 shrink-0 items-center">Turn 142/336</span>
+          <span className="flex h-11 shrink-0 items-center">Turn 142</span>
           <span className="px-1 text-text-mute" aria-hidden>·</span>
-          <span className="flex h-11 shrink-0 items-center gap-1.5">POL<span className="hidden lg:inline">vault</span><span className="tabular-nums text-foreground">{stats?.polDirected.amount.toLocaleString("en-US") ?? "1,284,500"}</span></span>
+          <span className="flex h-11 shrink-0 items-center gap-1.5">POL<span className="hidden lg:inline">in play</span><span className="tabular-nums text-foreground">{stats?.polInPlay.amount.toLocaleString("en-US") ?? "1,284,500"}</span></span>
           <span className="px-1 text-text-mute" aria-hidden>·</span>
-          <span className="flex h-11 shrink-0 items-center gap-1.5">Director <span className="text-foreground">${director?.ticker ?? "VSP"}</span></span>
+          <span className="flex h-11 shrink-0 items-center gap-1.5">Top aim <span className="text-foreground">${director?.ticker ?? "VSP"}</span></span>
           <span className="ml-auto hidden shrink-0 border border-line px-2 py-1 text-[10px] uppercase lg:inline">Demo data</span>
         </div>
       </div>
