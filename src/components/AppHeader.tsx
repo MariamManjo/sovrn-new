@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Menu, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { PixelIcon } from "@/components/pixel/PixelIcon";
+import logoIcon from "@/assets/logo-icon.png.asset.json";
 import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { agentsQuery } from "@/lib/mock/agents";
 import { worldStatsQuery } from "@/lib/mock/api";
@@ -31,7 +31,7 @@ export function AppHeader() {
       <div className="mx-auto grid h-14 max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 lg:flex lg:gap-6">
         {/* Logo slot — image wordmark comes later; text wordmark for now */}
         <Link to="/" className="flex h-11 min-w-0 shrink-0 items-center gap-2" aria-label="SOVRN home">
-          <PixelIcon name="flag" scale={3} color="var(--launch)"  />
+          <img src={logoIcon.url} alt="" width={32} height={32} className="h-8 w-8" style={{ imageRendering: "pixelated" }} />
           <span className="truncate font-pixel text-xs uppercase text-foreground">
             SOVRN
           </span>
