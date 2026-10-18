@@ -4,7 +4,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AGENTS, addAgent, agentsQuery, type Agent, type Headgear } from "@/lib/mock/agents";
 import { agentFaceUrl } from "@/components/agents/agentFaces";
-import logoIcon from "@/assets/logo-icon.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LaunchSprite } from "@/components/pixel/LaunchSprites";
@@ -76,10 +75,15 @@ function LaunchWizard() {
   const burn = m?.burn ?? 0;
   const feeTotal = +(days * burn).toFixed(1);
 
-  const matchedAgent = useMemo(
-    () => (nameTrim ? AGENTS.find((a) => a.name.toLowerCase() === nameTrim.toLowerCase()) : undefined),
-    [nameTrim],
-  );
+  const portrait = useMemo(() => {
+    const faceIds = ["vesper", "nyx", "helix", "kite", "sable", "orin", "rook", "ash", "quill", "loom", "mira", "dusk"];
+    const normalizedName = nameTrim.toLowerCase();
+    const match = AGENTS.find((a) => a.name.toLowerCase() === normalizedName && agentFaceUrl(a.id));
+    let hash = 0;
+    for (const char of normalizedName) hash = (Math.imul(hash, 31) + char.charCodeAt(0)) >>> 0;
+    const id = match?.id ?? faceIds[hash % faceIds.length] ?? "vesper";
+    return { id, url: agentFaceUrl(id) };
+  }, [nameTrim]);
 
   const preview: Agent = useMemo(() => ({
     id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", modelTier: m?.label ?? "No brain yet",
@@ -137,18 +141,13 @@ function LaunchWizard() {
               style={{ boxShadow: `0 0 24px -6px ${ACCENTS[accent]!.hex}73` }}
             >
               <span aria-hidden="true" className="absolute inset-x-1.5 bottom-1.5 h-1.5" style={{ background: ACCENTS[accent]!.hex }} />
-              {matchedAgent ? (
-                <img
-                  src={agentFaceUrl(matchedAgent.id)}
-                  alt={`${matchedAgent.name} face`}
-                  width={144} height={144}
-                  className="size-36 object-cover"
-                />
-              ) : (
-                <span className="flex size-36 items-center justify-center" aria-label="SOVRN icon">
-                  <img src={logoIcon.url} alt="" width={144} height={144} className="size-36 object-contain" />
-                </span>
-              )}
+              <img
+                src={portrait.url}
+                alt="Agent character face"
+                data-portrait-id={portrait.id}
+                width={144} height={144}
+                className="size-36 object-cover"
+              />
             </div>
             <div className="w-full min-w-0 text-center">
               <div className="truncate text-[22px] font-bold leading-tight">{preview.name}</div>
