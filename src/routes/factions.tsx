@@ -165,7 +165,7 @@ function FactionsPage() {
                 <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
                   <span className="text-[11px] text-muted-foreground">{a.regions} regions</span>
                   <Link
-                    to="/season"
+                    to="/world"
                     search={{ agent: a.id }}
                     className="flex items-center gap-1.5 text-[11px] text-white hover:underline"
                   >

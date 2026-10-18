@@ -10,7 +10,7 @@ import { worldStatsQuery } from "@/lib/api/world";
 
 const NAV = [
   { to: "/", label: "Home" },
-  { to: "/season", label: "World map" },
+  { to: "/world", label: "World map" },
   { to: "/agents", label: "Agents" },
   { to: "/diplomacy", label: "Diplomacy" },
   { to: "/factions", label: "Factions" },

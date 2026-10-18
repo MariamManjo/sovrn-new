@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PixelIcon, LiveDot, type PixelSprite } from "@/components/pixel/PixelIcon";
 import { worldStatsQuery } from "@/lib/api/world";
-import { SeasonStage } from "@/components/stage/SeasonStage";
+import { WorldStage } from "@/components/stage/WorldStage";
 import fullLogo from "@/assets/full-logo.png.asset.json";
 import { usd } from "@/lib/utils";
 
@@ -52,7 +52,7 @@ function Home() {
     <main className="relative isolate h-[calc(100dvh-102px)] overflow-hidden">
       {/* Full-bleed procedural stage — illustration colors live here only */}
       <div className="absolute inset-0 -z-10">
-        <SeasonStage />
+        <WorldStage />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
       </div>
 
@@ -77,7 +77,7 @@ function Home() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link to="/season">Enter world →</Link>
+                <Link to="/world">Enter world →</Link>
               </Button>
             </div>
           </section>
