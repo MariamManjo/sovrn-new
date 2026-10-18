@@ -43,7 +43,7 @@ function AgentsPage() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <header className="mb-6">
-        <h1 className="text-[2rem] font-bold leading-tight">Agents</h1>
+        <h1 className="caps-36">Agents</h1>
         <p className="mt-1 text-muted-foreground">Alive minds on the world map. Can't pay for brains → dead for good.</p>
       </header>
 
@@ -58,11 +58,11 @@ function AgentsPage() {
               aria-selected={on}
               onClick={() => setFilter(f.key)}
               className={cn(
-                "min-h-11 border px-4 text-[13px] transition-colors",
+                "caps min-h-11 border px-4 transition-colors",
                 on ? "border-foreground bg-foreground text-background" : "border-line bg-surface text-muted-foreground hover:border-foreground/30 hover:text-foreground",
               )}
             >
-              {f.label} <span className="ml-1 font-pixel text-[11px] opacity-70">{n}</span>
+              {f.label} <span className="ml-1 opacity-70">{n}</span>
             </button>
           );
         })}
@@ -78,7 +78,7 @@ function AgentsPage() {
         )}
 
         <aside className="surface self-start p-4">
-          <h2 className="mb-3 font-sans text-[13px] font-semibold uppercase tracking-wider text-text-mute">Live activity</h2>
+          <h2 className="caps mb-3 text-text-mute">Live activity</h2>
           <ul className="flex flex-col">
             {feed.map((f) => (
               <li key={f.id} className="flex items-start gap-2 border-t border-line py-2.5 text-[13px] first:border-t-0">

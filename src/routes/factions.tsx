@@ -42,9 +42,9 @@ export const Route = createFileRoute("/factions")({
 function CompareStat({ label, a, b }: { label: string; a: string; b: string }) {
   return (
     <div className="grid grid-cols-[1fr_auto_1fr] items-baseline gap-3 border-t border-line py-2 first:border-t-0">
-      <span className="font-pixel text-sm text-white">{a}</span>
-      <span className="text-[11px] uppercase text-text-mute">{label}</span>
-      <span className="text-right font-pixel text-sm text-white">{b}</span>
+      <span className="font-mono text-sm text-white">{a}</span>
+      <span className="caps text-text-mute">{label}</span>
+      <span className="text-right font-mono text-sm text-white">{b}</span>
     </div>
   );
 }
@@ -61,7 +61,7 @@ function FactionsPage() {
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <header className="mb-6">
-        <h1 className="text-[2rem] font-bold leading-tight">Factions</h1>
+        <h1 className="caps-36">Factions</h1>
         <p className="mt-1 text-muted-foreground">Influence sets each agent's POL share.</p>
       </header>
 
@@ -73,16 +73,16 @@ function FactionsPage() {
               <AgentAvatar agent={first} size={32} />
               <div>
                 <p className="text-sm font-semibold text-white">
-                  {first.name} <span className="font-pixel text-[10px] text-muted-foreground">${first.ticker}</span>
+                  {first.name} <span className="font-mono text-[10px] text-muted-foreground">${first.ticker}</span>
                 </p>
                 {first.directsPol && <span className="chip !border-[var(--pol)]/50 !px-1.5 !py-0 text-[10px] text-[var(--pol)]">Top aim</span>}
               </div>
             </div>
-            <span className="font-pixel text-xs uppercase text-text-mute">vs</span>
+            <span className="caps text-text-mute">vs</span>
             <div className="flex items-center gap-2.5">
               <AgentAvatar agent={second} size={32} />
               <p className="text-sm font-semibold text-white">
-                {second.name} <span className="font-pixel text-[10px] text-muted-foreground">${second.ticker}</span>
+                {second.name} <span className="font-mono text-[10px] text-muted-foreground">${second.ticker}</span>
               </p>
             </div>
             <div className="ml-auto min-w-56 flex-1 sm:max-w-sm">
@@ -105,13 +105,13 @@ function FactionsPage() {
               aria-selected={on}
               onClick={() => setFilter(f.key)}
               className={cn(
-                "min-h-11 border px-4 text-[13px] transition-colors",
+                "caps min-h-11 border px-4 transition-colors",
                 on
                   ? "border-foreground bg-foreground text-background"
                   : "border-line bg-surface text-muted-foreground hover:border-foreground/30 hover:text-foreground",
               )}
             >
-              {f.label} <span className="ml-1 font-pixel text-[11px] opacity-70">{n}</span>
+              {f.label} <span className="ml-1 opacity-70">{n}</span>
             </button>
           );
         })}
@@ -123,19 +123,19 @@ function FactionsPage() {
             const ruin = a.status === "ruin";
             return (
               <article key={a.id} className={cn("surface flex flex-col p-4", ruin && "opacity-60 grayscale-[0.4]")}>
-                <div className="flex items-start gap-3">
-                  <span className="font-pixel text-[11px] text-muted-foreground">{String(rank).padStart(2, "0")}</span>
+                <div className="flex items-center gap-3">
+                  <span className="caps text-muted-foreground">{String(rank).padStart(2, "0")}</span>
                   <AgentAvatar agent={a} size={64} ring />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <Link
                         to="/agent/$id"
                         params={{ id: a.id }}
-                        className="truncate text-sm font-semibold text-white hover:underline"
+                        className="caps truncate text-white hover:underline"
                       >
                         {a.name}
                       </Link>
-                      <span className="font-pixel text-[10px] text-muted-foreground">${a.ticker}</span>
+                      <span className="font-mono text-[10px] text-muted-foreground">${a.ticker}</span>
                     </div>
                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
                       <span className="chip !px-1.5 !py-0 text-[10px]" style={{ color: STATUS_COLOR[a.status] }}>
@@ -160,7 +160,7 @@ function FactionsPage() {
                       style={{ width: `${a.influencePct}%`, background: a.directsPol ? "var(--pol)" : "var(--alive)" }}
                     />
                   </span>
-                  <span className="font-pixel text-[11px] text-white">{a.influencePct.toFixed(1)}%</span>
+                  <span className="font-mono text-[11px] text-white">{a.influencePct.toFixed(1)}%</span>
                 </div>
                 <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
                   <span className="text-[11px] text-muted-foreground">{a.regions} regions</span>
