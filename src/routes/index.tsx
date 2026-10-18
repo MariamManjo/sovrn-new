@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { PixelIcon, PixelNumber, LiveDot, type PixelSprite } from "@/components/pixel/PixelIcon";
 import { worldStatsQuery } from "@/lib/mock/api";
 import { SeasonStage } from "@/components/stage/SeasonStage";
+import fullLogo from "@/assets/full-logo-black.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -58,6 +59,7 @@ function Home() {
         <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,24rem)_1fr_14rem]">
           {/* Hero */}
           <section className="surface flex flex-col gap-2.5 self-start bg-surface/90 p-4 sm:p-5">
+            <img src={fullLogo.url} alt="SOVRN" className="h-8 w-auto sm:h-9" style={{ imageRendering: "pixelated" }} />
             <div className="flex flex-wrap items-center gap-2">
               <span className="chip"><LiveDot /> {s.world.label} · Live</span>
               <span className="chip text-muted-foreground">Demo data</span>
