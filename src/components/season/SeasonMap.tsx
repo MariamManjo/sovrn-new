@@ -1,105 +1,16 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Agent } from "@/lib/api/agents";
-import { AgentAvatar } from "@/components/agents/AgentAvatar";
+import { capsWidth } from "@/lib/caps";
+import { prefersReducedMotion } from "@/components/pixel/ring";
+import { H, N, W, anchors, seatAgents, tileTop } from "./world-art";
+import { useIdleFrame, useWorldCanvas, useWorldScale } from "./use-world";
 
-/**
- * Interactive isometric world map — SVG terrain with uploaded agent portraits.
- * Tiles hover-highlight; settlements and agent tokens are clickable.
- * Selection is lifted to the parent via onSelect.
- */
-
-const N = 16;
-const TW = 64;
-const TH = 32;
-const C = (N - 1) / 2;
-
-const iso = (i: number, j: number) => ({ x: (i - j) * (TW / 2), y: (i + j) * (TH / 2) });
-const rnd = (i: number, j: number, k = 0) => {
-  const s = Math.sin(i * 127.1 + j * 311.7 + k * 74.7) * 43758.5453;
-  return s - Math.floor(s);
-};
-
-type Kind = "core" | "water" | "plaza" | "cobble" | "grass" | "ash";
-
-function tileKind(i: number, j: number): Kind {
-  const d = Math.max(Math.abs(i - C), Math.abs(j - C));
-  if (d < 1) return "core";
-  if (d < 1.6) return "water";
-  if (d < 2.6) return "plaza";
-  if (i > N - 5 && j < 5) return "ash";
-  if (d < 5) return "cobble";
-  return "grass";
-}
-
-const TOP: Record<Kind, string[]> = {
-  core: ["var(--pol-glow)"],
-  water: ["var(--water-deep)", "var(--pol)"],
-  plaza: ["var(--civ-earth)", "var(--civ-timber)"],
-  cobble: ["var(--civ-earth)", "var(--civ-timber)", "var(--civ-earth)"],
-  grass: ["var(--alive)", "var(--alive-deep)", "var(--alive-deep)"],
-  ash: ["var(--text-mute)", "var(--map-slate)"],
-};
-
-const diamond = (x: number, y: number) =>
-  `${x},${y} ${x + TW / 2},${y + TH / 2} ${x},${y + TH} ${x - TW / 2},${y + TH / 2}`;
-
-/** Fixed settlement slots; agents beyond this count stay off the map but remain in the list. */
-const SLOTS: { i: number; j: number }[] = [
-  { i: 6, j: 8 }, { i: 11, j: 4 }, { i: 4, j: 10 }, { i: 9, j: 11 }, { i: 12, j: 8 }, { i: 5, j: 4 },
-  { i: 3, j: 12 }, { i: 10, j: 13 }, { i: 13, j: 6 }, { i: 6, j: 12 }, { i: 13, j: 2 }, { i: 14, j: 4 },
-];
-
-/** Seats the top agents by influence; an id hashes to a preferred slot so seats rarely move between turns. */
-function seatAgents(agents: Agent[]): Map<string, { i: number; j: number }> {
-  const top = [...agents].sort((a, b) => b.influence - a.influence).slice(0, SLOTS.length);
-  const free = new Set(SLOTS.keys());
-  const seats = new Map<string, { i: number; j: number }>();
-  for (const a of top.sort((a, b) => a.id.localeCompare(b.id))) {
-    let k = [...a.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % SLOTS.length;
-    while (!free.has(k)) k = (k + 1) % SLOTS.length;
-    free.delete(k);
-    seats.set(a.id, SLOTS[k]!);
-  }
-  return seats;
-}
-
-function House({ x, y, h, roof }: { x: number; y: number; h: number; roof: string }) {
-  const top = y - h;
-  return (
-    <g>
-      <polygon
-        points={`${x - TW / 2},${y + TH / 2 - h} ${x},${y + TH - h} ${x},${y + TH} ${x - TW / 2},${y + TH / 2}`}
-        fill="var(--parchment)"
-        stroke="var(--ink)"
-        strokeWidth={2}
-      />
-      <polygon
-        points={`${x},${y + TH - h} ${x + TW / 2},${y + TH / 2 - h} ${x + TW / 2},${y + TH / 2} ${x},${y + TH}`}
-        fill="var(--civ-earth)"
-        stroke="var(--ink)"
-        strokeWidth={2}
-      />
-      <line x1={x - TW / 2} y1={y + TH / 2 - h / 2} x2={x} y2={y + TH - h / 2} stroke="var(--timber)" strokeWidth={3} />
-      <line x1={x} y1={y + TH - h / 2} x2={x + TW / 2} y2={y + TH / 2 - h / 2} stroke="var(--timber)" strokeWidth={3} />
-      <rect x={x - 20} y={y + TH / 2 - h + 10} width={6} height={6} fill="var(--lamp-gold)" className="lamp-flicker" />
-      <rect x={x + 12} y={y + TH / 2 - h + 10} width={6} height={6} fill="var(--lamp-gold)" />
-      <polygon points={`${x - TW / 2 - 4},${top + TH / 2} ${x},${top - 22} ${x},${top + TH + 2}`} fill={roof} stroke="var(--ink)" strokeWidth={2} />
-      <polygon points={`${x},${top - 22} ${x + TW / 2 + 4},${top + TH / 2} ${x},${top + TH + 2}`} fill={roof} stroke="var(--ink)" strokeWidth={2} opacity={0.8} />
-    </g>
-  );
-}
-
-function Ruin({ x, y }: { x: number; y: number }) {
-  return (
-    <g>
-      <rect x={x - 14} y={y - 10} width={10} height={26} fill="var(--ash)" stroke="var(--ink)" strokeWidth={2} />
-      <rect x={x + 2} y={y + 2} width={10} height={14} fill="var(--border-c)" stroke="var(--ink)" strokeWidth={2} />
-      <rect x={x - 4} y={y - 18} width={4} height={4} fill="var(--roof-red)" className="pixel-blink" />
-    </g>
-  );
-}
+/** Interactive world map: native pixel canvas at whole-number scale, SVG overlay for hits and labels. */
 
 export type MapSelection = { kind: "agent"; id: string } | { kind: "frontier" } | null;
+
+type Rect = { x: number; y: number; w: number; h: number };
+const overlaps = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
 export function SeasonMap({
   agents,
@@ -112,192 +23,131 @@ export function SeasonMap({
   onSelect: (s: MapSelection) => void;
   aimIds?: string[];
 }) {
+  const wrap = useRef<HTMLDivElement>(null);
+  const { s, w, h, ox, oy } = useWorldScale(wrap, "fit");
+  const frame = useIdleFrame();
   const [hover, setHover] = useState<string | null>(null);
-  const [flash, setFlash] = useState<{ i: number; j: number; time: number } | null>(null);
-  const seatOf = Object.fromEntries(seatAgents(agents)) as Record<string, { i: number; j: number } | undefined>;
+  const [flash, setFlash] = useState<{ i: number; j: number; time: number; step: number } | null>(null);
   const focused = selected?.kind === "agent" ? selected.id : null;
-  const focusSeat = focused ? seatOf[focused] : undefined;
-  const focusPoint = focusSeat ? iso(focusSeat.i, focusSeat.j) : null;
 
-  const tiles: { i: number; j: number; k: Kind }[] = [];
-  for (let s = 0; s < 2 * N - 1; s++)
-    for (let i = 0; i < N; i++) {
-      const j = s - i;
-      if (j >= 0 && j < N) tiles.push({ i, j, k: tileKind(i, j) });
-    }
+  useEffect(() => {
+    if (!flash || flash.step > 1) return;
+    const t = setTimeout(() => setFlash((f) => f && f.time === flash.time ? { ...f, step: f.step + 1 } : f), 110);
+    return () => clearTimeout(t);
+  }, [flash]);
+  const flashAt = (i: number, j: number) => { if (!prefersReducedMotion()) setFlash({ i, j, time: Date.now(), step: 0 }); };
 
-  const seated = agents.filter((a) => seatOf[a.id]);
-  const selectedAgent = seated.find(a => a.id === focused);
-  let nameplateY = focusPoint ? focusPoint.y - 100 : 0;
-  // Move the selected plate above any nearby resting label, never hide it.
-  while (focusPoint && seated.some(a => {
-    const seat = seatOf[a.id];
-    if (!seat || a.id === focused) return false;
-    const point = iso(seat.i, seat.j);
-    return Math.abs(point.x - focusPoint.x) < 82 && Math.abs(point.y + TH + 14 - (nameplateY + 15)) < 26;
-  })) nameplateY -= 28;
-  const core = iso(C, C);
-  const minX = -N * (TW / 2) - 40;
-  const width = N * TW + 80;
+  const hoverTile = useMemo(() => hover ? hover.split("-").map(Number) as [number, number] : null, [hover]);
+  const canvas = useWorldCanvas({ agents, focused, frame, hover: hoverTile, aim: aimIds, flash });
+
+  const seats = useMemo(() => seatAgents(agents), [agents]);
+  const seated = agents.filter((a) => seats.has(a.id));
+  const at = anchors(agents, seats);
+  const showLabels = s >= 2;
+
+  const labels = seated.map((a) => {
+    const p = at[a.id]!;
+    const text = `$${a.ticker}`;
+    const tw = capsWidth(text);
+    const x = p.x * s - Math.floor(tw / 2);
+    const y = p.base * s + 2;
+    return { a, text, x, y, plate: { x: x - 3, y, w: tw + 6, h: 13 } };
+  });
+
+  const selectedAgent = seated.find((a) => a.id === focused);
+  let plate: (Rect & { tx: number }) | null = null;
+  if (selectedAgent) {
+    const p = at[selectedAgent.id]!;
+    const tw = capsWidth(selectedAgent.name);
+    plate = { x: p.x * s - Math.floor(tw / 2) - 4, y: Math.round((p.top + p.y) / 2 - 16) * s - 17, w: tw + 8, h: 17, tx: p.x * s - Math.floor(tw / 2) };
+    // Move the selected plate above any nearby resting label, never hide it.
+    while (showLabels && labels.some((l) => l.a.id !== focused && overlaps(l.plate, plate!))) plate.y -= 15;
+  }
+
+  const tiles: { i: number; j: number }[] = [];
+  for (let d = 0; d < 2 * N - 1; d++)
+    for (let i = 0; i < N; i++) if (d - i >= 0 && d - i < N) tiles.push({ i, j: d - i });
+  const occupied = new Set([...seats.values()].map(({ i, j }) => `${i}-${j}`));
+  const pick = (a: Agent) => { const seat = seats.get(a.id)!; flashAt(seat.i, seat.j); onSelect({ kind: "agent", id: a.id }); };
 
   return (
-    <svg
-      viewBox={`${minX} -120 ${width} ${N * TH + 200}`}
-      preserveAspectRatio="xMidYMid meet"
-      className="h-full w-full"
-      role="img"
-      aria-label="World map — isometric grid with agent settlements"
-      onClick={() => onSelect(null)}
-    >
-      <rect x={minX} y={-120} width={width} height={N * TH + 200} fill="transparent" />
-      <g className="season-map-muted" opacity={focused ? 0.62 : 1}>
-      {/* stars */}
-      {Array.from({ length: 50 }, (_, n) => (
-        <rect
-          key={n}
-          x={Math.round(minX + rnd(n, 1) * width)}
-          y={Math.round(-120 + rnd(n, 2) * 140)}
-          width={3}
-          height={3}
-          fill={n % 7 === 0 ? "var(--gold-light)" : "var(--text-dim)"}
-          opacity={[0.3, 0.5, 0.7][n % 3]}
-          className={n % 9 === 0 ? "pixel-blink" : undefined}
-        />
-      ))}
+    <div ref={wrap} className="relative h-full w-full overflow-hidden">
+      <canvas ref={canvas} width={W} height={H} className="pixelated absolute" style={{ left: ox, top: oy, width: W * s, height: H * s }} aria-hidden />
+      <svg
+        width={w}
+        height={h}
+        className="absolute inset-0"
+        shapeRendering="crispEdges"
+        role="img"
+        aria-label="World map — isometric grid with agent settlements"
+        onClick={() => onSelect(null)}
+      >
+        <rect width={w} height={h} fill="transparent" />
+        <g transform={`translate(${ox} ${oy})`}>
+          {tiles.map(({ i, j }) => {
+            const [x, y] = tileTop(i, j);
+            const key = `${i}-${j}`;
+            return (
+              <polygon
+                key={key}
+                points={`${x * s},${y * s} ${(x + 8) * s},${(y + 4) * s} ${x * s},${(y + 8) * s} ${(x - 8) * s},${(y + 4) * s}`}
+                fill="transparent"
+                style={{ cursor: "pointer" }}
+                onMouseEnter={() => setHover(key)}
+                onMouseLeave={() => setHover(null)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  flashAt(i, j);
+                  if (occupied.has(key)) return; // settlement's own handler fires
+                  onSelect({ kind: "frontier" });
+                }}
+              />
+            );
+          })}
 
-      {/* island skirt */}
-      <polygon
-        points={`${iso(0, N).x},${iso(0, N).y} ${iso(N, N).x},${iso(N, N).y} ${iso(N, 0).x},${iso(N, 0).y} ${iso(N, 0).x},${iso(N, 0).y + 40} ${iso(N, N).x},${iso(N, N).y + 40} ${iso(0, N).x},${iso(0, N).y + 40}`}
-        fill="var(--civ-timber)"
-        stroke="var(--ink)"
-        strokeWidth={3}
-      />
+          {seated.map((a) => {
+            const p = at[a.id]!;
+            const seat = seats.get(a.id)!;
+            const isSel = focused === a.id;
+            return (
+              <g
+                key={a.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`Select ${a.name}`}
+                aria-pressed={isSel}
+                data-agent-id={a.id}
+                className="season-settlement"
+                style={{ cursor: "pointer" }}
+                onClick={(event) => { event.stopPropagation(); pick(a); }}
+                onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); pick(a); } }}
+                onMouseEnter={() => setHover(`${seat.i}-${seat.j}`)}
+                onMouseLeave={() => setHover(null)}
+              >
+                <rect x={(p.x - 7) * s} y={(p.top - 1) * s} width={14 * s} height={(p.base - p.top + 1) * s} fill="transparent" />
+              </g>
+            );
+          })}
 
-      {/* tiles — hover highlight + frontier click */}
-      {tiles.map(({ i, j, k }) => {
-        const { x, y } = iso(i, j);
-        const pal = TOP[k];
-        const fill = pal[(i * 7 + j * 13 + i * j) % pal.length];
-        const key = `${i}-${j}`;
-        const occupied = seated.some((a) => seatOf[a.id]?.i === i && seatOf[a.id]?.j === j);
-        return (
-          <polygon
-            key={key}
-            points={diamond(x, y)}
-            fill={fill}
-             stroke={hover === key ? "var(--text)" : "var(--ink)"}
-            strokeOpacity={hover === key ? 0.9 : 0.55}
-            strokeWidth={hover === key ? 2.5 : 1.5}
-            className={k === "core" ? "core-glow" : undefined}
-            style={{ cursor: "pointer" }}
-            onMouseEnter={() => setHover(key)}
-            onMouseLeave={() => setHover(null)}
-            onClick={(event) => {
-              event.stopPropagation();
-              setFlash({ i, j, time: Date.now() });
-              if (occupied) return; // settlement's own handler fires
-              onSelect({ kind: "frontier" });
-            }}
-          />
-        );
-      })}
-
-      {/* influence rings around POL core */}
-      {[1, 2, 3].map((r) => (
-        <ellipse
-          key={r}
-          cx={core.x}
-          cy={core.y + TH / 2}
-          rx={TW * r * 1.25}
-          ry={TH * r * 1.25}
-          fill="none"
-          stroke={r === 1 ? "var(--pol-glow)" : r === 2 ? "var(--pol)" : "var(--influence)"}
-          strokeWidth={3}
-          strokeDasharray="8 6"
-          className="ring-pulse"
-          style={{ animationDelay: `${r * 0.4}s`, pointerEvents: "none" }}
-        />
-      ))}
-
-      {/* POL core crystal */}
-      <g className="core-glow" style={{ pointerEvents: "none" }}>
-        <polygon
-          points={`${core.x},${core.y - 40} ${core.x + 14},${core.y - 12} ${core.x},${core.y + 16} ${core.x - 14},${core.y - 12}`}
-          fill="var(--pol-glow)"
-          stroke="var(--ink)"
-          strokeWidth={3}
-        />
-        <rect x={core.x - 4} y={core.y - 30} width={6} height={6} fill="var(--text)" />
-      </g>
-      </g>
-
-      {aimIds.map(id => {
-        const seat = seatOf[id];
-        if (!seat) return null;
-        const point = iso(seat.i, seat.j);
-        return <polygon key={id} points={diamond(point.x, point.y)} fill="var(--text)" fillOpacity={0.16} stroke="var(--text-warm)" strokeWidth={2} className="selection-aim" pointerEvents="none" />;
-      })}
-      {focusPoint && <g key={focused} pointerEvents="none">
-        {focusSeat && <polygon points={diamond(focusPoint.x, focusPoint.y)} fill={TOP[tileKind(focusSeat.i, focusSeat.j)][(focusSeat.i * 7 + focusSeat.j * 13 + focusSeat.i * focusSeat.j) % TOP[tileKind(focusSeat.i, focusSeat.j)].length]} />}
-        <path d={`M ${core.x} ${core.y + TH / 2} L ${focusPoint.x} ${focusPoint.y + TH / 2}`} pathLength={1} className="selection-beam" fill="none" stroke="var(--text-warm)" strokeWidth={2} strokeDasharray="1" />
-        <polygon points={diamond(focusPoint.x, focusPoint.y)} fill="none" stroke="var(--text)" strokeWidth={3} vectorEffect="non-scaling-stroke" className="selection-outline" />
-      </g>}
-      {flash && <polygon key={flash.time} points={diamond(iso(flash.i, flash.j).x, iso(flash.i, flash.j).y)} fill="var(--text)" className="selection-flash" pointerEvents="none" />}
-
-      {/* settlements */}
-      {seated.map((a, n) => {
-        const seat = seatOf[a.id];
-        if (!seat) return null;
-        const { i, j } = seat;
-        const { x, y } = iso(i, j);
-        const ruin = a.status === "ruin";
-        const isSel = selected?.kind === "agent" && selected.id === a.id;
-        const roof = n % 2 === 0 ? "var(--roof-red)" : "var(--roof-blue)";
-        return (
-          <g
-            key={a.id}
-            role="button"
-            tabIndex={0}
-            aria-label={`Select ${a.name}`}
-            aria-pressed={isSel}
-            data-agent-id={a.id}
-            opacity={focused && !isSel && !aimIds.includes(a.id) ? 0.6 : 1}
-            className="season-settlement"
-            style={{ cursor: "pointer" }}
-            onClick={(event) => { event.stopPropagation(); setFlash({ i, j, time: Date.now() }); onSelect({ kind: "agent", id: a.id }); }}
-            onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setFlash({ i, j, time: Date.now() }); onSelect({ kind: "agent", id: a.id }); } }}
-            onMouseEnter={() => setHover(`${i}-${j}`)}
-            onMouseLeave={() => setHover(null)}
-          >
-            {/* selection outline */}
-            {isSel && (
-              <polygon points={diamond(x, y)} fill="var(--text)" fillOpacity={0.1} stroke="var(--text-warm)" strokeWidth={2} pointerEvents="none" />
-            )}
-            {ruin ? <Ruin x={x} y={y} /> : <House x={x} y={y} h={30 + ((n * 7) % 12)} roof={roof} />}
-            {/* agent token */}
-            <g transform={isSel ? `translate(${x + 19} ${y + 6}) scale(1.25) translate(${-x - 19} ${-y - 6})` : undefined}>
-            <g className="agent-idle" style={{ animationDelay: `${n * 0.3}s` }}>
-              <foreignObject x={x + 12} y={y - 2} width={14} height={14} className="overflow-hidden" pointerEvents="none">
-                <AgentAvatar agent={a} size={14} />
-              </foreignObject>
+          {/* SVG paint order is the label z-index: all labels sit above all artwork. */}
+          {showLabels && (
+            <g pointerEvents="none" aria-label="Settlement tickers">
+              {labels.map(({ a, text, x, y, plate: r }) => (
+                <g key={a.id}>
+                  <rect x={r.x} y={r.y} width={r.w} height={r.h} fill="var(--bg0)" />
+                  <text data-settlement-label={a.id} x={x} y={y + 11} className="font-caps" fontSize={12} fill={focused && focused !== a.id ? "var(--text-mute)" : "var(--text)"}>{text}</text>
+                </g>
+              ))}
             </g>
+          )}
+          {selectedAgent && plate && (
+            <g key={selectedAgent.id} data-selected-nameplate={selectedAgent.id} pointerEvents="none">
+              <rect x={plate.x} y={plate.y} width={plate.w} height={plate.h} fill="var(--bg0)" stroke="var(--text)" />
+              <text x={plate.tx} y={plate.y + 13} className="font-caps" fontSize={12} fill="var(--text)">{selectedAgent.name}</text>
             </g>
-          </g>
-        );
-      })}
-      {/* SVG paint order is the label z-index: all labels sit above all artwork. */}
-      <g pointerEvents="none" aria-label="Settlement tickers">
-        {seated.map(a => {
-          const seat = seatOf[a.id];
-          if (!seat) return null;
-          const { x, y } = iso(seat.i, seat.j);
-          return <text key={a.id} data-settlement-label={a.id} x={x} y={y + TH + 14} textAnchor="middle" fill="var(--text)" opacity={focused && focused !== a.id ? 0.8 : 1} stroke="var(--ink)" strokeWidth={4} paintOrder="stroke" strokeLinejoin="round" fontSize={11} fontFamily="Silkscreen, monospace">${a.ticker}</text>;
-        })}
-      </g>
-      {selectedAgent && focusPoint && <g key={selectedAgent.id} data-selected-nameplate={selectedAgent.id} className="selection-nameplate" pointerEvents="none">
-        <rect x={focusPoint.x - 38} y={nameplateY} width={76} height={24} fill="var(--surface)" stroke="var(--text)" />
-        <text x={focusPoint.x} y={nameplateY + 16} textAnchor="middle" fill="var(--text)" fontSize={12} fontFamily="Silkscreen, monospace">${selectedAgent.ticker}</text>
-      </g>}
-    </svg>
+          )}
+        </g>
+      </svg>
+    </div>
   );
 }
