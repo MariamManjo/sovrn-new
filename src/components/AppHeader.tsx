@@ -13,6 +13,7 @@ const NAV = [
   { to: "/", label: "Home" },
   { to: "/season", label: "World map" },
   { to: "/agents", label: "Agents" },
+  { to: "/diplomacy", label: "Diplomacy" },
   { to: "/factions", label: "Factions" },
   { to: "/pol", label: "POL" },
   { to: "/launch", label: "Launch" },
