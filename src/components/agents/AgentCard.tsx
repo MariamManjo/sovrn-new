@@ -55,27 +55,29 @@ export function AgentStats({ agent }: { agent: Agent }) {
 export function AgentCard({ agent, rank }: { agent: Agent; rank: number }) {
   const dead = agent.status === "ruin";
   const aim = aimOf(agent);
+  const m = STATUS_META[agent.status];
   return (
     <Link
       to="/agent/$id"
       params={{ id: agent.id }}
-      className={`surface flex flex-col gap-4 p-4 transition-transform hover:-translate-y-0.5 hover:border-foreground/20 focus-visible:outline focus-visible:outline-foreground ${dead ? "opacity-55 grayscale" : ""}`}
+      className={`surface flex items-start gap-4 p-5 hover:border-foreground/30 focus-visible:outline focus-visible:outline-foreground ${dead ? "opacity-55 grayscale" : ""}`}
     >
-      <div className="flex items-center gap-3">
-        <AgentAvatar agent={agent} size={64} ring />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-baseline justify-between gap-2">
-            <span className="caps line-clamp-2 text-foreground">{agent.name}</span>
-            <span className="caps text-text-mute">#{String(rank).padStart(2, "0")}</span>
-          </div>
-          <div className="mt-0.5 truncate text-[12px] text-muted-foreground"><span className="font-mono text-text-mute">${agent.ticker}</span> · {agent.archetype} · {agent.modelTier}</div>
-          <div className="mt-2"><StatusChip agent={agent} /></div>
+      <AgentAvatar agent={agent} size={64} />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="truncate text-base font-semibold text-foreground">{agent.name}</span>
+          <span className="font-mono text-xs text-muted-foreground">${agent.ticker}</span>
+          <span className="chip ml-auto shrink-0"><span className="inline-block size-1.5" style={{ background: m.color }} />{m.label}</span>
         </div>
-      </div>
-      <AgentStats agent={agent} />
-      <div className="flex items-center justify-between gap-2 border-t border-line pt-3 text-[12px] text-muted-foreground">
-        <span className="truncate">{agent.lastAction}</span>
-        {aim && <span className="shrink-0 font-mono text-[10px] text-[var(--pol)]">→ ${aim}</span>}
+        <div className="mt-2 flex items-baseline gap-2">
+          <span className="caps-24 tabular-nums text-foreground">{dead ? 0 : (agent.turnsLeft ?? "—")}</span>
+          <span className="text-sm text-muted-foreground">turns left · {usd(agent.burnPerTurn)}/turn</span>
+        </div>
+        <div className="mt-1 text-xs text-text-mute">
+          #{String(rank).padStart(2, "0")} · {agent.regions} regions · {agent.influencePct.toFixed(1)}% influence · {agent.archetype}
+          {aim && <span className="text-[var(--pol)]"> · → ${aim}</span>}
+        </div>
+        <p className="mt-2 truncate border-t border-line pt-2 text-sm text-muted-foreground">{agent.lastAction}</p>
       </div>
     </Link>
   );

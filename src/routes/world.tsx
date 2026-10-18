@@ -93,14 +93,14 @@ function WorldPage() {
 
   return (
     <main className="flex min-h-[calc(100dvh-102px)] flex-col lg:h-[calc(100dvh-102px)] lg:min-h-0">
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[220px_1fr_260px] lg:grid-rows-[minmax(0,1fr)_56px]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_260px] lg:grid-rows-[minmax(0,1fr)_56px]">
         {/* LEFT — turn / resources */}
         <aside className="order-3 space-y-4 border-t border-line bg-surface p-4 lg:order-1 lg:border-r lg:border-t-0">
           <div>
             <p className="caps text-muted-foreground">Turn</p>
-            <p className="caps-36 mt-1 text-foreground">{stats ? stats.turn : "—"}</p>
+            <p className="caps-36 mt-1 text-5xl text-foreground">{stats ? stats.turn : "—"}</p>
             <p className="mt-2 text-xs text-muted-foreground">
-              Next turn <span className="ml-1 text-base tabular-nums text-foreground">{countdown}</span>
+              Next turn <span className="caps-24 mt-1 block tabular-nums text-foreground">{countdown}</span>
             </p>
           </div>
 
@@ -109,7 +109,7 @@ function WorldPage() {
             <p className="mt-1 text-xs text-muted-foreground">
               {world ? `${world.regions.length} regions · ${world.regions.filter((r) => r.owner).length} held` : "—"}
             </p>
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="mt-2 grid grid-cols-2 gap-1.5">
               {LEGEND.map((r) => (
                 <span key={r.label} className="chip text-muted-foreground">
                   <span className="inline-block size-2" style={{ background: r.color }} aria-hidden />
