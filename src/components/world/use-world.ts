@@ -36,7 +36,7 @@ export function useWorldScale(ref: RefObject<HTMLElement | null>, mode: "fit" | 
     return () => ro.disconnect();
   }, [ref]);
   const s = mode === "fit"
-    ? Math.max(1, Math.floor(Math.min(box.w / W, box.h / H)))
+    ? Math.max(1, Math.floor(Math.min(box.w / W, box.h / H) * 0.92))
     : Math.max(1, Math.ceil(Math.max(box.w / W, box.h / H)));
   return { s, w: box.w, h: box.h, ox: Math.floor((box.w - W * s) / 2), oy: Math.floor((box.h - H * s) / 2) };
 }

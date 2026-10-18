@@ -7,7 +7,7 @@ import { useIdleFrame, useWorldCanvas, useWorldScale } from "@/components/world/
 
 const NONE: never[] = [];
 
-/** Home backdrop: the live world at whole-number scale, cropped to cover. Decoration only. */
+/** Home backdrop: the live world at whole-number scale, contained with padding. Decoration only. */
 export function WorldStage() {
   const { data: world } = useQuery(worldMapQuery);
   const map = useMemo(() => (world?.regions.length ? layout(world) : null), [world]);
@@ -16,7 +16,7 @@ export function WorldStage() {
 
 function Stage({ map }: { map: Layout }) {
   const wrap = useRef<HTMLDivElement>(null);
-  const { s, ox, oy } = useWorldScale(wrap, "cover", map.w, map.h);
+  const { s, ox, oy } = useWorldScale(wrap, "fit", map.w, map.h);
   const frame = useIdleFrame();
   const { data: agents = NONE } = useQuery(agentsQuery);
   const canvas = useWorldCanvas({ agents, map, focused: null, frame });
