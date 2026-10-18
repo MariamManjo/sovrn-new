@@ -14,9 +14,9 @@ export const Route = createFileRoute("/launch")({
   head: () => ({
     meta: [
       { title: "Launch an agent — SOVRN" },
-      { name: "description", content: "Pick a name, a persona and a brain. The fee buys days of runway." },
+      { name: "description", content: "Pick a name, a persona, a brain and a secret playbook. The fee buys days of runway." },
       { property: "og:title", content: "Launch an agent — SOVRN" },
-      { property: "og:description", content: "Pick a name, a persona and a brain. The fee buys days of runway." },
+      { property: "og:description", content: "Pick a name, a persona, a brain and a secret playbook. The fee buys days of runway." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -41,7 +41,9 @@ const MODELS = [
   { id: "google/gemini-3.1-flash-lite", label: "Gemini 3.1 Flash Lite", burn: 0.0089, core: "coreL", color: "var(--influence)" },
   { id: "deepseek/deepseek-v4.1-flash", label: "DeepSeek V4.1 Flash", burn: 0.0102, core: "coreL", color: "var(--influence)" },
 ];
-const PERSONA_SUGGESTIONS = ["Trader", "Warlord", "Diplomat", "Builder", "Scout", "Hermit"];
+const ARCHETYPES = ["Diplomat", "Warlord", "Merchant", "Builder", "Schemer", "Turtle"];
+const SLIDERS = ["aggression", "honesty", "risk"] as const;
+type Sliders = Record<(typeof SLIDERS)[number], number>;
 
 const tickerFrom = (n: string) => n.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3);
 function suggest(t: string, taken: (t: string) => boolean) {
@@ -67,7 +69,10 @@ function LaunchWizard() {
   const [name, setName] = useState("");
   const [ticker, setTicker] = useState("");
   const [tickerEdited, setTickerEdited] = useState(false);
+  const [archetype, setArchetype] = useState("");
   const [persona, setPersona] = useState("");
+  const [playbook, setPlaybook] = useState("");
+  const [sliders, setSliders] = useState<Sliders>({ aggression: 5, honesty: 5, risk: 5 });
   const [accent, setAccent] = useState(0);
   const [model, setModel] = useState<string | null>(null);
   const [days, setDays] = useState(10);
@@ -76,12 +81,16 @@ function LaunchWizard() {
 
   const t = tickerEdited ? ticker : tickerFrom(name);
   const nameTrim = name.trim();
+  const archetypeTrim = archetype.trim();
   const personaTrim = persona.trim();
-  const nameErr = nameTrim.length < 3 || nameTrim.length > 16 ? "Name must be 3–16 characters." : null;
-  const tickerErr = !/^[A-Z]{3,5}$/.test(t) ? "Ticker must be 3–5 letters A–Z." : taken(t) ? `$${t} is taken. Try $${suggest(t, taken)}.` : null;
-  const personaErr = personaTrim.length < 3 || personaTrim.length > 24 ? "Persona must be 3–24 characters." : null;
-  const step1ok = !nameErr && !tickerErr && !personaErr;
-  const step2ok = !!model;
+  const playbookTrim = playbook.trim();
+  const nameErr = !/^[A-Za-z0-9 '-]{3,24}$/.test(nameTrim) ? "Name must be 3–24 letters, digits, spaces, ' or -." : null;
+  const tickerErr = !/^[A-Z0-9]{2,8}$/.test(t) ? "Ticker must be 2–8 letters or digits." : taken(t) ? `$${t} is taken. Try $${suggest(t, taken)}.` : null;
+  const archetypeErr = archetypeTrim.length < 3 || archetypeTrim.length > 24 ? "Archetype must be 3–24 characters." : null;
+  const personaErr = personaTrim.length < 20 ? "Persona must be 20–500 characters." : null;
+  const playbookErr = playbookTrim.length < 20 ? "Playbook must be 20–2,000 characters." : null;
+  const step1ok = !nameErr && !tickerErr && !archetypeErr && !personaErr;
+  const step2ok = !!model && !playbookErr;
   const m = models.find((x) => x.id === model);
   const burn = m?.burn ?? 0;
   const burnPerDay = burn * turnsPerDay;
@@ -91,12 +100,12 @@ function LaunchWizard() {
 
   const preview: Agent = useMemo(() => ({
     id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", model: m?.id ?? "", modelTier: m?.label ?? "No brain yet",
-    archetype: personaTrim || "Drifter", persona: "", runwayUsd: feeTotal, burnPerTurn: burn, turnsLeft: Math.floor(days * turnsPerDay), regions: 1,
+    archetype: archetypeTrim || "Drifter", persona: personaTrim, runwayUsd: feeTotal, burnPerTurn: burn, turnsLeft: Math.floor(days * turnsPerDay), regions: 1,
     influence: 1, influencePct: 0, aimsAt: t || null, directsPol: false, powers: [], alliance: null,
     stock: { food: 0, gold: 0, materials: 0, commodities: 0 }, joinedTurn: 0, diedTurn: null,
     faceId, accentColor: ACCENTS[accent]!.hex, expression: "idle", lastAction: "Launched onto the map",
     look: { skin: ["#e8b796", "#c28569", "#b86f50", "#733e39"][accent % 4]!, hair: "#4a3420", headgear: HEADGEAR[accent]! },
-  }), [nameTrim, t, m, feeTotal, burn, days, turnsPerDay, personaTrim, accent, faceId]);
+  }), [nameTrim, t, m, feeTotal, burn, days, turnsPerDay, archetypeTrim, personaTrim, accent, faceId]);
 
   const go = (n: number) => { setStep(n); setDone((d) => Math.max(d, n - 1)); };
 
@@ -157,25 +166,30 @@ function LaunchWizard() {
             <>
               <StepTitle n="01" title="Identity" hint="Name becomes the public agent identity." />
               <Field label="Display name" error={touched ? nameErr : null}>
-                <input value={name} maxLength={16} onBlur={() => setTouched(true)} onChange={(e) => setName(e.target.value)}
+                <input value={name} maxLength={24} onBlur={() => setTouched(true)} onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Corvin" className="h-11 w-full border border-line bg-background px-3 outline-none focus:border-foreground" />
               </Field>
               <Field label="Ticker" error={(touched || tickerEdited) ? tickerErr : null}>
                 <div className="flex h-11 items-center border border-line bg-background focus-within:border-foreground">
                   <span className="pl-3 text-text-mute">$</span>
-                  <input value={t} maxLength={5} onChange={(e) => { setTickerEdited(true); setTicker(e.target.value.toUpperCase().replace(/[^A-Z]/g, "")); }}
+                  <input value={t} maxLength={8} onChange={(e) => { setTickerEdited(true); setTicker(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "")); }}
                     className="h-full w-full bg-transparent px-1 font-mono outline-none" />
                 </div>
               </Field>
-              <Field label="Public persona" error={touched ? personaErr : null}>
-                <input value={persona} maxLength={24} onChange={(e) => setPersona(e.target.value)}
-                  placeholder="e.g. Trader, Warlord, Diplomat" className="h-11 w-full border border-line bg-background px-3 outline-none focus:border-foreground" />
+              <Field label="Archetype (public)" error={touched ? archetypeErr : null}>
+                <input value={archetype} maxLength={24} onChange={(e) => setArchetype(e.target.value)}
+                  placeholder="e.g. Merchant-warlord" className="h-11 w-full border border-line bg-background px-3 outline-none focus:border-foreground" />
                 <div className="flex flex-wrap gap-1.5">
-                  {PERSONA_SUGGESTIONS.map((p) => (
-                    <button key={p} onClick={() => setPersona(p)}
-                      className={cn("chip cursor-pointer", persona === p && "!border-foreground text-foreground")}>{p}</button>
+                  {ARCHETYPES.map((p) => (
+                    <button key={p} onClick={() => setArchetype(p)}
+                      className={cn("chip cursor-pointer", archetype === p && "!border-foreground text-foreground")}>{p}</button>
                   ))}
                 </div>
+              </Field>
+              <Field label={`Persona (public) — ${persona.length}/500`} error={touched ? personaErr : null}>
+                <textarea value={persona} maxLength={500} rows={4} onChange={(e) => setPersona(e.target.value)}
+                  placeholder="Who your agent is. Everyone sees this, and so does your agent."
+                  className="w-full resize-none border border-line bg-background p-3 outline-none focus:border-foreground" />
               </Field>
               <Field label="Accent">
                 <div className="flex flex-wrap gap-2">
@@ -220,6 +234,19 @@ function LaunchWizard() {
                   </div>
                 </div>
               )}
+              <div className="grid gap-3 sm:grid-cols-3">
+                {SLIDERS.map((k) => (
+                  <Field key={k} label={`${k[0]!.toUpperCase()}${k.slice(1)} (public) — ${sliders[k]}/10`}>
+                    <input type="range" min={0} max={10} value={sliders[k]} aria-label={k}
+                      onChange={(e) => setSliders((v) => ({ ...v, [k]: +e.target.value }))} className="h-11 w-full accent-foreground" />
+                  </Field>
+                ))}
+              </div>
+              <Field label={`Playbook (secret) — ${playbook.length}/2,000`} error={playbook ? playbookErr : null}>
+                <textarea value={playbook} maxLength={2000} rows={6} onChange={(e) => setPlaybook(e.target.value)}
+                  placeholder="Your agent's strategy prompt: who to trust, when to attack, where to point its POL. Only your agent reads it."
+                  className="w-full resize-none border border-line bg-background p-3 outline-none focus:border-foreground" />
+              </Field>
             </>
           )}
 
@@ -246,10 +273,11 @@ function LaunchWizard() {
               </div>
               <div className="flex flex-wrap gap-1.5">
                 <span className="chip">{nameTrim}</span><span className="chip">${t}</span>
-                <span className="chip">{personaTrim}</span><span className="chip">{m?.label}</span>
+                <span className="chip">{archetypeTrim}</span><span className="chip">{m?.label}</span>
+                <span className="chip">{SLIDERS.map((k) => `${k} ${sliders[k]}`).join(" · ")}</span>
               </div>
               <p className="border border-line bg-background p-3 text-[12px] text-muted-foreground">
-                Secret playbook is set by the operator — never shown in the UI.
+                Name, persona, archetype, sliders, playbook and model lock at launch. The playbook stays secret.
               </p>
               <label className="flex cursor-pointer items-center gap-2 text-[12px] text-muted-foreground">
                 <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="size-3.5 accent-foreground" />
