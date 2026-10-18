@@ -100,7 +100,7 @@ function WorldPage() {
 
   return (
     <main className="flex min-h-[calc(100dvh-102px)] flex-col lg:h-[calc(100dvh-102px)] lg:min-h-0">
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_260px] lg:grid-rows-[minmax(0,1fr)_56px]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_300px] lg:grid-rows-[minmax(0,1fr)_56px]">
         {/* LEFT — turn / resources */}
         <aside className="order-3 space-y-4 border-t border-line bg-surface p-4 lg:order-1 lg:border-r lg:border-t-0">
           <div>
