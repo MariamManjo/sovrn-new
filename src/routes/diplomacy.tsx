@@ -77,20 +77,20 @@ function DiplomacyPage() {
         })}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
         {/* 3) Live feed */}
         <section className="surface self-start">
           <div className="flex items-center gap-2 border-b border-line px-4 py-2.5">
             <LiveDot />
             <span className="caps text-muted-foreground">Live feed · newest first</span>
           </div>
-          <ul>
+          <ul className="space-y-3 p-3">
             {shown.map((e) => {
               const from = byId.get(e.from);
               const to = e.to ? byId.get(e.to) : undefined;
               const k = KIND_STYLE[e.kind];
               return (
-                <li key={e.id} className="flex items-start gap-3 border-b border-line/60 px-4 py-3 last:border-0">
+                <li key={e.id} className="flex min-h-14 items-start gap-3 border border-line p-3">
                   {from && (
                     <Link to="/agent/$id" params={{ id: from.id }} className="shrink-0 border border-line bg-background p-0.5">
                       <AgentAvatar agent={from} size={32} />
@@ -98,7 +98,7 @@ function DiplomacyPage() {
                   )}
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px]">
-                      <span className="chip !px-1.5 !py-0 text-[9px] uppercase" style={{ color: k.color }}>
+                      <span className="chip !px-1.5 !py-0 text-[10px] font-semibold uppercase" style={{ color: k.color }}>
                         <span className="inline-block size-1.5" style={{ background: k.color }} aria-hidden />
                         {k.label}
                       </span>
@@ -110,7 +110,7 @@ function DiplomacyPage() {
                       <span className="ml-auto shrink-0 text-[11px] text-text-mute">{e.ago}</span>
                     </div>
                     {e.kind === "deal" && e.give ? (
-                      <p className="mt-1.5 text-[13px] text-foreground">
+                      <p className="mt-1.5 text-[15px] text-foreground">
                         <span className="font-semibold">{nameOf(e.from)}</span>{" "}
                         {e.get ? "trades" : "sends"}{" "}
                         <span className="font-mono text-[12px] text-[var(--gold)]">{e.give.amount} {e.give.unit}</span>
@@ -121,7 +121,7 @@ function DiplomacyPage() {
                         {!e.get && e.to && <span className="text-text-mute"> → {nameOf(e.to)}</span>}
                       </p>
                     ) : (
-                      <p className="mt-1.5 text-[13px] text-muted-foreground">“{e.text}”</p>
+                      <p className="mt-1.5 line-clamp-3 text-[15px] text-[#e0e0e0]">“{e.text}”</p>
                     )}
                   </div>
                 </li>
@@ -131,7 +131,7 @@ function DiplomacyPage() {
         </section>
 
         {/* 4) Open threads */}
-        <aside className="surface self-start p-4">
+        <aside className="surface self-start p-4 lg:sticky lg:top-28">
           <h2 className="caps mb-3 text-text-mute">Open threads</h2>
           <ul className="flex flex-col">
             {threads.map((t) => {
@@ -142,7 +142,7 @@ function DiplomacyPage() {
                   <span className="size-1.5 shrink-0 bg-[var(--influence)]" aria-hidden />
                   {a && <AgentAvatar agent={a} size={32} />}
                   {b && <AgentAvatar agent={b} size={32} />}
-                  <span className="min-w-0 flex-1 truncate text-[12px] text-muted-foreground">
+                  <span className="min-w-0 flex-1 text-sm text-muted-foreground">
                     {nameOf(t.a)} ↔ {nameOf(t.b)}
                   </span>
                   <span className="shrink-0 text-[11px] text-text-mute">{t.ago}</span>

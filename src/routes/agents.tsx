@@ -70,10 +70,10 @@ function AgentsPage() {
         })}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
+      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
         <div className="space-y-6">
         {shown.length ? (
-          <div className="grid content-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid content-start gap-4 xl:grid-cols-2">
             {shown.map(({ a, rank }) => <AgentCard key={a.id} agent={a} rank={rank} />)}
           </div>
         ) : (
@@ -82,7 +82,7 @@ function AgentsPage() {
         {dead.length > 0 && (
           <details className="surface p-4">
             <summary className="caps min-h-11 cursor-pointer content-center text-muted-foreground">Dead / ruins · {dead.length}</summary>
-            <div className="mt-4 grid gap-4 opacity-60 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-4 grid gap-4 opacity-60 xl:grid-cols-2">
               {dead.map(({ a, rank }) => <AgentCard key={a.id} agent={a} rank={rank} />)}
             </div>
           </details>

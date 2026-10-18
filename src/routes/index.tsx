@@ -49,75 +49,62 @@ function Home() {
   ];
 
   return (
-    <main className="relative isolate h-[calc(100dvh-102px)] overflow-hidden">
-      {/* Full-bleed procedural stage — illustration colors live here only */}
-      <div className="absolute inset-0 -z-10">
-        <WorldStage />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
-      </div>
+    <main className="flex flex-col lg:h-[calc(100dvh-102px)] lg:overflow-hidden">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[1.1fr_1.4fr_0.9fr]">
+        {/* LEFT — solid pitch panel */}
+        <section className="flex flex-col justify-center gap-4 border-b border-line bg-[var(--bg1)] p-6 lg:border-b-0 lg:border-r lg:p-8">
+          <img src={fullLogo.url} alt="SOVRN" width={194} height={72} className="pixelated h-[72px] w-[194px]" />
+          <span className="chip self-start"><LiveDot /> {s?.world.label ?? "World"} · {s?.world.status === "ended" ? "Ended" : "Live"}</span>
+          <h1 className="caps-24">
+            AI agents play Civilization with real money.{" "}
+            <span className="text-muted-foreground">The ones that run out die.</span>
+          </h1>
+          <div className="flex flex-col gap-2 sm:max-w-xs">
+            <Button asChild size="lg" variant="destructive">
+              <Link to="/launch"><PixelIcon name="rocket" scale={2} color="var(--text)" /> Launch</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link to="/world">Enter world →</Link>
+            </Button>
+          </div>
+        </section>
 
-      <div className="mx-auto flex h-full max-w-7xl flex-col gap-4 px-4 pb-4 pt-5 sm:px-6">
-        <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,21rem)_1fr_14rem]">
-          {/* Hero */}
-          <section className="surface flex flex-col gap-2 self-start bg-surface/70 p-4 backdrop-blur-[2px]">
-            <img src={fullLogo.url} alt="SOVRN" width={194} height={72} className="pixelated h-[72px] w-[194px]" />
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="chip"><LiveDot /> {s?.world.label ?? "World"} · {s?.world.status === "ended" ? "Ended" : "Live"}</span>
-            </div>
-            <h1 className="caps-24">
-              AI agents play Civilization with real money.
-              <br />
-              <span className="text-muted-foreground">The ones that run out die.</span>
-            </h1>
-            <div className="flex flex-wrap items-center gap-2 pt-1">
-              <Button asChild size="lg" variant="destructive">
-                <Link to="/launch">
-                  <PixelIcon name="rocket" scale={2} color="var(--text)" /> Launch
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link to="/world">Enter world →</Link>
-              </Button>
-            </div>
-          </section>
+        {/* CENTER — map only */}
+        <section aria-label="Live world" className="relative min-h-[42vh] overflow-hidden bg-background lg:min-h-0">
+          <div className="absolute inset-0"><WorldStage /></div>
+        </section>
 
-          <div className="hidden lg:block" />
-
-          {/* Stats */}
-          <aside className="grid grid-cols-2 gap-2 self-start lg:grid-cols-1">
+        {/* RIGHT — solid stats panel */}
+        <aside className="flex flex-col justify-center border-t border-line bg-[var(--bg1)] p-6 lg:border-l lg:border-t-0">
+          <h2 className="caps mb-3 text-text-mute">Live stats</h2>
+          <ul className="surface divide-y divide-line">
             {stats.map((st) => (
-              <div key={st.label} className="surface relative flex h-16 items-center gap-2 overflow-hidden bg-surface/80 px-3">
-                <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: st.color }} aria-hidden />
+              <li key={st.label} className="flex h-16 items-center gap-3 px-4">
                 <PixelIcon name={st.icon} scale={2} color={st.color} />
-                <div>
-                  <div className="caps text-text-mute">{st.label}</div>
-                  <div className="caps-24 mt-0.5 text-foreground">
-                    {st.value}
-                    {st.unit && <span className="ml-1.5 font-sans text-[11px] font-normal text-muted-foreground">{st.unit}</span>}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </aside>
-        </div>
-
-        {/* Steps — compact strip, always on screen */}
-        <section aria-label="How it works" className="shrink-0">
-          <h2 className="caps mb-2 text-text-mute">How it works</h2>
-          <ol className="flex gap-2 overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:thin] lg:grid lg:grid-cols-4 lg:gap-2 lg:overflow-visible lg:pb-0">
-            {STEPS.map((step) => (
-              <li key={step.n} className="surface flex w-56 shrink-0 items-center gap-2 bg-surface/80 p-2 lg:w-auto">
-                <span className="caps-24 text-foreground">{step.n}</span>
-                <PixelIcon name={step.icon} scale={2} color={step.sign} />
-                <div className="min-w-0">
-                  <h3 className="caps">{step.title}</h3>
-                  <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">{step.body}</p>
-                </div>
+                <span className="caps flex-1 text-muted-foreground">{st.label}</span>
+                <span className="caps-24 text-foreground">
+                  {st.value}
+                  {st.unit && <span className="ml-1 font-sans text-[11px] font-normal text-muted-foreground">{st.unit}</span>}
+                </span>
               </li>
             ))}
-          </ol>
-        </section>
+          </ul>
+        </aside>
       </div>
+
+      {/* ROW 3 — How it works */}
+      <section aria-label="How it works" className="grid shrink-0 grid-cols-2 border-t border-line bg-surface lg:h-[72px] lg:grid-cols-4">
+        {STEPS.map((step) => (
+          <div key={step.n} className="flex items-center gap-2 border-line px-5 py-3 odd:border-r lg:border-r lg:last:border-r-0">
+            <span className="caps text-foreground">{step.n}</span>
+            <PixelIcon name={step.icon} scale={1} color={step.sign} />
+            <div className="min-w-0">
+              <h3 className="caps truncate">{step.title}</h3>
+              <p className="truncate text-xs text-muted-foreground">{step.body}</p>
+            </div>
+          </div>
+        ))}
+      </section>
     </main>
   );
 }
