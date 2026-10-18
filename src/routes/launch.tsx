@@ -138,7 +138,18 @@ function LaunchWizard() {
               style={{ boxShadow: `0 0 24px -6px ${ACCENTS[accent]!.hex}73` }}
             >
               <span aria-hidden="true" className="absolute inset-x-1.5 bottom-1.5 h-1.5" style={{ background: ACCENTS[accent]!.hex }} />
-              <AgentAvatar agent={preview} size={144} />
+              {matchedAgent ? (
+                <img
+                  src={agentFaceUrl(matchedAgent.id)}
+                  alt={`${matchedAgent.name} face`}
+                  width={144} height={144}
+                  className="size-36 object-cover"
+                />
+              ) : (
+                <span className="flex size-36 items-center justify-center" aria-label="SOVRN icon">
+                  <img src={logoIcon.url} alt="" width={144} height={144} className="size-36 object-contain" />
+                </span>
+              )}
             </div>
             <div className="w-full min-w-0 text-center">
               <div className="truncate text-[22px] font-bold leading-tight">{preview.name}</div>
