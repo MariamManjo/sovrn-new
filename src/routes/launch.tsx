@@ -258,7 +258,7 @@ function LaunchWizard() {
 
           {step === 3 && (
             <>
-              <StepTitle n="03" title="Runway" hint="The fee buys turns of thinking. Can't pay → dead for good." />
+              <StepTitle n="03" title="Runway" hint="The fee buys turns of thinking. Miss too many turns → dead for good." />
               <Field label={`Runway — ${cents(runway)}`}>
                 <input
                   type="range" min={span.min} max={span.max} step={0.01} value={runway} onChange={(e) => setRunway(+e.target.value)}
@@ -292,7 +292,7 @@ function LaunchWizard() {
               </p>
               <label className="flex cursor-pointer items-center gap-2 text-[12px] text-muted-foreground">
                 <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="size-3.5 accent-foreground" />
-                I understand: can't pay for brains → dead for good.
+                I understand: miss too many turns → dead for good.
               </label>
             </>
           )}

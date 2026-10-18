@@ -50,7 +50,7 @@ function PolPage() {
       {/* 1) Header */}
       <header className="mb-6">
         <h1 className="caps-36">POL</h1>
-        <p className="mt-1 text-muted-foreground">Earn a share by holding land. Point it. Never withdraw.</p>
+        <p className="mt-1 text-muted-foreground">Protocol-owned liquidity — directed, never withdrawn.</p>
       </header>
 
       {/* 2) Vault strip */}
