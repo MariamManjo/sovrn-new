@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { agentsQuery, polQuery, type Agent } from "@/lib/mock/agents";
+import { agentsQuery, polQuery } from "@/lib/api/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
+import { aimOf } from "@/components/agents/AgentCard";
 
 export const Route = createFileRoute("/pol")({
   head: () => ({
@@ -38,43 +39,16 @@ function VaultSprite() {
   );
 }
 
-/** Mock: where each agent points its POL share. Dead agents point nowhere. */
-const AIM_AT: Record<string, string | null> = {
-  vesper: "VSP",
-  nyx: "NYX",
-  helix: "HLX",
-  mira: "MIR",
-  orin: "VSP", // ally aim — Cinder Pact backs the top coin
-  sable: "VSP",
-  kite: "HLX",
-  loom: "MIR",
-  rook: "ROOK",
-  dusk: "DSK",
-  quill: null,
-  ash: null,
-};
-
-function aimOf(agent: Agent): string | null {
-  return agent.status === "ruin" ? null : (AIM_AT[agent.id] ?? agent.ticker);
-}
-
 function PolPage() {
   const { data: agents } = useSuspenseQuery(agentsQuery);
   const { data: pol } = useSuspenseQuery(polQuery);
 
-  const alive = agents.filter((a) => a.status !== "ruin");
-  const totalInfluence = alive.reduce((s, a) => s + a.influence, 0);
   const rows = [...agents]
-    .sort((a, b) => b.influence - a.influence)
-    .map((a) => {
-      const sharePct = a.status === "ruin" ? 0 : (a.influence / totalInfluence) * 100;
-      return { agent: a, sharePct, sharePol: Math.round((sharePct / 100) * pol.vault), aim: aimOf(a) };
-    });
+    .sort((a, b) => b.influencePct - a.influencePct)
+    .map((a) => ({ agent: a, sharePct: a.influencePct, sharePol: (a.influencePct / 100) * pol.vault, aim: aimOf(a) }));
 
-  // Top aim = the coin with the most POL share pointed at it (matches World Map "Top aim $VSP").
-  const aimTotals = new Map<string, number>();
-  for (const r of rows) if (r.aim) aimTotals.set(r.aim, (aimTotals.get(r.aim) ?? 0) + r.sharePct);
-  const topAim = [...aimTotals.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  // Top aim = the coin with the most POL share pointed at it, per /api/world/pol.
+  const topAim = [...pol.aim].sort((a, b) => b.pct - a.pct)[0]?.ticker ?? null;
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
@@ -89,7 +63,7 @@ function PolPage() {
         <VaultSprite />
         <div>
           <p className="font-pixel text-[11px] uppercase text-muted-foreground">POL in play</p>
-          <p className="mt-1 font-pixel text-xl text-[var(--pol-glow)]">{pol.vault.toLocaleString("en-US")} POL</p>
+          <p className="mt-1 font-pixel text-xl text-[var(--pol-glow)]">{pol.vault.toLocaleString("en-US", { maximumFractionDigits: 4 })} POL</p>
         </div>
         <span className="chip !border-[var(--gold)]/50 text-[10px] text-[var(--gold)]">
           <span className="inline-block size-1.5 bg-[var(--gold)]" aria-hidden />
@@ -112,7 +86,7 @@ function PolPage() {
               <th className="px-4 py-2.5 text-right font-normal">Influence %</th>
               <th className="px-4 py-2.5 text-right font-normal">POL share</th>
               <th className="px-4 py-2.5 text-left font-normal">Aims at</th>
-              <th className="px-4 py-2.5 text-right font-normal">Cities</th>
+              <th className="px-4 py-2.5 text-right font-normal">Regions</th>
             </tr>
           </thead>
           <tbody>
@@ -132,7 +106,7 @@ function PolPage() {
                   </td>
                   <td className="px-4 py-2.5 text-right font-pixel text-[12px] text-white">{sharePct.toFixed(1)}%</td>
                   <td className="px-4 py-2.5 text-right font-pixel text-[12px] text-[var(--pol-glow)]">
-                    {sharePol.toLocaleString("en-US")}
+                    {sharePol.toLocaleString("en-US", { maximumFractionDigits: 4 })}
                   </td>
                   <td className="px-4 py-2.5">
                     {aim ? (
@@ -144,7 +118,7 @@ function PolPage() {
                       <span className="text-xs text-muted-foreground">— ruins</span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-right font-pixel text-[12px] text-white">{agent.cities}</td>
+                  <td className="px-4 py-2.5 text-right font-pixel text-[12px] text-white">{agent.regions}</td>
                 </tr>
               );
             })}
@@ -180,10 +154,10 @@ function PolPage() {
                   Share <span className="font-pixel text-white">{sharePct.toFixed(1)}%</span>
                 </span>
                 <span>
-                  POL <span className="font-pixel text-[var(--pol-glow)]">{sharePol.toLocaleString("en-US")}</span>
+                  POL <span className="font-pixel text-[var(--pol-glow)]">{sharePol.toLocaleString("en-US", { maximumFractionDigits: 4 })}</span>
                 </span>
                 <span>
-                  Cities <span className="font-pixel text-white">{agent.cities}</span>
+                  Regions <span className="font-pixel text-white">{agent.regions}</span>
                 </span>
               </div>
             </div>

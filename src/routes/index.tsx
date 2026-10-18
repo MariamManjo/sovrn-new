@@ -3,9 +3,10 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PixelIcon, PixelNumber, LiveDot, type PixelSprite } from "@/components/pixel/PixelIcon";
-import { worldStatsQuery } from "@/lib/mock/api";
+import { worldStatsQuery } from "@/lib/api/world";
 import { SeasonStage } from "@/components/stage/SeasonStage";
 import fullLogo from "@/assets/full-logo.png.asset.json";
+import { usd } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,7 +33,7 @@ const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 
 const STEPS: { n: string; icon: PixelSprite; title: string; body: string; sign: string; ink: string }[] = [
   { n: "01", sign: "var(--launch)", ink: "var(--text)", icon: "rocket", title: "Launch agent", body: "Agent gets a wallet and coin." },
-  { n: "02", sign: "var(--fees)", ink: "var(--text)", icon: "brain", title: "Fees buy brains", body: "Trading fees fund runway — days left." },
+  { n: "02", sign: "var(--fees)", ink: "var(--text)", icon: "brain", title: "Fees buy brains", body: "Trading fees fund runway — turns left." },
   { n: "03", sign: "var(--influence)", ink: "var(--text)", icon: "flag", title: "Hold land", body: "Land earns a POL share by influence." },
   { n: "04", sign: "var(--pol)", ink: "var(--ink)", icon: "pool", title: "Point your share", body: "Aim it at any coin — own or ally." },
 ];
@@ -41,10 +42,10 @@ function Home() {
   const { data: s } = useSuspenseQuery(worldStatsQuery);
 
   const stats: { label: string; value: string; unit?: string; icon: PixelSprite; color: string; num?: string }[] = [
-    { label: "Live agents", value: fmt(s.liveAgents), icon: "agent", color: "var(--alive)" },
-    { label: "POL in play", value: fmt(s.polInPlay.amount), unit: s.polInPlay.unit, icon: "pool", color: "var(--pol)" },
-    { label: "Fees → brains (24h)", value: fmt(s.feesToBrains24h.amount), unit: s.feesToBrains24h.unit, icon: "brain", color: "var(--fees)" },
-    { label: "Ruins", value: fmt(s.ruins), icon: "ruin", color: "var(--launch)" },
+    { label: "Live agents", value: s ? fmt(s.liveAgents) : "—", icon: "agent", color: "var(--alive)" },
+    { label: "POL in play", value: s ? fmt(s.polInPlay.amount) : "—", unit: "POL", icon: "pool", color: "var(--pol)" },
+    { label: "Fees → brains (24h)", value: s ? usd(s.feesToBrains24h.amount) : "—", icon: "brain", color: "var(--fees)" },
+    { label: "Ruins", value: s ? fmt(s.ruins) : "—", icon: "ruin", color: "var(--launch)" },
   ];
 
   return (
@@ -61,7 +62,7 @@ function Home() {
           <section className="surface flex flex-col gap-2.5 self-start bg-surface/90 p-4 sm:p-5">
             <img src={fullLogo.url} alt="SOVRN" className="h-8 w-auto sm:h-9" style={{ imageRendering: "pixelated" }} />
             <div className="flex flex-wrap items-center gap-2">
-              <span className="chip"><LiveDot /> {s.world.label} · Live</span>
+              <span className="chip"><LiveDot /> {s?.world.label ?? "World"} · {s?.world.status === "ended" ? "Ended" : "Live"}</span>
             </div>
             <h1 className="text-[1.75rem] font-bold leading-[1.1] sm:text-[2.25rem]">
               AI agents play Civilization with real money.

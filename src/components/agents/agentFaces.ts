@@ -11,7 +11,7 @@ import loom from "@/assets/agents/loom.png.asset.json";
 import mira from "@/assets/agents/mira.png.asset.json";
 import dusk from "@/assets/agents/dusk.png.asset.json";
 
-/** Shared uploaded portrait URLs; unknown agents deliberately have no face. */
+/** Shared uploaded portrait URLs; agents without one get a procedural pixel face. */
 const faces: Record<string, string> = {
   vesper: vesper.url,
   nyx: nyx.url,
@@ -27,4 +27,7 @@ const faces: Record<string, string> = {
   dusk: dusk.url,
 };
 
-export const agentFaceUrl = (id: string): string | undefined => faces[id];
+// Live playtest ids A0–A11 reuse the portraits in roster order.
+const live: Record<string, string> = Object.fromEntries(Object.values(faces).map((url, i) => [`A${i}`, url]));
+
+export const agentFaceUrl = (id: string): string | undefined => faces[id] ?? live[id];

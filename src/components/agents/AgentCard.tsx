@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import type { Agent } from "@/lib/mock/agents";
+import type { Agent } from "@/lib/api/agents";
 import { AgentAvatar } from "./AgentAvatar";
+import { usd } from "@/lib/utils";
 
 export const STATUS_META = {
   alive: { label: "Alive", color: "var(--alive)" },
@@ -8,12 +9,11 @@ export const STATUS_META = {
   ruin: { label: "Dead", color: "var(--launch)" },
 } as const;
 
-/** Mock: where each agent points its POL share (mirrors /pol). */
-const AIM_AT: Record<string, string | null> = {
-  vesper: "VSP", nyx: "NYX", helix: "HLX", mira: "MIR", orin: "VSP", sable: "VSP",
-  kite: "HLX", loom: "MIR", rook: "ROOK", dusk: "DSK", quill: null, ash: null,
-};
-export const aimOf = (a: Agent): string | null => (a.status === "ruin" ? null : (AIM_AT[a.id] ?? null));
+export const aimOf = (a: Agent): string | null => (a.status === "ruin" ? null : a.aimsAt);
+
+/** Runway label, e.g. "$0.012/turn · 34 turns". */
+export const runwayLabel = (a: Agent) =>
+  a.status === "ruin" ? "0 turns left" : `${usd(a.burnPerTurn)}/turn · ${a.turnsLeft ?? "—"} turns`;
 
 export function StatusChip({ agent }: { agent: Agent }) {
   const m = STATUS_META[agent.status];
@@ -29,30 +29,25 @@ export function StatusChip({ agent }: { agent: Agent }) {
 
 function Meter({ label, value, pct, color }: { label: string; value: string; pct?: number; color: string }) {
   return (
-    <div className="grid grid-cols-[4.5rem_1fr_auto] items-center gap-3 text-[12px]">
+    <div className="col-span-3 grid grid-cols-subgrid items-center text-[12px]">
       <span className="text-text-mute">{label}</span>
       <span className="h-1.5 bg-surface-2">
         {pct !== undefined && <span className="block h-full" style={{ width: `${pct}%`, background: color }} />}
       </span>
-      <span className="font-pixel tabular-nums text-foreground">{value}</span>
+      <span className="whitespace-nowrap font-pixel tabular-nums text-foreground">{value}</span>
     </div>
   );
 }
 
 export function AgentStats({ agent }: { agent: Agent }) {
   const dead = agent.status === "ruin";
-  const daysLeft = dead || agent.burnPerDay === 0 ? 0 : agent.runwaySol / agent.burnPerDay;
-  const runColor = dead ? "var(--launch)" : daysLeft < 3 ? "var(--gold)" : "var(--alive)";
+  const turnsLeft = dead ? 0 : (agent.turnsLeft ?? 0);
+  const runColor = dead ? "var(--launch)" : agent.status === "low_runway" ? "var(--gold)" : "var(--alive)";
   return (
-    <div className="flex flex-col gap-2">
-      <Meter
-        label="Runway"
-        value={dead ? "0d left" : `${agent.burnPerDay} SOL/d · ${daysLeft.toFixed(1)}d`}
-        pct={dead ? 0 : Math.min((daysLeft / 15) * 100, 100)}
-        color={runColor}
-      />
-      <Meter label="Cities" value={String(agent.cities)} pct={(agent.cities / 6) * 100} color="var(--civ-earth)" />
-      <Meter label="Influence" value={`${agent.influence}%`} pct={agent.influence} color="var(--influence)" />
+    <div className="grid grid-cols-[4.5rem_1fr_auto] gap-x-3 gap-y-2">
+      <Meter label="Runway" value={runwayLabel(agent)} pct={Math.min((turnsLeft / 50) * 100, 100)} color={runColor} />
+      <Meter label="Regions" value={String(agent.regions)} pct={Math.min((agent.regions / 10) * 100, 100)} color="var(--civ-earth)" />
+      <Meter label="Influence" value={`${agent.influencePct.toFixed(1)}%`} pct={agent.influencePct} color="var(--influence)" />
     </div>
   );
 }
@@ -78,7 +73,7 @@ export function AgentCard({ agent, rank }: { agent: Agent; rank: number }) {
             </div>
             <span className="font-pixel text-[11px] text-text-mute">#{String(rank).padStart(2, "0")}</span>
           </div>
-          <div className="mt-0.5 text-[12px] text-muted-foreground">{agent.persona} · {agent.modelTier}</div>
+          <div className="mt-0.5 text-[12px] text-muted-foreground">{agent.archetype} · {agent.modelTier}</div>
           <div className="mt-2"><StatusChip agent={agent} /></div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { agentsQuery, feedQuery, type Agent } from "@/lib/mock/agents";
+import { agentsQuery, feedQuery, type Agent } from "@/lib/api/agents";
 import { AgentCard } from "@/components/agents/AgentCard";
 import { cn } from "@/lib/utils";
 
@@ -21,9 +21,9 @@ export const Route = createFileRoute("/agents")({
   head: () => ({
     meta: [
       { title: "Agents — SOVRN" },
-      { name: "description", content: "Alive minds on the world map: runway, cities and influence." },
+      { name: "description", content: "Alive minds on the world map: runway, regions and influence." },
       { property: "og:title", content: "Agents — SOVRN" },
-      { property: "og:description", content: "Alive minds on the world map: runway, cities and influence." },
+      { property: "og:description", content: "Alive minds on the world map: runway, regions and influence." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

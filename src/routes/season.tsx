@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { agentsQuery, POL_AIM } from "@/lib/mock/agents";
+import { agentsQuery } from "@/lib/api/agents";
+import { worldStatsQuery } from "@/lib/api/world";
 import { SeasonMap, type MapSelection } from "@/components/season/SeasonMap";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { PixelNumber } from "@/components/pixel/PixelIcon";
@@ -25,21 +26,25 @@ export const Route = createFileRoute("/season")({
   component: SeasonPage,
 });
 
-const TURN = 142;
-
 const RESOURCES = [
   { label: "Food", color: "var(--alive)" },
   { label: "Materials", color: "var(--civ-earth)" },
   { label: "Gold", color: "var(--gold)" },
-  { label: "Knowledge", color: "var(--influence)" },
+  { label: "Commodities", color: "var(--influence)" },
 ];
 
-function useCountdown(start: number) {
-  const [s, setS] = useState(start);
+/** Counts down to the API's nextTurnAt; "--:--:--" until mounted keeps SSR stable. */
+function useCountdown(target: string | null | undefined) {
+  const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
-    const t = setInterval(() => setS((v) => (v > 0 ? v - 1 : start)), 1000);
+    setNow(Date.now());
+    const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
-  }, [start]);
+  }, []);
+  const at = target ? Date.parse(target) : NaN;
+  if (now === null || Number.isNaN(at)) return "--:--:--";
+  if (at <= now) return "resolving…";
+  const s = Math.floor((at - now) / 1000);
   const hh = String(Math.floor(s / 3600)).padStart(2, "0");
   const mm = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
   const ss = String(s % 60).padStart(2, "0");
@@ -48,6 +53,7 @@ function useCountdown(start: number) {
 
 function SeasonPage() {
   const { data: agents } = useSuspenseQuery(agentsQuery);
+  const { data: stats } = useQuery(worldStatsQuery);
   const { agent: agentParam } = Route.useSearch();
   const [selected, setSelected] = useState<MapSelection>(null);
   const [showAim, setShowAim] = useState(false);
@@ -64,7 +70,7 @@ function SeasonPage() {
     if (rowBounds.top < listBounds.top) list.scrollTop += rowBounds.top - listBounds.top;
     else if (rowBounds.bottom > listBounds.bottom) list.scrollTop += rowBounds.bottom - listBounds.bottom;
   }, [selected]);
-  const countdown = useCountdown(12 * 60 + 44);
+  const countdown = useCountdown(stats?.nextTurnAt);
 
   // Deep link: /season?agent=<id> preselects that agent on the map.
   useEffect(() => {
@@ -76,7 +82,7 @@ function SeasonPage() {
   const top = [...agents].sort((a, b) => b.influence - a.influence);
   const selectedAgent = selected?.kind === "agent" ? agents.find((a) => a.id === selected.id) : null;
 
-  const aimIds = selectedAgent?.directsPol && showAim ? agents.filter(a => POL_AIM.some(aim => aim.ticker === a.ticker)).map(a => a.id) : [];
+  const aimIds = selectedAgent?.aimsAt && showAim ? agents.filter(a => a.ticker === selectedAgent.aimsAt).map(a => a.id) : [];
 
   return (
     <main className="flex min-h-[calc(100dvh-102px)] flex-col lg:h-[calc(100dvh-102px)] lg:min-h-0">
@@ -86,7 +92,7 @@ function SeasonPage() {
           <div>
             <p className="font-pixel text-[11px] uppercase text-muted-foreground">Turn</p>
             <div className="mt-2 flex items-end gap-3">
-              <PixelNumber value={String(TURN)} scale={5} color="var(--text)" />
+              <PixelNumber value={stats ? String(stats.turn) : "0"} scale={5} color="var(--text)" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
               Next turn <span className="ml-1 tabular-nums text-white">{countdown}</span>
@@ -150,7 +156,7 @@ function SeasonPage() {
                     <span className="mt-1 block h-1.5 w-full bg-surface-2">
                       <span
                         className="block h-full"
-                        style={{ width: `${a.influence}%`, background: a.directsPol ? "var(--pol)" : "var(--alive)" }}
+                        style={{ width: `${a.influencePct}%`, background: a.directsPol ? "var(--pol)" : "var(--alive)" }}
                       />
                     </span>
                   </span>
@@ -158,7 +164,7 @@ function SeasonPage() {
                     {a.directsPol && (
                       <span className="chip !border-[var(--pol)]/50 !px-1 !py-0 text-[9px] text-[var(--pol)]">Top aim</span>
                     )}
-                    <span className="block text-[11px] text-muted-foreground">{a.cities} cities</span>
+                    <span className="block text-[11px] text-muted-foreground">{a.regions} regions</span>
                   </span>
                 </Button>
               );
@@ -167,7 +173,7 @@ function SeasonPage() {
         </aside>
         {/* Fixed dock space keeps selection from changing the map height. */}
         <div className="order-2 h-14 min-w-0 border-t border-line bg-surface lg:order-4 lg:col-span-3" aria-label="Selection dock">
-          <SelectionInspector agent={selectedAgent} frontier={selected?.kind === "frontier"} showAim={showAim} canShowAim={!!selectedAgent?.directsPol} onAim={() => setShowAim(value => !value)} onClear={() => select(null)} />
+          <SelectionInspector agent={selectedAgent} frontier={selected?.kind === "frontier"} showAim={showAim} canShowAim={!!selectedAgent?.aimsAt && selectedAgent.status !== "ruin"} onAim={() => setShowAim(value => !value)} onClear={() => select(null)} />
         </div>
       </div>
     </main>

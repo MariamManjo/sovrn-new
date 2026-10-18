@@ -5,8 +5,7 @@ import { Menu, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoIcon from "@/assets/logo-icon.png.asset.json";
 import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
-import { agentsQuery } from "@/lib/mock/agents";
-import { worldStatsQuery } from "@/lib/mock/api";
+import { worldStatsQuery } from "@/lib/api/world";
 
 const NAV = [
   { to: "/", label: "Home" },
@@ -20,9 +19,8 @@ const NAV = [
 
 export function AppHeader() {
   const [open, setOpen] = useState(false);
-  const { data: stats } = useQuery(worldStatsQuery);
-  const { data: agents } = useQuery(agentsQuery);
-  const director = agents?.find(agent => agent.directsPol);
+  const { data: stats, isPending } = useQuery(worldStatsQuery);
+  const offline = !isPending && !stats;
   return (
     <>
     <div className="h-[102px] shrink-0 lg:hidden" aria-hidden />
@@ -70,13 +68,14 @@ export function AppHeader() {
       </div>
       <div className="border-t border-line bg-surface">
         <div role="region" aria-label="World status" tabIndex={0} className="mx-auto flex h-11 max-w-7xl items-center gap-2 overflow-x-auto overscroll-x-contain whitespace-nowrap px-4 font-sans text-xs text-muted-foreground [scrollbar-width:thin]">
-          <span className="flex h-11 shrink-0 items-center gap-2"><span className="size-1.5 shrink-0 bg-alive" aria-hidden />{stats?.world.label ?? "World"} · Live</span>
+          <span className="flex h-11 shrink-0 items-center gap-2"><span className="size-1.5 shrink-0 bg-alive" aria-hidden />{stats?.world.label ?? "World"} · {stats?.world.status === "ended" ? "Ended" : "Live"}</span>
           <span className="px-1 text-text-mute" aria-hidden>·</span>
-          <span className="flex h-11 shrink-0 items-center">Turn 142</span>
+          <span className="flex h-11 shrink-0 items-center tabular-nums">Turn {stats?.turn ?? "—"}</span>
           <span className="px-1 text-text-mute" aria-hidden>·</span>
-          <span className="flex h-11 shrink-0 items-center gap-1.5">POL<span className="hidden lg:inline">in play</span><span className="tabular-nums text-foreground">{stats?.polInPlay.amount.toLocaleString("en-US") ?? "1,284,500"}</span></span>
+          <span className="flex h-11 shrink-0 items-center gap-1.5">POL<span className="hidden lg:inline">in play</span><span className="tabular-nums text-foreground">{stats?.polInPlay.amount.toLocaleString("en-US") ?? "—"}</span></span>
           <span className="px-1 text-text-mute" aria-hidden>·</span>
-          <span className="flex h-11 shrink-0 items-center gap-1.5">Top aim <span className="text-foreground">${director?.ticker ?? "VSP"}</span></span>
+          <span className="flex h-11 shrink-0 items-center gap-1.5">Top aim <span className="text-foreground">{stats?.topAim ? `$${stats.topAim}` : "—"}</span></span>
+          {offline && <span className="ml-auto shrink-0 border border-[var(--gold)]/50 px-2 py-1 text-[10px] uppercase text-[var(--gold)]">Live feed offline</span>}
         </div>
       </div>
     </header>

@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, MousePointer2, X } from "lucide-react";
-import type { Agent } from "@/lib/mock/agents";
+import type { Agent } from "@/lib/api/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { Button } from "@/components/ui/button";
+import { usd } from "@/lib/utils";
 
 export function SelectionInspector({ agent, frontier, showAim, canShowAim, onAim, onClear }: {
   agent: Agent | null | undefined;
@@ -16,7 +17,7 @@ export function SelectionInspector({ agent, frontier, showAim, canShowAim, onAim
   if (!agent) return (
     <div className="flex h-full items-center justify-center gap-2 text-muted-foreground" aria-live="polite">
       <MousePointer2 className="size-4 opacity-40" aria-hidden />
-      <p className="whitespace-nowrap text-xs">{frontier ? "Unclaimed / frontier" : "Click a city or empire to inspect"}</p>
+      <p className="whitespace-nowrap text-xs">{frontier ? "Unclaimed / frontier" : "Click a settlement or empire to inspect"}</p>
       {frontier && (
         <Button variant="ghost" type="button" onClick={onClear} className="h-11 px-2 text-xs text-foreground">
           Clear
@@ -42,13 +43,13 @@ export function SelectionInspector({ agent, frontier, showAim, canShowAim, onAim
 
       <dl className="flex shrink-0 items-center gap-3 text-xs">
         {[
-          { label: "Cities", value: agent.cities },
-          { label: "Inf", value: agent.influence },
-          { label: "Runway", value: agent.runwaySol, unit: " SOL" },
+          { label: "Regions", value: agent.regions },
+          { label: "Inf", value: `${agent.influencePct.toFixed(1)}%` },
+          { label: "Runway", value: usd(agent.runwayUsd) },
         ].map(metric => (
           <div key={metric.label} className="flex items-baseline gap-1">
             <dt className="text-muted-foreground">{metric.label}</dt>
-            <dd className="tabular-nums text-foreground">{metric.value}{metric.unit ?? ""}</dd>
+            <dd className="tabular-nums text-foreground">{metric.value}</dd>
           </div>
         ))}
       </dl>
@@ -60,7 +61,7 @@ export function SelectionInspector({ agent, frontier, showAim, canShowAim, onAim
           onClick={onAim}
           aria-pressed={showAim}
           disabled={!canShowAim}
-          title={canShowAim ? "Preview mock POL aim" : "No mock aim available for this agent"}
+          title={canShowAim ? "Show where this agent points its POL share" : "No POL aim for this agent"}
           className={`h-11 px-2 text-[11px] hover:underline ${showAim ? "text-pol" : "text-muted-foreground"}`}
         >
           {showAim ? "Hide aim" : "Show aim"}

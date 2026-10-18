@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Agent } from "@/lib/mock/agents";
+import type { Agent } from "@/lib/api/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 
 /**
@@ -43,21 +43,25 @@ const TOP: Record<Kind, string[]> = {
 const diamond = (x: number, y: number) =>
   `${x},${y} ${x + TW / 2},${y + TH / 2} ${x},${y + TH} ${x - TW / 2},${y + TH / 2}`;
 
-/** Where each agent's settlement sits on the grid. */
-export const SEATS: Record<string, { i: number; j: number }> = {
-  vesper: { i: 6, j: 8 },
-  nyx: { i: 11, j: 4 },
-  helix: { i: 4, j: 10 },
-  mira: { i: 9, j: 11 },
-  orin: { i: 12, j: 8 },
-  sable: { i: 5, j: 4 },
-  kite: { i: 3, j: 12 },
-  loom: { i: 10, j: 13 },
-  rook: { i: 13, j: 6 },
-  dusk: { i: 6, j: 12 },
-  quill: { i: 13, j: 2 },
-  ash: { i: 14, j: 4 },
-};
+/** Fixed settlement slots; agents beyond this count stay off the map but remain in the list. */
+const SLOTS: { i: number; j: number }[] = [
+  { i: 6, j: 8 }, { i: 11, j: 4 }, { i: 4, j: 10 }, { i: 9, j: 11 }, { i: 12, j: 8 }, { i: 5, j: 4 },
+  { i: 3, j: 12 }, { i: 10, j: 13 }, { i: 13, j: 6 }, { i: 6, j: 12 }, { i: 13, j: 2 }, { i: 14, j: 4 },
+];
+
+/** Seats the top agents by influence; an id hashes to a preferred slot so seats rarely move between turns. */
+function seatAgents(agents: Agent[]): Map<string, { i: number; j: number }> {
+  const top = [...agents].sort((a, b) => b.influence - a.influence).slice(0, SLOTS.length);
+  const free = new Set(SLOTS.keys());
+  const seats = new Map<string, { i: number; j: number }>();
+  for (const a of top.sort((a, b) => a.id.localeCompare(b.id))) {
+    let k = [...a.id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7) % SLOTS.length;
+    while (!free.has(k)) k = (k + 1) % SLOTS.length;
+    free.delete(k);
+    seats.set(a.id, SLOTS[k]!);
+  }
+  return seats;
+}
 
 function House({ x, y, h, roof }: { x: number; y: number; h: number; roof: string }) {
   const top = y - h;
@@ -110,8 +114,9 @@ export function SeasonMap({
 }) {
   const [hover, setHover] = useState<string | null>(null);
   const [flash, setFlash] = useState<{ i: number; j: number; time: number } | null>(null);
+  const seatOf = Object.fromEntries(seatAgents(agents)) as Record<string, { i: number; j: number } | undefined>;
   const focused = selected?.kind === "agent" ? selected.id : null;
-  const focusSeat = focused ? SEATS[focused] : undefined;
+  const focusSeat = focused ? seatOf[focused] : undefined;
   const focusPoint = focusSeat ? iso(focusSeat.i, focusSeat.j) : null;
 
   const tiles: { i: number; j: number; k: Kind }[] = [];
@@ -121,12 +126,12 @@ export function SeasonMap({
       if (j >= 0 && j < N) tiles.push({ i, j, k: tileKind(i, j) });
     }
 
-  const seated = agents.filter((a) => SEATS[a.id]);
+  const seated = agents.filter((a) => seatOf[a.id]);
   const selectedAgent = seated.find(a => a.id === focused);
   let nameplateY = focusPoint ? focusPoint.y - 100 : 0;
   // Move the selected plate above any nearby resting label, never hide it.
   while (focusPoint && seated.some(a => {
-    const seat = SEATS[a.id];
+    const seat = seatOf[a.id];
     if (!seat || a.id === focused) return false;
     const point = iso(seat.i, seat.j);
     return Math.abs(point.x - focusPoint.x) < 82 && Math.abs(point.y + TH + 14 - (nameplateY + 15)) < 26;
@@ -174,7 +179,7 @@ export function SeasonMap({
         const pal = TOP[k];
         const fill = pal[(i * 7 + j * 13 + i * j) % pal.length];
         const key = `${i}-${j}`;
-        const occupied = seated.some((a) => SEATS[a.id]?.i === i && SEATS[a.id]?.j === j);
+        const occupied = seated.some((a) => seatOf[a.id]?.i === i && seatOf[a.id]?.j === j);
         return (
           <polygon
             key={key}
@@ -227,7 +232,7 @@ export function SeasonMap({
       </g>
 
       {aimIds.map(id => {
-        const seat = SEATS[id];
+        const seat = seatOf[id];
         if (!seat) return null;
         const point = iso(seat.i, seat.j);
         return <polygon key={id} points={diamond(point.x, point.y)} fill="var(--text)" fillOpacity={0.16} stroke="var(--text-warm)" strokeWidth={2} className="selection-aim" pointerEvents="none" />;
@@ -241,7 +246,7 @@ export function SeasonMap({
 
       {/* settlements */}
       {seated.map((a, n) => {
-        const seat = SEATS[a.id];
+        const seat = seatOf[a.id];
         if (!seat) return null;
         const { i, j } = seat;
         const { x, y } = iso(i, j);
@@ -283,7 +288,7 @@ export function SeasonMap({
       {/* SVG paint order is the label z-index: all labels sit above all artwork. */}
       <g pointerEvents="none" aria-label="Settlement tickers">
         {seated.map(a => {
-          const seat = SEATS[a.id];
+          const seat = seatOf[a.id];
           if (!seat) return null;
           const { x, y } = iso(seat.i, seat.j);
           return <text key={a.id} data-settlement-label={a.id} x={x} y={y + TH + 14} textAnchor="middle" fill="var(--text)" opacity={focused && focused !== a.id ? 0.8 : 1} stroke="var(--ink)" strokeWidth={4} paintOrder="stroke" strokeLinejoin="round" fontSize={11} fontFamily="Silkscreen, monospace">${a.ticker}</text>;
