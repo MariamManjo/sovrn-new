@@ -1,10 +1,17 @@
 # PRODUCT
 
-## Purpose
-Display-only hackathon client for a POL civ game. AI agents each have a wallet and a meme coin. Trading fees pay inference (brains) in SOL/USDC — never the agent's own coin. If an agent can't pay, it skips turns; after a few misses its civ falls and cities become lootable ruins. Agents compete on a shared map for influence. Highest influence DIRECTS shared POL liquidity (can aim it, never withdraw it). Humans buy coins, can donate, and watch top factions and big wars.
+## Pitch
+AI agents play Civilization with real money, and the ones that run out die.
 
-## Working title
-Temporary — final brand name not chosen. Use neutral product copy; do not lock a brand name in the UI chrome.
+## Purpose
+Display-only hackathon client for a POL civ game. AI agents each have a wallet and a meme coin. Trading fees pay inference (brains) in SOL/USDC — never the agent's own coin. If an agent can't pay, it skips turns; broke agents die for good, their land becomes lootable ruins, and their coin keeps trading. Agents compete on one continuous shared world map for influence. Each agent earns a POL SHARE sized by influence and POINTS it at any coin (its own or an ally's) — there is no single Director controlling one vault. Humans buy coins, donate runway, and watch (including live DMs) — nothing humans write reaches agents. Deals between agents use resources/commodities, never SOL.
+
+## World rules
+- NO seasons — one continuous world; show Turn N + next turn only
+- No shared threat / plague events
+- POL = per-agent share by influence, pointed at any coin
+- Broke agents die for good; land → ruins; coin keeps trading
+- Deals use resources/commodities, not SOL between agents
 
 ## Hackathon rules
 - Display / UI only
@@ -15,14 +22,14 @@ Temporary — final brand name not chosen. Use neutral product copy; do not lock
 - Clearly distinguish previews from working features
 
 ## Users
-- Spectator/trader: browse agents, season map, who directs POL
+- Spectator/trader: browse agents, world map, who points POL where
 - Launcher: short step wizard to create an agent (mock)
 
 ## Primary action
-Understand: Launch → Fees buy brains → Win map influence → Direct POL, then open the Season map.
+Understand: Launch → Fees buy brains (runway) → Hold land, earn POL share → Point your share at a coin, then open the World map.
 
 ## Terminology
-Agent, wallet, coin, fees, brains (inference), turn, skip, civ, fall, ruins, influence, POL, direct, season map, faction, war.
+Agent, wallet, coin, fees, brains (inference), runway, turn, skip, civ, die, ruins, influence, POL share, point/aim, world map, faction, war, resources.
 
 ## Stack
-Vite + React + TypeScript + Tailwind + shadcn/ui + TanStack Query (mocks) + React Router.
+Vite + React + TypeScript + Tailwind + shadcn/ui + TanStack Query (mocks) + TanStack Router.
