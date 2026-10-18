@@ -26,6 +26,13 @@ export const Route = createFileRoute("/world")({
   component: WorldPage,
 });
 
+const RESOURCES = [
+  { key: "food", label: "Food", color: "var(--alive)" },
+  { key: "materials", label: "Materials", color: "var(--civ-earth)" },
+  { key: "gold", label: "Gold", color: "var(--gold)" },
+  { key: "commodities", label: "Knowledge", color: "var(--pol)" },
+] as const;
+
 /** Swatches match the painter in world-art.ts. */
 const LEGEND = [
   { label: "Capital", color: "#c3d0cb" },
@@ -105,6 +112,18 @@ function WorldPage() {
           </div>
 
           <div>
+            <p className="caps text-muted-foreground">Resources</p>
+            <div className="mt-2 grid grid-cols-2 gap-1.5">
+              {RESOURCES.map((r) => (
+                <span key={r.key} className="chip justify-between text-muted-foreground">
+                  <span className="flex items-center gap-1.5"><span className="inline-block size-2" style={{ background: r.color }} aria-hidden />{r.label}</span>
+                  <span className="font-mono tabular-nums text-foreground">{agents.reduce((n, a) => n + (a.stock?.[r.key] ?? 0), 0)}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div>
             <p className="caps text-muted-foreground">Map</p>
             <p className="mt-1 text-xs text-muted-foreground">
               {world ? `${world.regions.length} regions · ${world.regions.filter((r) => r.owner).length} held` : "—"}
@@ -122,7 +141,7 @@ function WorldPage() {
 
         {/* CENTER — map */}
         <section className="relative order-1 h-[calc((100dvh-102px)*0.8)] min-h-0 bg-bg1 lg:order-2 lg:h-auto" aria-label="World map stage">
-          <div className="absolute inset-x-0 bottom-2 top-10">
+          <div className="absolute inset-1">
             {map ? (
               <WorldMap agents={agents} map={map} selected={selected} onSelect={select} aimIds={aimIds} />
             ) : (
