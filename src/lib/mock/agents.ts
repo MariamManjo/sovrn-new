@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 
-/** Mock data shaped like GET /api/season/current/agents and /api/season/current/feed. Display only. */
+/** Mock data shaped like GET /api/world/agents and /api/world/feed. Display only. */
 export type AgentStatus = "alive" | "low_runway" | "ruin";
 export type Expression = "idle" | "focus" | "threat" | "ruin";
 export type Headgear = "none" | "hood" | "helm" | "crown" | "band" | "horns";
@@ -28,7 +28,7 @@ export type FeedItem = { id: string; ticker: string; tone: AgentStatus | "pol"; 
 const SKIN = ["#e8b796", "#c28569", "#b86f50", "#733e39"] as const;
 
 export const AGENTS: Agent[] = [
-  { id: "vesper", name: "Vesper", ticker: "VSP", status: "alive", modelTier: "Claude · high", runwaySol: 74.2, cities: 6, influence: 96, directsPol: true, accentColor: "#0099db", expression: "focus", lastAction: "Now directs POL", look: { skin: SKIN[0], hair: "#262b44", headgear: "crown" } },
+  { id: "vesper", name: "Vesper", ticker: "VSP", status: "alive", modelTier: "Claude · high", runwaySol: 74.2, cities: 6, influence: 96, directsPol: true, accentColor: "#0099db", expression: "focus", lastAction: "Pointed its POL share at $VSP", look: { skin: SKIN[0], hair: "#262b44", headgear: "crown" } },
   { id: "nyx", name: "Nyx", ticker: "NYX", status: "alive", modelTier: "GPT · high", runwaySol: 61.8, cities: 5, influence: 88, directsPol: false, accentColor: "#b55088", expression: "threat", lastAction: "Took a city on the east ridge", alliance: "Cinder Pact", look: { skin: SKIN[1], hair: "#181425", headgear: "hood" } },
   { id: "helix", name: "Helix", ticker: "HLX", status: "alive", modelTier: "Gemini · mid", runwaySol: 48.0, cities: 4, influence: 71, directsPol: false, accentColor: "#63c74d", expression: "focus", lastAction: "Raised walls at the river ford", alliance: "Verdant Ring", look: { skin: SKIN[2], hair: "#3e8948", headgear: "band" } },
   { id: "mira", name: "Mira", ticker: "MIR", status: "alive", modelTier: "Claude · mid", runwaySol: 39.5, cities: 4, influence: 64, directsPol: false, accentColor: "#feae34", expression: "idle", lastAction: "Signed a pact with $HLX", alliance: "Verdant Ring", look: { skin: SKIN[0], hair: "#b86f50", headgear: "none" } },
@@ -43,7 +43,7 @@ export const AGENTS: Agent[] = [
 ];
 
 const FEED: FeedItem[] = [
-  { id: "f1", ticker: "VSP", tone: "pol", action: "now directs POL", ago: "1m ago" },
+  { id: "f1", ticker: "VSP", tone: "pol", action: "pointed its POL share at $VSP", ago: "1m ago" },
   { id: "f2", ticker: "NYX", tone: "alive", action: "took a city on the east ridge", ago: "3m ago" },
   { id: "f3", ticker: "ROOK", tone: "low_runway", action: "skipped turn — runway empty", ago: "5m ago" },
   { id: "f4", ticker: "QIL", tone: "ruin", action: "civ fell to ruins", ago: "8m ago" },
@@ -56,13 +56,13 @@ const FEED: FeedItem[] = [
 ];
 
 export const agentsQuery = queryOptions({
-  queryKey: ["season", "current", "agents"],
+  queryKey: ["world", "agents"],
   queryFn: async (): Promise<Agent[]> => AGENTS,
   staleTime: Infinity,
 });
 
 export const feedQuery = queryOptions({
-  queryKey: ["season", "current", "feed"],
+  queryKey: ["world", "feed"],
   queryFn: async (): Promise<FeedItem[]> => FEED,
   staleTime: Infinity,
 });
@@ -80,12 +80,12 @@ export function addAgent(agent: Agent) {
   return agent;
 }
 
-/** Mock shaped like GET /api/season/current/pol. Display only. */
+/** Mock shaped like GET /api/world/pol. Display only. */
 export const POL_VAULT = 1_284_500;
 
 export type PolAim = { ticker: string; pct: number };
 
-/** Director's current aim split — sums to 100. */
+/** Top aim — where the largest POL share currently points. Sums to 100. */
 export const POL_AIM: PolAim[] = [
   { ticker: "VSP", pct: 34 },
   { ticker: "NYX", pct: 22 },
@@ -96,7 +96,7 @@ export const POL_AIM: PolAim[] = [
 ];
 
 export const polQuery = queryOptions({
-  queryKey: ["season", "current", "pol"],
+  queryKey: ["world", "pol"],
   queryFn: async (): Promise<{ vault: number; aim: PolAim[] }> => ({ vault: POL_VAULT, aim: POL_AIM }),
   staleTime: Infinity,
 });
