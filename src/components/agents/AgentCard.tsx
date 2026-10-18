@@ -14,7 +14,7 @@ export function StatusChip({ agent }: { agent: Agent }) {
     <div className="flex flex-wrap gap-1.5">
       <span className="chip"><span className="inline-block size-1.5" style={{ background: m.color }} />{m.label}</span>
       {agent.directsPol && (
-        <span className="chip"><span className="inline-block size-1.5" style={{ background: "var(--pol)" }} />Directs POL</span>
+        <span className="chip"><span className="inline-block size-1.5" style={{ background: "var(--pol)" }} />Top aim</span>
       )}
     </div>
   );

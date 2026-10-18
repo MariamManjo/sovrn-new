@@ -23,7 +23,7 @@ References (patterns only): Retro Diffusion isometric + UI panels, isometric tow
 - Forbidden: black+lime only, 1px borders, Inter-only, cute pastel kids UI, curtains
 
 ## Slice 1 (Home)
-Headline, stats strip (Live agents, POL directed, Fees → brains 24h, Ruins), four StepCards 01–04 (Launch, Fees buy brains, Win map influence, Direct POL), CTAs: Open Season map, Launch agent.
+Headline (pitch: "AI agents play Civilization with real money, and the ones that run out die."), stats strip (Live agents, POL in play, Fees → brains 24h, Ruins), four StepCards 01–04 (Launch agent, Fees buy brains, Hold land → earn POL share, Point your share at a coin), CTAs: Enter world, Launch agent. No seasons — continuous world, Turn N + next turn only; no shared threat/plague UI; POL = per-agent share by influence pointed at any coin, no single Director.
 
 ## Pixel art direction (approved)
 - Sharp 16-bit / retro-terminal pixel art as ACCENTS only: icons, step numbers, status chips, small agent avatars, map tiles later

@@ -14,10 +14,10 @@ export const Route = createFileRoute("/season")({
     typeof search["agent"] === "string" ? { agent: search["agent"] } : {},
   head: () => ({
     meta: [
-      { title: "Season map — SOVRN" },
-      { name: "description", content: "Shared map where AI agents compete for influence." },
-      { property: "og:title", content: "Season map — SOVRN" },
-      { property: "og:description", content: "Shared map where AI agents compete for influence." },
+      { title: "World map — SOVRN" },
+      { name: "description", content: "One continuous world where AI agents compete for influence." },
+      { property: "og:title", content: "World map — SOVRN" },
+      { property: "og:description", content: "One continuous world where AI agents compete for influence." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -26,7 +26,6 @@ export const Route = createFileRoute("/season")({
 });
 
 const TURN = 142;
-const TURN_MAX = 336;
 
 const RESOURCES = [
   { label: "Food", color: "var(--alive)" },
@@ -82,25 +81,16 @@ function SeasonPage() {
   return (
     <main className="flex min-h-[calc(100dvh-102px)] flex-col lg:h-[calc(100dvh-102px)] lg:min-h-0">
       <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_280px] lg:grid-rows-[minmax(0,1fr)_56px]">
-        {/* LEFT — turn / threat */}
+        {/* LEFT — turn / resources */}
         <aside className="order-3 space-y-4 border-t border-line bg-surface p-4 lg:order-1 lg:border-r lg:border-t-0">
           <div>
             <p className="font-pixel text-[11px] uppercase text-muted-foreground">Turn</p>
             <div className="mt-2 flex items-end gap-3">
               <PixelNumber value={String(TURN)} scale={5} color="var(--text)" />
-              <span className="pb-1 font-pixel text-[11px] text-muted-foreground">/ {TURN_MAX}</span>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
               Next turn <span className="ml-1 tabular-nums text-white">{countdown}</span>
             </p>
-          </div>
-
-          <div className="surface p-3">
-            <div className="flex items-center gap-2">
-              <span className="inline-block size-2 bg-[var(--gold)]" aria-hidden />
-              <p className="font-pixel text-[11px] uppercase text-[var(--gold)]">Threat · Amber</p>
-            </div>
-            <p className="mt-1.5 text-xs text-muted-foreground">Plague front — shared threat in 14h</p>
           </div>
 
           <div>
@@ -117,16 +107,9 @@ function SeasonPage() {
         </aside>
 
         {/* CENTER — map */}
-        <section className="relative order-1 h-[calc((100dvh-102px)*0.8)] min-h-0 bg-bg1 lg:order-2 lg:h-auto" aria-label="Season map stage">
+        <section className="relative order-1 h-[calc((100dvh-102px)*0.8)] min-h-0 bg-bg1 lg:order-2 lg:h-auto" aria-label="World map stage">
           <div className="absolute inset-x-0 bottom-2 top-10">
             <SeasonMap agents={agents} selected={selected} onSelect={select} aimIds={aimIds} />
-          </div>
-          {/* shared threat banner on map edge */}
-          <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2">
-            <span className="chip border-[var(--gold)]/50 bg-black/80 text-[var(--gold)]">
-              <span className="inline-block size-2 bg-[var(--gold)] pixel-blink" aria-hidden />
-              Shared threat in 14h — plague front
-            </span>
           </div>
         </section>
 
@@ -173,7 +156,7 @@ function SeasonPage() {
                   </span>
                   <span className="text-right">
                     {a.directsPol && (
-                      <span className="chip !border-[var(--pol)]/50 !px-1 !py-0 text-[9px] text-[var(--pol)]">Directs POL</span>
+                      <span className="chip !border-[var(--pol)]/50 !px-1 !py-0 text-[9px] text-[var(--pol)]">Top aim</span>
                     )}
                     <span className="block text-[11px] text-muted-foreground">{a.cities} cities</span>
                   </span>

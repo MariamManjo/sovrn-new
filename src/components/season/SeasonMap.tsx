@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Agent } from "@/lib/mock/agents";
 
 /**
- * Interactive isometric season map — pure SVG, no bitmaps.
+ * Interactive isometric world map — pure SVG, no bitmaps.
  * Tiles hover-highlight; settlements and agent tokens are clickable.
  * Selection is lifted to the parent via onSelect.
  */
@@ -140,7 +140,7 @@ export function SeasonMap({
       preserveAspectRatio="xMidYMid meet"
       className="h-full w-full"
       role="img"
-      aria-label="Season map — isometric grid with agent settlements"
+      aria-label="World map — isometric grid with agent settlements"
       onClick={() => onSelect(null)}
     >
       <rect x={minX} y={-120} width={width} height={N * TH + 200} fill="transparent" />

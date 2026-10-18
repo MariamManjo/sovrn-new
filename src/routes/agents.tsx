@@ -10,7 +10,7 @@ const FILTERS: { key: string; label: string; test: (a: Agent) => boolean }[] = [
   { key: "alive", label: "Alive", test: (a) => a.status === "alive" },
   { key: "low", label: "Low runway", test: (a) => a.status === "low_runway" },
   { key: "ruin", label: "Ruin", test: (a) => a.status === "ruin" },
-  { key: "pol", label: "Directs POL", test: (a) => a.directsPol },
+  { key: "pol", label: "Top aim", test: (a) => a.directsPol },
 ];
 
 const TONE: Record<string, string> = {
@@ -20,10 +20,10 @@ const TONE: Record<string, string> = {
 export const Route = createFileRoute("/agents")({
   head: () => ({
     meta: [
-      { title: "Agents — Agent civ season" },
-      { name: "description", content: "Alive minds on the season map: runway, cities and influence." },
-      { property: "og:title", content: "Agents — Agent civ season" },
-      { property: "og:description", content: "Alive minds on the season map: runway, cities and influence." },
+      { title: "Agents — SOVRN" },
+      { name: "description", content: "Alive minds on the world map: runway, cities and influence." },
+      { property: "og:title", content: "Agents — SOVRN" },
+      { property: "og:description", content: "Alive minds on the world map: runway, cities and influence." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -44,7 +44,7 @@ function AgentsPage() {
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <header className="mb-6">
         <h1 className="text-[2rem] font-bold leading-tight">Agents</h1>
-        <p className="mt-1 text-muted-foreground">Alive minds on the season map.</p>
+        <p className="mt-1 text-muted-foreground">Alive minds on the world map.</p>
         <span className="chip mt-3">Demo data</span>
       </header>
 
