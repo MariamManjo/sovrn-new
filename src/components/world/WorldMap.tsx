@@ -1,19 +1,40 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 import type { Agent } from "@/lib/api/agents";
 import { capsWidth } from "@/lib/caps";
 import { prefersReducedMotion } from "@/components/pixel/ring";
-import { anchors, seats, type Layout, type Tile } from "./world-art";
-import { useIdleFrame, useWorldCanvas, useWorldScale } from "./use-world";
+import { seats, type Layout, type Tile } from "./world-art";
+import { GARDEN, GARDEN_W, GARDEN_H, surfaceFit } from "./garden";
 
-/** Interactive world map: native pixel canvas at whole-number scale, SVG overlay for hits and labels. */
+/** Interactive world map: the painted garden image with an SVG overlay aligned to its
+ *  surface diamond for hit-testing, hover, selection outline and the floating nameplate.
+ *  Resting $TICKER labels are baked into the artwork, so only the selection gets a plate. */
 
 export type MapSelection = { kind: "agent"; id: string } | { kind: "region"; id: string } | null;
 
-type Rect = { x: number; y: number; w: number; h: number };
-const overlaps = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
-
 export function regionLabel(t: Pick<Tile, "id" | "kind" | "deposit" | "improvement" | "trait">) {
   return [t.id, t.kind, t.deposit && "materials", t.improvement, t.trait].filter(Boolean).join(" · ");
+}
+
+const useIso = typeof window === "undefined" ? useEffect : useLayoutEffect;
+
+/** Contain-fit rect for the artwork inside the stage, with breathing room around the island. */
+function useStageRect(ref: RefObject<HTMLDivElement | null>) {
+  const [rect, setRect] = useState<{ left: number; top: number; width: number; height: number } | null>(null);
+  useIso(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const w = el.clientWidth, h = el.clientHeight;
+      const s = Math.min((w * 0.9) / GARDEN_W, (h * 0.9) / GARDEN_H);
+      const width = GARDEN_W * s, height = GARDEN_H * s;
+      setRect({ left: (w - width) / 2, top: (h - height) / 2, width, height });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+  return rect;
 }
 
 export function WorldMap({
@@ -30,51 +51,40 @@ export function WorldMap({
   aimIds?: string[];
 }) {
   const wrap = useRef<HTMLDivElement>(null);
-  const { s, w, h, ox, oy } = useWorldScale(wrap, "fit", map.w, map.h);
-  const frame = useIdleFrame();
-  const [hover, setHover] = useState<string | null>(null);
-  const [flash, setFlash] = useState<{ id: string; time: number; step: number } | null>(null);
+  const rect = useStageRect(wrap);
+  const fit = useMemo(() => surfaceFit(map), [map]);
   const focused = selected?.kind === "agent" ? selected.id : null;
+  const [hover, setHover] = useState<string | null>(null);
+  const [flash, setFlash] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!flash || flash.step > 1) return;
-    const t = setTimeout(() => setFlash((f) => f && f.time === flash.time ? { ...f, step: f.step + 1 } : f), 110);
+    if (!flash) return;
+    const t = setTimeout(() => setFlash(null), 240);
     return () => clearTimeout(t);
   }, [flash]);
-  const flashAt = (id: string) => { if (!prefersReducedMotion()) setFlash({ id, time: Date.now(), step: 0 }); };
+  const flashAt = (id: string) => { if (!prefersReducedMotion()) setFlash(id); };
 
-  const canvas = useWorldCanvas({ agents, map, focused, frame, hover, aim: aimIds, flash });
   const at = useMemo(() => seats(agents, map), [agents, map]);
-  const anchor = anchors(agents, map, at);
   const byId = new Map(agents.map((a) => [a.id, a]));
-  const showLabels = s >= 2;
 
-  // Biggest empires claim label space first; a label that would overlap is dropped, never stacked.
-  const placed: Rect[] = [];
-  const labels = [...at.keys()]
-    .map((id) => byId.get(id)!)
-    .sort((a, b) => Number(b.id === focused) - Number(a.id === focused) || b.influence - a.influence)
-    .flatMap((a) => {
-      const p = anchor[a.id]!;
-      const text = `$${a.ticker}`;
-      const tw = capsWidth(text);
-      const x = p.x * s - Math.floor(tw / 2);
-      const y = p.base * s + 2;
-      const plate = { x: x - 3, y, w: tw + 6, h: 13 };
-      if (placed.some((r) => overlaps(r, plate))) return [];
-      placed.push(plate);
-      return [{ a, text, x, y, plate }];
-    });
+  // Surface top vertex of a tile, with raised centre tiles flattened back onto the plain.
+  const surf = (t: Tile): [number, number] => [t.x, t.y + t.level * 3];
+  const poly = (t: Tile) => {
+    const [x, y] = surf(t);
+    return [fit.to(x, y), fit.to(x + 8, y + 4), fit.to(x, y + 8), fit.to(x - 8, y + 4)]
+      .map(([px, py]) => `${px.toFixed(1)},${py.toFixed(1)}`)
+      .join(" ");
+  };
 
   const selectedAgent = focused ? byId.get(focused) : undefined;
-  let plate: (Rect & { tx: number }) | null = null;
-  if (selectedAgent && anchor[selectedAgent.id]) {
-    const p = anchor[selectedAgent.id]!;
-    const tw = capsWidth(selectedAgent.name);
-    plate = { x: p.x * s - Math.floor(tw / 2) - 4, y: Math.round((p.top + p.y) / 2 - 16) * s - 17, w: tw + 8, h: 17, tx: p.x * s - Math.floor(tw / 2) };
-    // Move the selected plate above any nearby resting label, never hide it.
-    while (showLabels && labels.some((l) => l.a.id !== focused && overlaps(l.plate, plate!))) plate.y -= 15;
-  }
+  const seatTile = focused ? at.get(focused) : undefined;
+  const plate = useMemo(() => {
+    if (!selectedAgent || !seatTile) return null;
+    const [x, y] = surf(seatTile);
+    const [px, py] = fit.to(x, y);
+    const w = capsWidth(selectedAgent.name, 24) + 24;
+    return { x: px - w / 2, y: py - 130, w, textX: px, textY: py - 130 + 31 };
+  }, [selectedAgent, seatTile, fit]);
 
   const pick = (t: Tile) => {
     flashAt(t.id);
@@ -83,80 +93,91 @@ export function WorldMap({
 
   return (
     <div ref={wrap} className="relative h-full w-full overflow-hidden">
-      <canvas ref={canvas} width={map.w} height={map.h} className="pixelated absolute" style={{ left: ox, top: oy, width: map.w * s, height: map.h * s }} aria-hidden />
-      <svg
-        width={w}
-        height={h}
-        className="absolute inset-0"
-        shapeRendering="crispEdges"
-        role="img"
-        aria-label="World map: every region, its owner, capitals, units and improvements"
-        onClick={() => onSelect(null)}
-      >
-        <rect width={w} height={h} fill="transparent" />
-        <g transform={`translate(${ox} ${oy})`}>
-          {map.tiles.map((t) => {
-            const owner = t.owner ? byId.get(t.owner) : undefined;
-            return (
+      {rect && (
+        <div className="absolute" style={{ left: rect.left, top: rect.top, width: rect.width, height: rect.height }}>
+          <img
+            src={GARDEN.url}
+            width={GARDEN_W}
+            height={GARDEN_H}
+            alt=""
+            draggable={false}
+            className="absolute inset-0 h-full w-full select-none"
+          />
+          <svg
+            width="100%"
+            height="100%"
+            viewBox={`0 0 ${GARDEN_W} ${GARDEN_H}`}
+            className="absolute inset-0"
+            shapeRendering="geometricPrecision"
+            role="img"
+            aria-label="World map: every region, its owner, capitals, units and improvements"
+            onClick={() => onSelect(null)}
+          >
+            <rect width={GARDEN_W} height={GARDEN_H} fill="transparent" />
+            {map.tiles.map((t) => (
               <polygon
                 key={t.id}
                 data-region={t.id}
-                points={`${t.x * s},${t.y * s} ${(t.x + 8) * s},${(t.y + 4) * s} ${t.x * s},${(t.y + 8) * s} ${(t.x - 8) * s},${(t.y + 4) * s}`}
+                points={poly(t)}
                 fill="transparent"
                 style={{ cursor: "pointer" }}
                 onMouseEnter={() => setHover(t.id)}
                 onMouseLeave={() => setHover(null)}
                 onClick={(event) => { event.stopPropagation(); pick(t); }}
               >
-                <title>{`${regionLabel(t)}${owner ? ` · $${owner.ticker}` : ""}`}</title>
+                <title>{`${regionLabel(t)}${t.owner ? ` · $${byId.get(t.owner)?.ticker ?? ""}` : ""}`}</title>
               </polygon>
-            );
-          })}
+            ))}
 
-          {[...at].map(([id, t]) => {
-            const a = byId.get(id)!;
-            const p = anchor[id]!;
-            const isSel = focused === id;
-            const choose = () => { flashAt(t.id); onSelect({ kind: "agent", id }); };
-            return (
-              <g
-                key={id}
-                role="button"
-                tabIndex={0}
-                aria-label={`Select ${a.name}`}
-                aria-pressed={isSel}
-                data-agent-id={id}
-                className="world-settlement"
-                style={{ cursor: "pointer" }}
-                onClick={(event) => { event.stopPropagation(); choose(); }}
-                onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); choose(); } }}
-                onMouseEnter={() => setHover(t.id)}
-                onMouseLeave={() => setHover(null)}
-              >
-                <rect x={(p.x - 7) * s} y={(p.top - 1) * s} width={14 * s} height={(p.base - p.top + 1) * s} fill="transparent" />
-              </g>
-            );
-          })}
-
-          {/* SVG paint order is the label z-index: all labels sit above all artwork. */}
-          {showLabels && (
-            <g pointerEvents="none" aria-label="Empire tickers">
-              {labels.map(({ a, text, x, y, plate: r }) => (
-                <g key={a.id}>
-                  <rect x={r.x} y={r.y} width={r.w} height={r.h} fill="var(--bg0)" />
-                  <text data-settlement-label={a.id} x={x} y={y + 11} className="font-caps" fontSize={12} fill={focused && focused !== a.id ? "var(--text-mute)" : "var(--text)"}>{text}</text>
+            {[...at].map(([id, t]) => {
+              const a = byId.get(id)!;
+              const [x, y] = surf(t);
+              const [x1, y1] = fit.to(x - 7, y);
+              const [x2, y2] = fit.to(x + 7, y + 8);
+              const isSel = focused === id;
+              const choose = () => { flashAt(t.id); onSelect({ kind: "agent", id }); };
+              return (
+                <g
+                  key={id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Select ${a.name}`}
+                  aria-pressed={isSel}
+                  data-agent-id={id}
+                  style={{ cursor: "pointer" }}
+                  onClick={(event) => { event.stopPropagation(); choose(); }}
+                  onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); choose(); } }}
+                  onMouseEnter={() => setHover(t.id)}
+                  onMouseLeave={() => setHover(null)}
+                >
+                  <rect x={x1} y={y1 - 130} width={x2 - x1} height={y2 - y1 + 130} fill="transparent" />
                 </g>
-              ))}
-            </g>
-          )}
-          {selectedAgent && plate && (
-            <g key={selectedAgent.id} data-selected-nameplate={selectedAgent.id} pointerEvents="none">
-              <rect x={plate.x} y={plate.y} width={plate.w} height={plate.h} fill="var(--bg0)" stroke="var(--text)" />
-              <text x={plate.tx} y={plate.y + 13} className="font-caps" fontSize={12} fill="var(--text)">{selectedAgent.name}</text>
-            </g>
-          )}
-        </g>
-      </svg>
+              );
+            })}
+
+            {hover && map.byId.get(hover) && (
+              <polygon points={poly(map.byId.get(hover)!)} fill="none" stroke="#ffffff" strokeOpacity={0.4} strokeWidth={2} pointerEvents="none" />
+            )}
+            {flash && map.byId.get(flash) && (
+              <polygon points={poly(map.byId.get(flash)!)} fill="#ffffff" fillOpacity={0.65} pointerEvents="none" />
+            )}
+            {aimIds.map((id) => at.get(id)).filter(Boolean).map((t) => (
+              <polygon key={t!.id} points={poly(t!)} fill="none" stroke="#2ce8f5" strokeWidth={3} pointerEvents="none" />
+            ))}
+            {seatTile && (
+              <polygon points={poly(seatTile)} fill="none" stroke="var(--text)" strokeWidth={4} strokeLinejoin="round" pointerEvents="none">
+                <animate attributeName="stroke-opacity" values="1;0.45;1" dur="1.6s" repeatCount="indefinite" />
+              </polygon>
+            )}
+            {selectedAgent && plate && (
+              <g data-selected-nameplate={selectedAgent.id} pointerEvents="none">
+                <rect x={plate.x} y={plate.y} width={plate.w} height={44} fill="var(--bg0)" stroke="var(--text)" strokeWidth={2} />
+                <text x={plate.textX} y={plate.textY} textAnchor="middle" className="font-caps" fontSize={24} fill="var(--text)">{selectedAgent.name}</text>
+              </g>
+            )}
+          </svg>
+        </div>
+      )}
     </div>
   );
 }
