@@ -32,6 +32,8 @@ export type Agent = {
   stock: { food: number; gold: number; materials: number; commodities: number };
   joinedTurn: number;
   diedTurn: number | null;
+  /** Stable portrait ID from the shared face pool, saved at launch. */
+  faceId?: string;
 };
 
 export type FeedItem = { id: string; ticker: string; tone: AgentStatus | "pol"; action: string; ago: string };
