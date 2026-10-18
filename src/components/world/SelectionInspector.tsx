@@ -4,10 +4,12 @@ import type { Agent } from "@/lib/api/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { Button } from "@/components/ui/button";
 import { usd } from "@/lib/utils";
+import type { Tile } from "./world-art";
+import { regionLabel } from "./WorldMap";
 
-export function SelectionInspector({ agent, frontier, showAim, canShowAim, onAim, onClear }: {
+export function SelectionInspector({ agent, region, showAim, canShowAim, onAim, onClear }: {
   agent: Agent | null | undefined;
-  frontier: boolean;
+  region: Tile | undefined;
   showAim: boolean;
   canShowAim: boolean;
   onAim: () => void;
@@ -17,8 +19,8 @@ export function SelectionInspector({ agent, frontier, showAim, canShowAim, onAim
   if (!agent) return (
     <div className="flex h-full items-center justify-center gap-2 text-muted-foreground" aria-live="polite">
       <MousePointer2 className="size-4 opacity-40" aria-hidden />
-      <p className="whitespace-nowrap text-xs">{frontier ? "Unclaimed / frontier" : "Click a settlement or empire to inspect"}</p>
-      {frontier && (
+      <p className="whitespace-nowrap text-xs">{region ? `${regionLabel(region)} · unclaimed` : "Click a region or empire to inspect"}</p>
+      {region && (
         <Button variant="ghost" type="button" onClick={onClear} className="h-11 px-2 text-xs text-foreground">
           Clear
         </Button>

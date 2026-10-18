@@ -77,7 +77,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  // Header and season read stats; loading them here keeps SSR and hydration in sync.
+  // Header and world map read stats; loading them here keeps SSR and hydration in sync.
   loader: ({ context }) => context.queryClient.ensureQueryData(worldStatsQuery),
   head: () => ({
     meta: [

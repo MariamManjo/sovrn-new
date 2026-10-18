@@ -297,12 +297,12 @@
 }
 
 /* Season-only chrome; map feedback is painted into the pixel canvas. */
-.season-empire-scroll { scrollbar-width: thin; scrollbar-color: var(--text-mute) var(--surface-2); scrollbar-gutter: stable; }
-.season-empire-scroll::-webkit-scrollbar { width: 6px; }
-.season-empire-scroll::-webkit-scrollbar-track { background: var(--surface-2); }
-.season-empire-scroll::-webkit-scrollbar-thumb { background: var(--text-mute); }
-.season-settlement:focus { outline: none; }
-.season-settlement:focus-visible rect { stroke: var(--text); stroke-width: 2px; }
+.world-empire-scroll { scrollbar-width: thin; scrollbar-color: var(--text-mute) var(--surface-2); scrollbar-gutter: stable; }
+.world-empire-scroll::-webkit-scrollbar { width: 6px; }
+.world-empire-scroll::-webkit-scrollbar-track { background: var(--surface-2); }
+.world-empire-scroll::-webkit-scrollbar-thumb { background: var(--text-mute); }
+.world-settlement:focus { outline: none; }
+.world-settlement:focus-visible rect { stroke: var(--text); stroke-width: 2px; }
 .selection-meter { appearance: none; background: var(--line); border: 0; }
 .selection-meter::-webkit-meter-bar { background: var(--line); border: 0; border-radius: 0; }
 .selection-meter::-webkit-meter-optimum-value { background: var(--text); }
