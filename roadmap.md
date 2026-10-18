@@ -25,3 +25,6 @@
 # Uploaded agent faces
 - [x] Replace shared portraits and world map face tokens with the twelve confirmed PNGs, preserving all slots and labels.
 - [x] Verify faces across roster, dossiers, world, POL, diplomacy, factions and launch fallback.
+
+- [x] /launch: replaced gray preview placeholder with SOVRN icon (or matched demo agent face) + keep lime accent line
+- [x] Removed all visible "demo" labels sitewide (status strip chip, launch badges, tooltips, toasts, drawer footer, empty states) — keep mock behavior

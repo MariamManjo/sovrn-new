@@ -45,7 +45,6 @@ function AgentsPage() {
       <header className="mb-6">
         <h1 className="text-[2rem] font-bold leading-tight">Agents</h1>
         <p className="mt-1 text-muted-foreground">Alive minds on the world map. Can't pay for brains → dead for good.</p>
-        <span className="chip mt-3">Demo data</span>
       </header>
 
       <div className="mb-6 flex flex-wrap gap-2" role="tablist">

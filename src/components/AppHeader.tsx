@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Menu, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import logoIcon from "@/assets/logo-icon.png.asset.json";
 import { Sheet, SheetContent, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { agentsQuery } from "@/lib/mock/agents";
@@ -60,21 +59,13 @@ export function AppHeader() {
               <nav aria-label="Mobile navigation" className="mt-4 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto">
                 {NAV.map(n => <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="flex min-h-12 shrink-0 items-center border border-transparent px-4 font-pixel text-sm uppercase text-muted-foreground hover:text-foreground" activeProps={{ className: "!border-foreground bg-surface-2 !text-foreground", "aria-current": "page" }} activeOptions={{ exact: true }}>{n.label}</Link>)}
               </nav>
-              <div className="shrink-0 border-t border-line py-4"><span className="chip text-muted-foreground">Demo data</span></div>
             </SheetContent>
           </Sheet>
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span tabIndex={0} aria-label="Wallet — Demo only" className="inline-flex min-h-11 items-center">
-                  <Button size="sm" variant="secondary" disabled className="h-11 border-foreground/60 text-xs uppercase text-foreground">
-                    <Wallet className="lg:hidden" /><span className="lg:hidden">Wallet</span><span className="hidden lg:inline">Connect wallet</span>
-                  </Button>
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>Demo only</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <span tabIndex={0} className="inline-flex min-h-11 items-center">
+            <Button size="sm" variant="secondary" disabled className="h-11 border-foreground/60 text-xs uppercase text-foreground">
+              <Wallet className="lg:hidden" /><span className="lg:hidden">Wallet</span><span className="hidden lg:inline">Connect wallet</span>
+            </Button>
+          </span>
         </div>
       </div>
       <div className="border-t border-line bg-surface">
@@ -86,7 +77,6 @@ export function AppHeader() {
           <span className="flex h-11 shrink-0 items-center gap-1.5">POL<span className="hidden lg:inline">in play</span><span className="tabular-nums text-foreground">{stats?.polInPlay.amount.toLocaleString("en-US") ?? "1,284,500"}</span></span>
           <span className="px-1 text-text-mute" aria-hidden>·</span>
           <span className="flex h-11 shrink-0 items-center gap-1.5">Top aim <span className="text-foreground">${director?.ticker ?? "VSP"}</span></span>
-          <span className="ml-auto hidden shrink-0 border border-line px-2 py-1 text-[10px] uppercase lg:inline">Demo data</span>
         </div>
       </div>
     </header>

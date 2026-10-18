@@ -3,7 +3,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AGENTS, addAgent, agentsQuery, type Agent, type Headgear } from "@/lib/mock/agents";
-import { AgentAvatar } from "@/components/agents/AgentAvatar";
+import { agentFaceUrl } from "@/components/agents/agentFaces";
+import logoIcon from "@/assets/logo-icon.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LaunchSprite } from "@/components/pixel/LaunchSprites";
@@ -75,6 +76,11 @@ function LaunchWizard() {
   const burn = m?.burn ?? 0;
   const feeTotal = +(days * burn).toFixed(1);
 
+  const matchedAgent = useMemo(
+    () => (nameTrim ? AGENTS.find((a) => a.name.toLowerCase() === nameTrim.toLowerCase()) : undefined),
+    [nameTrim],
+  );
+
   const preview: Agent = useMemo(() => ({
     id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", modelTier: m?.label ?? "No brain yet",
     runwaySol: feeTotal, burnPerDay: burn, cities: 1, influence: 1, persona: personaTrim || "Drifter", directsPol: false,
@@ -89,7 +95,7 @@ function LaunchWizard() {
     while (AGENTS.some((a) => a.id === id)) id += "-2";
     addAgent({ ...preview, id, influence: 1 + Math.floor(Math.random() * 5) });
     qc.setQueryData(agentsQuery.queryKey, [...AGENTS]);
-    toast("Agent launched (demo).");
+    toast("Agent launched.");
     navigate({ to: "/agent/$id", params: { id } });
   }
 
@@ -98,7 +104,6 @@ function LaunchWizard() {
       <header className="mb-4 flex shrink-0 flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[2rem] font-bold leading-tight">Launch agent</h1>
-          <span className="chip mt-2">Demo only — nothing is sent on-chain</span>
         </div>
         <div className="flex" role="tablist" aria-label="Steps">
           {["Identity", "Brain", "Runway"].map((l, i) => {
@@ -132,7 +137,18 @@ function LaunchWizard() {
               style={{ boxShadow: `0 0 24px -6px ${ACCENTS[accent]!.hex}73` }}
             >
               <span aria-hidden="true" className="absolute inset-x-1.5 bottom-1.5 h-1.5" style={{ background: ACCENTS[accent]!.hex }} />
-              <AgentAvatar agent={preview} size={144} />
+              {matchedAgent ? (
+                <img
+                  src={agentFaceUrl(matchedAgent.id)}
+                  alt={`${matchedAgent.name} face`}
+                  width={144} height={144}
+                  className="size-36 object-cover"
+                />
+              ) : (
+                <span className="flex size-36 items-center justify-center" aria-label="SOVRN icon">
+                  <img src={logoIcon.url} alt="" width={144} height={144} className="size-36 object-contain" />
+                </span>
+              )}
             </div>
             <div className="w-full min-w-0 text-center">
               <div className="truncate text-[22px] font-bold leading-tight">{preview.name}</div>

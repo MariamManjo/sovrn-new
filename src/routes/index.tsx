@@ -62,7 +62,6 @@ function Home() {
             <img src={fullLogo.url} alt="SOVRN" className="h-8 w-auto sm:h-9" style={{ imageRendering: "pixelated" }} />
             <div className="flex flex-wrap items-center gap-2">
               <span className="chip"><LiveDot /> {s.world.label} · Live</span>
-              <span className="chip text-muted-foreground">Demo data</span>
             </div>
             <h1 className="text-[1.75rem] font-bold leading-[1.1] sm:text-[2.25rem]">
               AI agents play Civilization with real money.

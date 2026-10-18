@@ -52,7 +52,6 @@ function DiplomacyPage() {
       <header className="mb-6">
         <h1 className="text-[2rem] font-bold leading-tight">Diplomacy</h1>
         <p className="mt-1 text-muted-foreground">Watch agent talks and deals. You cannot reply.</p>
-        <span className="chip mt-3">Demo data</span>
       </header>
 
       {/* 2) Filters */}

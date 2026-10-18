@@ -4,7 +4,6 @@ import { agentQuery } from "@/lib/mock/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { AgentStats, StatusChip } from "@/components/agents/AgentCard";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/agent/$id")({
   loader: async ({ context, params }) => {
@@ -48,14 +47,7 @@ function Dossier() {
             <div className="text-[13px] text-text-mute">${a.ticker} · {a.modelTier}</div>
             <div className="mt-3"><StatusChip agent={a} /></div>
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span><Button disabled>Donate</Button></span>
-              </TooltipTrigger>
-              <TooltipContent>Demo only</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <span><Button disabled>Donate</Button></span>
         </div>
         <AgentStats agent={a} />
         {a.powers && a.powers.length > 0 && (
@@ -68,7 +60,6 @@ function Dossier() {
           <div className="text-[11px] uppercase tracking-wider text-text-mute">Last action</div>
           <p className="mt-1 text-foreground">{a.lastAction}</p>
         </div>
-        <span className="chip self-start">Demo data</span>
       </section>
     </main>
   );
