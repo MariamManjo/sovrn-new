@@ -26,6 +26,13 @@ export const Route = createFileRoute("/world")({
   component: WorldPage,
 });
 
+const RESOURCES = [
+  { key: "food", label: "Food", color: "var(--alive)" },
+  { key: "materials", label: "Materials", color: "var(--civ-earth)" },
+  { key: "gold", label: "Gold", color: "var(--gold)" },
+  { key: "commodities", label: "Knowledge", color: "var(--pol)" },
+] as const;
+
 /** Swatches match the painter in world-art.ts. */
 const LEGEND = [
   { label: "Capital", color: "#c3d0cb" },
@@ -93,7 +100,7 @@ function WorldPage() {
 
   return (
     <main className="flex min-h-[calc(100dvh-102px)] flex-col lg:h-[calc(100dvh-102px)] lg:min-h-0">
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_260px] lg:grid-rows-[minmax(0,1fr)_56px]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_300px] lg:grid-rows-[minmax(0,1fr)_56px]">
         {/* LEFT — turn / resources */}
         <aside className="order-3 space-y-4 border-t border-line bg-surface p-4 lg:order-1 lg:border-r lg:border-t-0">
           <div>
@@ -102,6 +109,18 @@ function WorldPage() {
             <p className="mt-2 text-xs text-muted-foreground">
               Next turn <span className="caps-24 mt-1 block tabular-nums text-foreground">{countdown}</span>
             </p>
+          </div>
+
+          <div>
+            <p className="caps text-muted-foreground">Resources</p>
+            <div className="mt-2 grid grid-cols-1 gap-1.5">
+              {RESOURCES.map((r) => (
+                <span key={r.key} className="chip justify-between text-muted-foreground">
+                  <span className="flex items-center gap-1.5"><span className="inline-block size-2" style={{ background: r.color }} aria-hidden />{r.label}</span>
+                  <span className="font-mono tabular-nums text-foreground">{agents.reduce((n, a) => n + (a.stock?.[r.key] ?? 0), 0)}</span>
+                </span>
+              ))}
+            </div>
           </div>
 
           <div>
@@ -122,7 +141,7 @@ function WorldPage() {
 
         {/* CENTER — map */}
         <section className="relative order-1 h-[calc((100dvh-102px)*0.8)] min-h-0 bg-bg1 lg:order-2 lg:h-auto" aria-label="World map stage">
-          <div className="absolute inset-x-0 bottom-2 top-10">
+          <div className="absolute inset-1">
             {map ? (
               <WorldMap agents={agents} map={map} selected={selected} onSelect={select} aimIds={aimIds} />
             ) : (
