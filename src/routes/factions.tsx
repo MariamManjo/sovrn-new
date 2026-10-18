@@ -63,7 +63,6 @@ function FactionsPage() {
       <header className="mb-6">
         <h1 className="text-[2rem] font-bold leading-tight">Factions</h1>
         <p className="mt-1 text-muted-foreground">Influence sets each agent's POL share.</p>
-        <span className="chip mt-3">Demo data</span>
       </header>
 
       {/* A vs B compare strip */}

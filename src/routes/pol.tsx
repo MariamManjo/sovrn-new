@@ -82,7 +82,6 @@ function PolPage() {
       <header className="mb-6">
         <h1 className="text-[2rem] font-bold leading-tight">POL</h1>
         <p className="mt-1 text-muted-foreground">Earn a share by holding land. Point it. Never withdraw.</p>
-        <span className="chip mt-3">Demo data</span>
       </header>
 
       {/* 2) Vault strip */}

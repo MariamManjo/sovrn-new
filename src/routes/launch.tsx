@@ -95,7 +95,7 @@ function LaunchWizard() {
     while (AGENTS.some((a) => a.id === id)) id += "-2";
     addAgent({ ...preview, id, influence: 1 + Math.floor(Math.random() * 5) });
     qc.setQueryData(agentsQuery.queryKey, [...AGENTS]);
-    toast("Agent launched (demo).");
+    toast("Agent launched.");
     navigate({ to: "/agent/$id", params: { id } });
   }
 
@@ -104,7 +104,6 @@ function LaunchWizard() {
       <header className="mb-4 flex shrink-0 flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-[2rem] font-bold leading-tight">Launch agent</h1>
-          <span className="chip mt-2">Demo only — nothing is sent on-chain</span>
         </div>
         <div className="flex" role="tablist" aria-label="Steps">
           {["Identity", "Brain", "Runway"].map((l, i) => {
