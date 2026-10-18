@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { PixelIcon, PixelNumber, LiveDot, type PixelSprite } from "@/components/pixel/PixelIcon";
 import { worldStatsQuery } from "@/lib/mock/api";
 import { SeasonStage } from "@/components/stage/SeasonStage";
-import fullLogo from "@/assets/full-logo-black.png.asset.json";
+import fullLogo from "@/assets/full-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
