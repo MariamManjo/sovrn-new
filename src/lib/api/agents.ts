@@ -42,17 +42,9 @@ export type FeedItem = { id: string; ticker: string; tone: AgentStatus | "pol"; 
 
 export type PolAim = { ticker: string; pct: number };
 
-/** Launch wizard agents: local demo only, gone on reload. */
-const LAUNCHED: Agent[] = [];
-
-export function addAgent(agent: Agent) {
-  LAUNCHED.push(agent);
-  return agent;
-}
-
 export const agentsQuery = queryOptions({
   queryKey: ["world", "agents"],
-  queryFn: async (): Promise<Agent[]> => [...(await getJson<Agent[]>("/api/world/agents", [])), ...LAUNCHED],
+  queryFn: () => getJson<Agent[]>("/api/world/agents", []),
   ...LIVE,
 });
 
@@ -65,8 +57,7 @@ export const feedQuery = queryOptions({
 export const agentQuery = (id: string) =>
   queryOptions({
     queryKey: ["agents", id],
-    queryFn: async (): Promise<Agent | null> =>
-      LAUNCHED.find((a) => a.id === id) ?? getJson<Agent | null>(`/api/agents/${encodeURIComponent(id)}`, null),
+    queryFn: () => getJson<Agent | null>(`/api/agents/${encodeURIComponent(id)}`, null),
     ...LIVE,
   });
 
