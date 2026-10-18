@@ -4,13 +4,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Bitmap caps from the logo wordmark; crisp only at multiples of 12px. */
+@font-face {
+  font-family: "Sovrn Caps";
+  src: url("/fonts/sovrn-caps.woff2") format("woff2");
+  font-display: block;
+}
+
 @theme inline {
   --radius-sm: 2px;
   --radius-md: 3px;
   --radius-lg: var(--radius);
   --radius-xl: var(--radius);
   --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "Silkscreen", ui-monospace, monospace;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -73,12 +80,17 @@
   --color-magic: var(--magic);
   --color-panel: var(--panel);
   --color-panel2: var(--panel2);
-  --font-pixel: "Silkscreen", ui-monospace, monospace;
-  --font-display: "Pixelify Sans", "Work Sans", sans-serif;
+  --font-caps: "Sovrn Caps", "Geist Mono", monospace;
+  --color-slab-deep: var(--slab-deep);
+  --color-slab-dark: var(--slab-dark);
+  --color-slab-shade: var(--slab-shade);
+  --color-slab-mid: var(--slab-mid);
+  --color-slab-light: var(--slab-light);
+  --color-slab-pulse: var(--slab-pulse);
 }
 
 :root {
-  /* Season HUD / Endesga 32 — ONLY these hex values are allowed */
+  /* State brights (Endesga 32); land and families live in src/lib/sovrn-palette.ts */
   --ink: #000000;
   --bg0: #000000;
   --bg1: #0a0a0a;
@@ -112,6 +124,13 @@
   --fees: #f77622;
   --civ-earth: #b86f50;
   --civ-timber: #733e39;
+  /* Logo stone, for chrome that echoes the slab */
+  --slab-deep: #273a35;
+  --slab-dark: #364543;
+  --slab-shade: #6a7b77;
+  --slab-mid: #8b9c98;
+  --slab-light: #c3d0cb;
+  --slab-pulse: #dee6e2;
 
   --radius: 0px;
   /* aliases used by components */
@@ -166,16 +185,12 @@
     background-image: none;
     background-attachment: fixed;
   }
-  h1, h2, h3, h4 { font-family: var(--font-display); font-variant-ligatures: none; font-feature-settings: "liga" 0; }
+  h1, h2, h3, h4 { font-family: var(--font-caps); font-weight: 400; font-synthesis: none; letter-spacing: 0; text-transform: none; }
 }
 
 @utility pixelated {
   image-rendering: pixelated;
   shape-rendering: crispEdges;
-}
-
-@utility pixel-blink {
-  animation: pixel-blink 1s steps(2, end) infinite;
 }
 
 /* Chunky pixel panel: 3px ink border, inner highlight + shade, hard drop */
@@ -209,46 +224,47 @@
   }
 }
 
-@utility lamp-flicker {
-  animation: lamp-flicker 0.75s steps(3, end) infinite;
-}
-
-@keyframes lamp-flicker {
-  0% { opacity: 1; }
-  33% { opacity: 0.75; }
-  66% { opacity: 0.95; }
-}
-
-@keyframes pixel-blink {
-  0%, 60% { opacity: 1; }
-  61%, 100% { opacity: 0.15; }
-}
-
+/* Logo ring idle: rest → pulse → settle, stepped; reduced motion holds rest. */
+.idle-rest, .idle-pulse, .idle-settle { animation: 1.5s step-end infinite; }
+.idle-rest { animation-name: idle-rest; }
+.idle-pulse { animation-name: idle-pulse; opacity: 0; }
+.idle-settle { animation-name: idle-settle; opacity: 0; }
+@keyframes idle-rest { 0% { opacity: 1; } 60% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes idle-pulse { 0% { opacity: 0; } 60% { opacity: 1; } 76.667% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes idle-settle { 0% { opacity: 0; } 76.667% { opacity: 1; } 100% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
-  .pixel-blink, .lamp-flicker { animation: none; }
+  .idle-rest { animation: none; }
+  .idle-pulse, .idle-settle { display: none; }
 }
 
-/* Stage idles — stepped, 2–4fps */
-@utility agent-idle {
-  animation: agent-idle 1s steps(2, end) infinite;
+/* Sovrn Caps at its native multiples; line boxes keep the baseline on whole pixels. */
+@utility caps {
+  font-family: var(--font-caps);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: 0;
+  text-transform: none;
 }
-@utility ring-pulse {
-  animation: ring-pulse 2s steps(4, end) infinite;
-  transform-box: fill-box;
-  transform-origin: center;
+@utility caps-24 {
+  font-family: var(--font-caps);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: 0;
+  text-transform: none;
 }
-@utility core-glow {
-  animation: core-glow 1.5s steps(3, end) infinite;
+@utility caps-36 {
+  font-family: var(--font-caps);
+  font-size: 36px;
+  line-height: 44px;
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: 0;
+  text-transform: none;
 }
-@utility flag-wave {
-  animation: flag-wave 0.75s steps(2, end) infinite;
-  transform-box: fill-box;
-  transform-origin: left center;
-}
-@keyframes agent-idle { 0% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-@keyframes ring-pulse { 0% { opacity: .9; transform: scale(1); } 100% { opacity: .25; transform: scale(1.08); } }
-@keyframes core-glow { 0%,100% { opacity: 1; } 50% { opacity: .8; } }
-@keyframes flag-wave { 0% { transform: scaleX(1); } 50% { transform: scaleX(.8); } }
 
 /* Stair-stepped pixel corner bracket frame */
 @utility pixel-frame {
@@ -258,10 +274,6 @@
     inset 3px 3px 0 0 color-mix(in oklab, var(--text) 14%, transparent),
     inset -3px -3px 0 0 color-mix(in oklab, var(--bg0) 30%, transparent),
     6px 6px 0 0 color-mix(in oklab, var(--ink) 80%, transparent);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .agent-idle, .ring-pulse, .core-glow, .flag-wave { animation: none; }
 }
 
 /* B&W chrome: one card style everywhere (sharp 0px, 1px line) */
@@ -284,27 +296,14 @@
   letter-spacing: 0.06em;
 }
 
-/* Season-only selection feedback: illustration stays sharp, chrome stays monochrome. */
+/* Season-only chrome; map feedback is painted into the pixel canvas. */
 .season-empire-scroll { scrollbar-width: thin; scrollbar-color: var(--text-mute) var(--surface-2); scrollbar-gutter: stable; }
 .season-empire-scroll::-webkit-scrollbar { width: 6px; }
 .season-empire-scroll::-webkit-scrollbar-track { background: var(--surface-2); }
 .season-empire-scroll::-webkit-scrollbar-thumb { background: var(--text-mute); }
-.season-map-muted, .season-settlement { transition: opacity 200ms ease; }
-.selection-outline { animation: selection-pulse 1.4s ease-in-out infinite; }
-.selection-beam { animation: selection-beam 1s ease both; opacity: .45; }
-.selection-flash { animation: selection-flash 300ms ease-out forwards; }
-.selection-nameplate { animation: selection-nameplate 250ms ease-out both; }
-.selection-inspector { animation: selection-nameplate 180ms ease-out both; }
+.season-settlement:focus { outline: none; }
+.season-settlement:focus-visible rect { stroke: var(--text); stroke-width: 2px; }
 .selection-meter { appearance: none; background: var(--line); border: 0; }
 .selection-meter::-webkit-meter-bar { background: var(--line); border: 0; border-radius: 0; }
 .selection-meter::-webkit-meter-optimum-value { background: var(--text); }
 .selection-meter::-moz-meter-bar { background: var(--text); }
-@keyframes selection-pulse { 0%,100% { opacity: 1; } 50% { opacity: .55; } }
-@keyframes selection-beam { from { stroke-dashoffset: 1; opacity: 0; } to { stroke-dashoffset: 0; opacity: .45; } }
-@keyframes selection-flash { from { opacity: .65; } to { opacity: 0; } }
-@keyframes selection-nameplate { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-@media (prefers-reduced-motion: reduce) {
-  .season-map-muted, .season-settlement { transition: none; }
-  .selection-outline, .selection-beam, .selection-nameplate, .selection-inspector { animation: none; }
-  .selection-flash { display: none; }
-}
