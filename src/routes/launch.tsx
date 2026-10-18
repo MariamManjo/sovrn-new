@@ -3,7 +3,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AGENTS, addAgent, agentsQuery, type Agent, type Headgear } from "@/lib/mock/agents";
-import { agentFaceUrl } from "@/components/agents/agentFaces";
+import { agentFaceUrl, pickFaceId } from "@/components/agents/agentFaces";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LaunchSprite } from "@/components/pixel/LaunchSprites";
@@ -76,21 +76,16 @@ function LaunchWizard() {
   const feeTotal = +(days * burn).toFixed(1);
 
   const portrait = useMemo(() => {
-    const faceIds = ["vesper", "nyx", "helix", "kite", "sable", "orin", "rook", "ash", "quill", "loom", "mira", "dusk"];
-    const normalizedName = nameTrim.toLowerCase();
-    const match = AGENTS.find((a) => a.name.toLowerCase() === normalizedName && agentFaceUrl(a.id));
-    let hash = 0;
-    for (const char of normalizedName) hash = (Math.imul(hash, 31) + char.charCodeAt(0)) >>> 0;
-    const id = match?.id ?? faceIds[hash % faceIds.length] ?? "vesper";
+    const id = pickFaceId(nameTrim, t);
     return { id, url: agentFaceUrl(id) };
-  }, [nameTrim]);
+  }, [nameTrim, t]);
 
   const preview: Agent = useMemo(() => ({
     id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", modelTier: m?.label ?? "No brain yet",
     runwaySol: feeTotal, burnPerDay: burn, cities: 1, influence: 1, persona: personaTrim || "Drifter", directsPol: false,
-    accentColor: ACCENTS[accent]!.hex, expression: "idle", lastAction: "Launched onto the map",
+    faceId: portrait.id, accentColor: ACCENTS[accent]!.hex, expression: "idle", lastAction: "Launched onto the map",
     look: { skin: ["#e8b796", "#c28569", "#b86f50", "#733e39"][accent % 4]!, hair: "#4a3420", headgear: HEADGEAR[accent]! },
-  }), [nameTrim, t, m, feeTotal, burn, personaTrim, accent]);
+  }), [nameTrim, t, m, feeTotal, burn, personaTrim, accent, portrait.id]);
 
   const go = (n: number) => { setStep(n); setDone((d) => Math.max(d, n - 1)); };
 

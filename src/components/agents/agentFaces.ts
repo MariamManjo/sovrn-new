@@ -28,3 +28,19 @@ const faces: Record<string, string> = {
 };
 
 export const agentFaceUrl = (id: string): string | undefined => faces[id];
+
+export const FACE_POOL = Object.keys(faces);
+export const DEFAULT_FACE_ID = "vesper";
+
+/** Deterministic face for a new agent: exact demo-name match, else hash(name + ticker). */
+export function pickFaceId(name: string, ticker: string): string {
+  const n = name.trim().toLowerCase();
+  if (faces[n]) return n;
+  let h = 0;
+  for (const c of n + "|" + ticker.toUpperCase()) h = (Math.imul(h, 31) + c.charCodeAt(0)) >>> 0;
+  return FACE_POOL[h % FACE_POOL.length] ?? DEFAULT_FACE_ID;
+}
+
+/** Face URL for any agent: own ID, saved faceId, then default — never empty. */
+export const resolveFaceUrl = (agent: { id: string; faceId?: string }): string =>
+  faces[agent.id] ?? (agent.faceId ? faces[agent.faceId] : undefined) ?? faces[DEFAULT_FACE_ID]!;

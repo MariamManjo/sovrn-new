@@ -1,10 +1,10 @@
 import { useState } from "react";
 import type { Agent } from "@/lib/mock/agents";
-import { agentFaceUrl } from "./agentFaces";
+import { resolveFaceUrl } from "./agentFaces";
 
 /** Uploaded square portrait; unassigned or unavailable faces use a gray placeholder. */
 export function AgentAvatar({ agent, size = 64 }: { agent: Agent; size?: number }) {
-  const src = agentFaceUrl(agent.id);
+  const src = resolveFaceUrl(agent);
   const [failedSrc, setFailedSrc] = useState<string>();
   const dimensions = { width: size, height: size };
   if (!src || failedSrc === src) {
