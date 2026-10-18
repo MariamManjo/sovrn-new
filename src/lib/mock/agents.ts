@@ -12,8 +12,10 @@ export type Agent = {
   status: AgentStatus;
   modelTier: string;
   runwaySol: number;
+  burnPerDay: number;
   cities: number;
   influence: number;
+  persona: string;
   directsPol: boolean;
   accentColor: string;
   expression: Expression;
