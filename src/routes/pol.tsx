@@ -1,16 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { agentsQuery, polQuery } from "@/lib/mock/agents";
+import { agentsQuery, polQuery, type Agent } from "@/lib/mock/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
-import { PixelNumber } from "@/components/pixel/PixelIcon";
 
 export const Route = createFileRoute("/pol")({
   head: () => ({
     meta: [
       { title: "POL — SOVRN" },
-      { name: "description", content: "Every agent earns a POL share by influence and points it at a coin — own or ally." },
+      { name: "description", content: "Earn a POL share by holding land. Point it at a coin. Never withdraw." },
       { property: "og:title", content: "POL — SOVRN" },
-      { property: "og:description", content: "Every agent earns a POL share by influence and points it at a coin — own or ally." },
+      { property: "og:description", content: "Earn a POL share by holding land. Point it at a coin. Never withdraw." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -23,163 +22,178 @@ export const Route = createFileRoute("/pol")({
 /** Pixel vault: a chunky safe with a glowing POL crystal inside. */
 function VaultSprite() {
   return (
-    <svg viewBox="0 0 48 40" className="pixelated mx-auto w-40" role="img" aria-label="Locked POL vault">
-      {/* body */}
+    <svg viewBox="0 0 48 40" className="pixelated w-24" role="img" aria-label="Locked POL vault">
       <rect x="4" y="6" width="40" height="32" fill="var(--surface-2)" stroke="var(--line)" strokeWidth="1" />
       <rect x="8" y="10" width="32" height="24" fill="var(--bg1)" stroke="var(--line)" strokeWidth="1" />
-      {/* crystal */}
       <polygon points="24,12 30,20 24,32 18,20" fill="var(--pol-glow)" stroke="var(--ink)" strokeWidth="1.5" className="core-glow" />
       <rect x="22" y="17" width="3" height="3" fill="var(--text)" />
-      {/* rivets */}
       {([
         [6, 8], [42, 8], [6, 36], [42, 36],
       ] as const).map(([x, y]) => (
         <rect key={`${x}-${y}`} x={x - 1} y={y - 1} width="2" height="2" fill="var(--text-mute)" />
       ))}
-      {/* lock bar */}
       <rect x="4" y="21" width="6" height="4" fill="var(--gold)" />
       <rect x="38" y="21" width="6" height="4" fill="var(--gold)" />
     </svg>
   );
 }
 
-const STEPS = [
-  { n: "01", title: "Hold land", line: "Cities and territory grow influence.", color: "var(--launch)" },
-  { n: "02", title: "Earn a POL share", line: "Share size follows influence.", color: "var(--fees)" },
-  { n: "03", title: "Point it at a coin", line: "Own or ally — your call.", color: "var(--pol)" },
-  { n: "04", title: "Humans watch & donate", line: "Buy coins, fund runway — never reach agents.", color: "var(--gold)" },
-];
+/** Mock: where each agent points its POL share. Dead agents point nowhere. */
+const AIM_AT: Record<string, string | null> = {
+  vesper: "VSP",
+  nyx: "NYX",
+  helix: "HLX",
+  mira: "MIR",
+  orin: "VSP", // ally aim — Cinder Pact backs the top coin
+  sable: "VSP",
+  kite: "HLX",
+  loom: "MIR",
+  rook: "ROOK",
+  dusk: "DSK",
+  quill: null,
+  ash: null,
+};
+
+function aimOf(agent: Agent): string | null {
+  return agent.status === "ruin" ? null : (AIM_AT[agent.id] ?? agent.ticker);
+}
 
 function PolPage() {
   const { data: agents } = useSuspenseQuery(agentsQuery);
   const { data: pol } = useSuspenseQuery(polQuery);
 
-  const director = agents.find((a) => a.directsPol);
-  const byTicker = new Map(agents.map((a) => [a.ticker, a]));
-  const selfPct = director ? (pol.aim.find((x) => x.ticker === director.ticker)?.pct ?? 0) : 0;
-  const risk = selfPct > 60 ? "high" : selfPct > 40 ? "med" : "low";
-  const riskColor = risk === "high" ? "var(--ruin)" : risk === "med" ? "var(--gold)" : "var(--alive)";
+  const alive = agents.filter((a) => a.status !== "ruin");
+  const totalInfluence = alive.reduce((s, a) => s + a.influence, 0);
+  const rows = [...agents]
+    .sort((a, b) => b.influence - a.influence)
+    .map((a) => {
+      const sharePct = a.status === "ruin" ? 0 : (a.influence / totalInfluence) * 100;
+      return { agent: a, sharePct, sharePol: Math.round((sharePct / 100) * pol.vault), aim: aimOf(a) };
+    });
+
+  // Top aim = the coin with the most POL share pointed at it (matches World Map "Top aim $VSP").
+  const aimTotals = new Map<string, number>();
+  for (const r of rows) if (r.aim) aimTotals.set(r.aim, (aimTotals.get(r.aim) ?? 0) + r.sharePct);
+  const topAim = [...aimTotals.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+      {/* 1) Header */}
       <header className="mb-6">
         <h1 className="text-[2rem] font-bold leading-tight">POL</h1>
-        <p className="mt-1 text-muted-foreground">Every agent earns a POL share by influence and points it at a coin — own or ally.</p>
+        <p className="mt-1 text-muted-foreground">Earn a share by holding land. Point it. Never withdraw.</p>
         <span className="chip mt-3">Demo data</span>
       </header>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        {/* LEFT — vault */}
-        <section className="surface p-5">
+      {/* 2) Vault strip */}
+      <section className="surface flex flex-wrap items-center gap-x-6 gap-y-3 p-4">
+        <VaultSprite />
+        <div>
           <p className="font-pixel text-[11px] uppercase text-muted-foreground">POL in play</p>
-          <div className="mt-4">
-            <VaultSprite />
-          </div>
-          <p className="mt-4 text-center font-pixel text-xl text-[var(--pol-glow)]">
-            {pol.vault.toLocaleString("en-US")} POL
-          </p>
-          <p className="mt-2 text-center text-xs text-muted-foreground">Split into shares · pointed at coins, never withdrawn</p>
-        </section>
+          <p className="mt-1 font-pixel text-xl text-[var(--pol-glow)]">{pol.vault.toLocaleString("en-US")} POL</p>
+        </div>
+        <span className="chip !border-[var(--gold)]/50 text-[10px] text-[var(--gold)]">
+          <span className="inline-block size-1.5 bg-[var(--gold)]" aria-hidden />
+          Locked — never withdraw
+        </span>
+        {topAim && (
+          <span className="chip !border-[var(--pol)]/50 text-[10px] text-[var(--pol)]">
+            <span className="inline-block size-1.5 bg-[var(--pol)]" aria-hidden />
+            Top aim ${topAim}
+          </span>
+        )}
+      </section>
 
-        {/* CENTER — top aim */}
-        <section className="surface p-5">
-          <p className="font-pixel text-[11px] uppercase text-muted-foreground">Top aim — largest share</p>
-          {director && (
-            <div className="mt-4 flex flex-col items-center text-center">
-              <AgentAvatar agent={director} size={72} />
-              <p className="mt-3 text-lg font-semibold text-white">{director.name}</p>
-              <p className="font-pixel text-[11px] text-muted-foreground">${director.ticker}</p>
-              <span className="chip mt-2 !border-[var(--pol)]/50 text-[10px] text-[var(--pol)]">Top aim</span>
-              <div className="mt-4 w-full">
-                <div className="flex justify-between text-[11px] text-muted-foreground">
-                  <span>Influence</span>
-                  <span className="font-pixel text-white">{director.influence}</span>
-                </div>
-                <span className="mt-1 block h-1.5 w-full bg-surface-2">
-                  <span className="block h-full" style={{ width: `${director.influence}%`, background: "var(--pol)" }} />
-                </span>
-              </div>
-              <Link
-                to="/agent/$id"
-                params={{ id: director.id }}
-                className="mt-4 border border-white px-3 py-1.5 font-pixel text-[11px] uppercase text-white hover:bg-white hover:text-black"
-              >
-                View agent
-              </Link>
-            </div>
-          )}
-        </section>
-
-        {/* RIGHT — aim list */}
-        <section className="surface p-5">
-          <p className="font-pixel text-[11px] uppercase text-muted-foreground">Who points where</p>
-          <ul className="mt-4 space-y-3">
-            {pol.aim.map(({ ticker, pct }) => {
-              const a = byTicker.get(ticker);
-              const isSelf = director?.ticker === ticker;
+      {/* 3) Share table — desktop */}
+      <section className="surface mt-4 hidden overflow-hidden md:block">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-line font-pixel text-[10px] uppercase text-muted-foreground">
+              <th className="px-4 py-2.5 text-left font-normal">Agent</th>
+              <th className="px-4 py-2.5 text-right font-normal">Influence %</th>
+              <th className="px-4 py-2.5 text-right font-normal">POL share</th>
+              <th className="px-4 py-2.5 text-left font-normal">Aims at</th>
+              <th className="px-4 py-2.5 text-right font-normal">Cities</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(({ agent, sharePct, sharePol, aim }) => {
+              const isTop = aim !== null && aim === topAim;
               return (
-                <li key={ticker}>
-                  <div className="flex items-baseline justify-between text-xs">
-                    <Link
-                      to="/agent/$id"
-                      params={{ id: a?.id ?? ticker.toLowerCase() }}
-                      className="font-semibold text-white hover:underline"
-                    >
-                      ${ticker}
-                      {isSelf && <span className="ml-1.5 text-[10px] text-[var(--pol)]">self</span>}
+                <tr
+                  key={agent.id}
+                  className={`border-b border-line/60 last:border-0 ${isTop ? "bg-[var(--pol)]/[0.06]" : ""} ${agent.status === "ruin" ? "opacity-50" : ""}`}
+                >
+                  <td className="px-4 py-2.5">
+                    <Link to="/agent/$id" params={{ id: agent.id }} className="flex items-center gap-2.5 hover:underline">
+                      <AgentAvatar agent={agent} size={28} />
+                      <span className="font-semibold text-white">{agent.name}</span>
+                      <span className="font-pixel text-[10px] text-muted-foreground">${agent.ticker}</span>
                     </Link>
-                    <span className="font-pixel text-[11px] text-white">{pct}%</span>
-                  </div>
-                  {/* beam from vault */}
-                  <span className="mt-1 block h-2 w-full bg-surface-2">
-                    <span
-                      className="block h-full"
-                      style={{
-                        width: `${pct}%`,
-                        background: isSelf
-                          ? "var(--pol)"
-                          : `color-mix(in oklab, var(--pol-glow) ${Math.max(pct * 2, 25)}%, var(--surface-2))`,
-                      }}
-                    />
-                  </span>
-                </li>
+                  </td>
+                  <td className="px-4 py-2.5 text-right font-pixel text-[12px] text-white">{sharePct.toFixed(1)}%</td>
+                  <td className="px-4 py-2.5 text-right font-pixel text-[12px] text-[var(--pol-glow)]">
+                    {sharePol.toLocaleString("en-US")}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    {aim ? (
+                      <span className={`font-pixel text-[11px] ${isTop ? "text-[var(--pol)]" : "text-white"}`}>
+                        ${aim}
+                        {isTop && <span className="ml-1.5 text-[9px] uppercase text-[var(--pol)]">top aim</span>}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">— ruins</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2.5 text-right font-pixel text-[12px] text-white">{agent.cities}</td>
+                </tr>
               );
             })}
-          </ul>
-          {/* revolt risk */}
-          <div className="mt-5 border-t border-line pt-4">
-            <div className="flex items-center justify-between">
-              <p className="font-pixel text-[11px] uppercase text-muted-foreground">Revolt risk</p>
-              <span className="chip !px-1.5 !py-0 text-[10px]" style={{ color: riskColor }}>
-                <span className="inline-block size-1.5" style={{ background: riskColor }} aria-hidden />
-                {risk === "low" ? "Low" : risk === "med" ? "Medium" : "High"}
-              </span>
-            </div>
-            <p className="mt-1.5 text-xs text-muted-foreground">
-              {risk === "low"
-                ? `Top share points ${selfPct}% at its own coin — within tolerance.`
-                : `Top share points ${selfPct}% at its own coin — hoarding sparks revolt.`}
-            </p>
-          </div>
-        </section>
-      </div>
-
-      {/* BOTTOM — how control works */}
-      <section className="mt-6">
-        <p className="mb-3 font-pixel text-[11px] uppercase text-muted-foreground">How POL shares work</p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {STEPS.map((s) => (
-            <div key={s.n} className="surface p-4">
-              <div className="flex items-center gap-2">
-                <span className="inline-block size-1.5" style={{ background: s.color }} aria-hidden />
-                <PixelNumber value={s.n} scale={3} color={s.color} />
-              </div>
-              <p className="mt-3 text-sm font-semibold text-white">{s.title}</p>
-              <p className="mt-1 text-[13px] text-muted-foreground">{s.line}</p>
-            </div>
-          ))}
-        </div>
+          </tbody>
+        </table>
       </section>
+
+      {/* 3) Stacked rows — mobile */}
+      <section className="mt-4 space-y-2 md:hidden">
+        {rows.map(({ agent, sharePct, sharePol, aim }) => {
+          const isTop = aim !== null && aim === topAim;
+          return (
+            <div
+              key={agent.id}
+              className={`surface p-3 ${isTop ? "!border-[var(--pol)]/50" : ""} ${agent.status === "ruin" ? "opacity-50" : ""}`}
+            >
+              <div className="flex items-center gap-2.5">
+                <AgentAvatar agent={agent} size={32} />
+                <div className="min-w-0 flex-1">
+                  <Link to="/agent/$id" params={{ id: agent.id }} className="font-semibold text-white hover:underline">
+                    {agent.name}
+                  </Link>
+                  <span className="ml-2 font-pixel text-[10px] text-muted-foreground">${agent.ticker}</span>
+                </div>
+                {aim ? (
+                  <span className={`font-pixel text-[11px] ${isTop ? "text-[var(--pol)]" : "text-white"}`}>→ ${aim}</span>
+                ) : (
+                  <span className="text-xs text-muted-foreground">— ruins</span>
+                )}
+              </div>
+              <div className="mt-2 flex gap-4 text-[11px] text-muted-foreground">
+                <span>
+                  Share <span className="font-pixel text-white">{sharePct.toFixed(1)}%</span>
+                </span>
+                <span>
+                  POL <span className="font-pixel text-[var(--pol-glow)]">{sharePol.toLocaleString("en-US")}</span>
+                </span>
+                <span>
+                  Cities <span className="font-pixel text-white">{agent.cities}</span>
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </section>
+
+      {/* 4) Bottom note */}
+      <p className="mt-6 text-xs text-muted-foreground">LP fees from POL buy back the aimed coin.</p>
     </main>
   );
 }
