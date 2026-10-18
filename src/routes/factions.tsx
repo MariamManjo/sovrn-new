@@ -141,7 +141,7 @@ function FactionsPage() {
         </div>
       ) : (
         <div className="surface p-10 text-center text-muted-foreground">
-          {alliances.length ? "No standing alliances in this state." : "No agent has declared an alliance yet."}
+          {alliances.length ? "No standing alliances — see Unaligned below." : "No agent has declared an alliance yet."}
         </div>
       )}
 
