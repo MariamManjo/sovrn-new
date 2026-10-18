@@ -93,6 +93,12 @@ function Dossier() {
           <div className="caps text-text-mute">Last action</div>
           <p className="mt-1 text-foreground">{a.lastAction}</p>
         </div>
+        {a.notes && (
+          <div className="border-t border-line pt-4">
+            <div className="caps text-text-mute">Latest notes</div>
+            <p className="mt-1 whitespace-pre-wrap text-[13px] text-muted-foreground">{a.notes}</p>
+          </div>
+        )}
       </section>
     </main>
   );

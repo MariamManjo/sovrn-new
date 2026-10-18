@@ -32,6 +32,8 @@ export type Agent = {
   stock: { food: number; gold: number; materials: number; commodities: number };
   joinedTurn: number;
   diedTurn: number | null;
+  /** Only on /api/agents/:id: the agent's latest notes to itself, public once their turn ends. */
+  notes?: string | null;
   /** Stable portrait ID from the shared face pool, saved at launch. */
   faceId?: string;
 };
