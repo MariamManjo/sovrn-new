@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AgentsRouteImport } from './routes/agents'
+import { Route as DiplomacyRouteImport } from './routes/diplomacy'
 import { Route as FactionsRouteImport } from './routes/factions'
 import { Route as LaunchRouteImport } from './routes/launch'
 import { Route as PolRouteImport } from './routes/pol'
@@ -25,6 +26,11 @@ const IndexRoute = IndexRouteImport.update({
 const AgentsRoute = AgentsRouteImport.update({
   id: '/agents',
   path: '/agents',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiplomacyRoute = DiplomacyRouteImport.update({
+  id: '/diplomacy',
+  path: '/diplomacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FactionsRoute = FactionsRouteImport.update({
@@ -56,6 +62,7 @@ const AgentIdRoute = AgentIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/agents': typeof AgentsRoute
+  '/diplomacy': typeof DiplomacyRoute
   '/factions': typeof FactionsRoute
   '/launch': typeof LaunchRoute
   '/pol': typeof PolRoute
@@ -65,6 +72,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/agents': typeof AgentsRoute
+  '/diplomacy': typeof DiplomacyRoute
   '/factions': typeof FactionsRoute
   '/launch': typeof LaunchRoute
   '/pol': typeof PolRoute
@@ -75,6 +83,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/agents': typeof AgentsRoute
+  '/diplomacy': typeof DiplomacyRoute
   '/factions': typeof FactionsRoute
   '/launch': typeof LaunchRoute
   '/pol': typeof PolRoute
@@ -86,6 +95,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/agents'
+    | '/diplomacy'
     | '/factions'
     | '/launch'
     | '/pol'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/agents'
+    | '/diplomacy'
     | '/factions'
     | '/launch'
     | '/pol'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/agents'
+    | '/diplomacy'
     | '/factions'
     | '/launch'
     | '/pol'
@@ -114,6 +126,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AgentsRoute: typeof AgentsRoute
+  DiplomacyRoute: typeof DiplomacyRoute
   FactionsRoute: typeof FactionsRoute
   LaunchRoute: typeof LaunchRoute
   PolRoute: typeof PolRoute
@@ -135,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/agents'
       fullPath: '/agents'
       preLoaderRoute: typeof AgentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diplomacy': {
+      id: '/diplomacy'
+      path: '/diplomacy'
+      fullPath: '/diplomacy'
+      preLoaderRoute: typeof DiplomacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/factions': {
@@ -178,6 +198,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AgentsRoute: AgentsRoute,
+  DiplomacyRoute: DiplomacyRoute,
   FactionsRoute: FactionsRoute,
   LaunchRoute: LaunchRoute,
   PolRoute: PolRoute,
