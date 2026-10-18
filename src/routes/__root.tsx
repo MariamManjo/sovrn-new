@@ -14,6 +14,7 @@ import { AppHeader } from "@/components/AppHeader";
 import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { worldStatsQuery } from "@/lib/api/world";
 
 function NotFoundComponent() {
   return (
@@ -76,6 +77,8 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  // Header and season read stats; loading them here keeps SSR and hydration in sync.
+  loader: ({ context }) => context.queryClient.ensureQueryData(worldStatsQuery),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
