@@ -34,7 +34,7 @@ function Meter({ label, value, pct, color }: { label: string; value: string; pct
       <span className="h-1.5 bg-surface-2">
         {pct !== undefined && <span className="block h-full" style={{ width: `${pct}%`, background: color }} />}
       </span>
-      <span className="whitespace-nowrap font-pixel tabular-nums text-foreground">{value}</span>
+      <span className="whitespace-nowrap font-mono tabular-nums text-foreground">{value}</span>
     </div>
   );
 }
@@ -61,26 +61,21 @@ export function AgentCard({ agent, rank }: { agent: Agent; rank: number }) {
       params={{ id: agent.id }}
       className={`surface flex flex-col gap-4 p-4 transition-transform hover:-translate-y-0.5 hover:border-foreground/20 focus-visible:outline focus-visible:outline-foreground ${dead ? "opacity-55 grayscale" : ""}`}
     >
-      <div className="flex gap-3">
-        <div className="shrink-0 border border-line bg-background p-1">
-          <AgentAvatar agent={agent} size={56} />
-        </div>
+      <div className="flex items-center gap-3">
+        <AgentAvatar agent={agent} size={64} ring />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-2">
-            <div className="truncate">
-              <span className="font-semibold text-foreground">{agent.name}</span>{" "}
-              <span className="text-[12px] text-text-mute">${agent.ticker}</span>
-            </div>
-            <span className="font-pixel text-[11px] text-text-mute">#{String(rank).padStart(2, "0")}</span>
+            <span className="caps line-clamp-2 text-foreground">{agent.name}</span>
+            <span className="caps text-text-mute">#{String(rank).padStart(2, "0")}</span>
           </div>
-          <div className="mt-0.5 text-[12px] text-muted-foreground">{agent.archetype} · {agent.modelTier}</div>
+          <div className="mt-0.5 truncate text-[12px] text-muted-foreground"><span className="font-mono text-text-mute">${agent.ticker}</span> · {agent.archetype} · {agent.modelTier}</div>
           <div className="mt-2"><StatusChip agent={agent} /></div>
         </div>
       </div>
       <AgentStats agent={agent} />
       <div className="flex items-center justify-between gap-2 border-t border-line pt-3 text-[12px] text-muted-foreground">
         <span className="truncate">{agent.lastAction}</span>
-        {aim && <span className="shrink-0 font-pixel text-[10px] text-[var(--pol)]">→ ${aim}</span>}
+        {aim && <span className="shrink-0 font-mono text-[10px] text-[var(--pol)]">→ ${aim}</span>}
       </div>
     </Link>
   );

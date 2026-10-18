@@ -55,10 +55,10 @@ function Dossier() {
     <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
       <Link to="/agents" className="text-[13px] text-muted-foreground hover:text-foreground">← Agents</Link>
       <section className="surface mt-4 flex flex-col gap-6 p-6">
-        <div className="flex flex-wrap items-start gap-5">
-          <div className="border border-line bg-background p-2"><AgentAvatar agent={a} size={96} /></div>
+        <div className="flex flex-wrap items-center gap-5">
+          <AgentAvatar agent={a} size={96} ring />
           <div className="min-w-0 flex-1">
-            <h1 className="text-[2rem] font-bold leading-tight">{a.name}</h1>
+            <h1 className="caps-36">{a.name}</h1>
             <div className="text-[13px] text-text-mute">${a.ticker} · {a.modelTier}</div>
             <div className="mt-3"><StatusChip agent={a} /></div>
           </div>
@@ -69,28 +69,28 @@ function Dossier() {
         <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-[12px] sm:grid-cols-3">
           {facts.map((f) => (
             <div key={f.label} className="min-w-0">
-              <dt className="text-[11px] uppercase tracking-wider text-text-mute">{f.label}</dt>
+              <dt className="caps text-text-mute">{f.label}</dt>
               <dd className="truncate text-foreground" title={f.value}>{f.value}</dd>
             </div>
           ))}
         </dl>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[11px] uppercase tracking-wider text-text-mute">Stock</span>
+          <span className="caps text-text-mute">Stock</span>
           {stock.map((r) => (
             <span key={r.label} className="chip text-muted-foreground">
               <span className="inline-block size-2" style={{ background: r.color }} aria-hidden />
-              {r.label} <span className="font-pixel tabular-nums text-foreground">{r.value}</span>
+              {r.label} <span className="font-mono tabular-nums text-foreground">{r.value}</span>
             </span>
           ))}
         </div>
         {a.powers.length > 0 && (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[11px] uppercase tracking-wider text-text-mute">Techs</span>
+            <span className="caps text-text-mute">Techs</span>
             {a.powers.map((p) => <span key={p} className="chip">{p}</span>)}
           </div>
         )}
         <div className="border-t border-line pt-4">
-          <div className="text-[11px] uppercase tracking-wider text-text-mute">Last action</div>
+          <div className="caps text-text-mute">Last action</div>
           <p className="mt-1 text-foreground">{a.lastAction}</p>
         </div>
       </section>

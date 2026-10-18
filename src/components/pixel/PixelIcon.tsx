@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { SovrnRing } from "./SovrnRing";
 
 /**
  * Crisp pixel sprites drawn as SVG rects on an integer grid.
@@ -119,61 +120,7 @@ export function PixelIcon({
   );
 }
 
-/** 3x5 pixel digits for step and turn numbers. */
-const DIGITS: Record<string, string[]> = {
-  "0": ["###", "#.#", "#.#", "#.#", "###"],
-  "1": [".#.", "##.", ".#.", ".#.", "###"],
-  "2": ["###", "..#", "###", "#..", "###"],
-  "3": ["###", "..#", "###", "..#", "###"],
-  "4": ["#.#", "#.#", "###", "..#", "..#"],
-  "5": ["###", "#..", "###", "..#", "###"],
-  "6": ["###", "#..", "###", "#.#", "###"],
-  "7": ["###", "..#", "..#", "..#", "..#"],
-  "8": ["###", "#.#", "###", "#.#", "###"],
-  "9": ["###", "#.#", "###", "..#", "###"],
-};
-
-export function PixelNumber({
-  value,
-  scale = 4,
-  color = "var(--gold)",
-}: {
-  value: string;
-  scale?: 1 | 2 | 3 | 4 | 5 | 6;
-  color?: string;
-}) {
-  const chars = [...value];
-  const w = chars.length * 4 - 1;
-  return (
-    <svg
-      width={w * scale}
-      height={5 * scale}
-      viewBox={`0 0 ${w} 5`}
-      className="pixelated"
-      role="img"
-      aria-label={value}
-    >
-      {chars.flatMap((ch, i) =>
-        (DIGITS[ch] ?? []).flatMap((row, y) =>
-          [...row].map((c, x) =>
-            c === "#" ? (
-              <rect key={`${i}-${x}-${y}`} x={i * 4 + x} y={y} width={1} height={1} fill={color} />
-            ) : null,
-          ),
-        ),
-      )}
-    </svg>
-  );
-}
-
+/** Live indicator: the logo ring at its smallest, no dashes. */
 export function LiveDot({ tone = "live" }: { tone?: "live" | "danger" }) {
-  return (
-    <span
-      className={cn(
-        "inline-block size-2 pixel-blink",
-        tone === "live" ? "bg-alive" : "bg-alert",
-      )}
-      aria-hidden
-    />
-  );
+  return <SovrnRing box={12} r={2.5} dashes={0} tone={tone === "live" ? "live" : "low"} />;
 }

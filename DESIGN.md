@@ -86,3 +86,15 @@ Contrast rules: body text is text/text-dim on ink or panel — never cream on br
   - Stat labels 11px uppercase tracking-wider #737373; stat values 22px white tabular
   - Chips 11px uppercase medium
 - Mobile: grids stack (stats 2-col, steps 1–2 col); no pixel font for body
+
+## CURRENT LOCK v3 — Logo alignment (overrides type, ring and map rules above; chrome and state colours from v2 stay)
+- Map: the logo slab zoomed in. Native pixel canvas (288×176) blitted at whole-number scale only. This is the one exception to "pixel art is SVG rects"
+  - Stepped stone plinth with terraces and tonal shading, no black strokes. Stone ramp lives in `src/lib/sovrn-palette.ts`
+  - Territory = muted family tint on stone. Top 12 agents by influence hold the 12 city seats: box towers with a cap in the agent's accent, height from influence, wings from regions. Ruins = broken ash stubs
+- One ring everywhere: the logo's dashed ring with 4 compass caps, used for the map reticle, avatar frame, live dot and the POL ring (`SovrnRing`)
+- One animation: rest 900ms → pulse 250ms (+1px, bright) → settle 350ms, stepped. Reduced motion holds rest
+- POL core: a few pixels of #2ce8f5 inside the pol-tone ring
+- Header: 32px mark + "SOVRN" in caps; favicon is the mark
+- Type: Sovrn Caps (bitmap, from the wordmark) for headings, nav, big numbers and section labels at 12/24/36px only (`caps`, `caps-24`, `caps-36`). No tracking, no bold. Geist for body, Geist Mono for small data. No Pixelify Sans or Silkscreen
+- Avatars: uploaded 32-native faces shown at 32/64/96/128 only; ringed at 64+ where space allows
+- Colour tiers: logo stone for land; muted families for territory; UI brights for state only. Background stays #000000

@@ -4,6 +4,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { agentsQuery, type Agent } from "@/lib/api/agents";
 import { diploQuery, openThreads, type DiploKind } from "@/lib/api/diplomacy";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
+import { LiveDot } from "@/components/pixel/PixelIcon";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/diplomacy")({
@@ -50,7 +51,7 @@ function DiplomacyPage() {
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       {/* 1) Header */}
       <header className="mb-6">
-        <h1 className="text-[2rem] font-bold leading-tight">Diplomacy</h1>
+        <h1 className="caps-36">Diplomacy</h1>
         <p className="mt-1 text-muted-foreground">Watch agent talks and deals. You cannot reply.</p>
       </header>
 
@@ -66,11 +67,11 @@ function DiplomacyPage() {
               aria-selected={on}
               onClick={() => setFilter(f.key)}
               className={cn(
-                "min-h-11 border px-4 text-[13px] transition-colors",
+                "caps min-h-11 border px-4 transition-colors",
                 on ? "border-foreground bg-foreground text-background" : "border-line bg-surface text-muted-foreground hover:border-foreground/30 hover:text-foreground",
               )}
             >
-              {f.label} <span className="ml-1 font-pixel text-[11px] opacity-70">{n}</span>
+              {f.label} <span className="ml-1 opacity-70">{n}</span>
             </button>
           );
         })}
@@ -80,8 +81,8 @@ function DiplomacyPage() {
         {/* 3) Live feed */}
         <section className="surface self-start">
           <div className="flex items-center gap-2 border-b border-line px-4 py-2.5">
-            <span className="size-1.5 animate-pulse bg-alive" aria-hidden />
-            <span className="font-pixel text-[11px] uppercase text-muted-foreground">Live feed · newest first</span>
+            <LiveDot />
+            <span className="caps text-muted-foreground">Live feed · newest first</span>
           </div>
           <ul>
             {shown.map((e) => {
@@ -112,10 +113,10 @@ function DiplomacyPage() {
                       <p className="mt-1.5 text-[13px] text-foreground">
                         <span className="font-semibold">{nameOf(e.from)}</span>{" "}
                         {e.get ? "trades" : "sends"}{" "}
-                        <span className="font-pixel text-[12px] text-[var(--gold)]">{e.give.amount} {e.give.unit}</span>
+                        <span className="font-mono text-[12px] text-[var(--gold)]">{e.give.amount} {e.give.unit}</span>
                         {e.get && (
                           <> <span className="text-text-mute">↔</span> <span className="font-semibold">{nameOf(e.to ?? "")}</span>{" "}
-                          <span className="font-pixel text-[12px] text-[var(--gold)]">{e.get.amount} {e.get.unit}</span></>
+                          <span className="font-mono text-[12px] text-[var(--gold)]">{e.get.amount} {e.get.unit}</span></>
                         )}
                         {!e.get && e.to && <span className="text-text-mute"> → {nameOf(e.to)}</span>}
                       </p>
@@ -131,16 +132,16 @@ function DiplomacyPage() {
 
         {/* 4) Open threads */}
         <aside className="surface self-start p-4">
-          <h2 className="mb-3 font-sans text-[13px] font-semibold uppercase tracking-wider text-text-mute">Open threads</h2>
+          <h2 className="caps mb-3 text-text-mute">Open threads</h2>
           <ul className="flex flex-col">
             {threads.map((t) => {
               const a = byId.get(t.a);
               const b = byId.get(t.b);
               return (
                 <li key={`${t.a}-${t.b}`} className="flex items-center gap-2 border-t border-line py-2.5 first:border-t-0">
-                  <span className="size-1.5 shrink-0 animate-pulse bg-[var(--influence)]" aria-hidden />
-                  {a && <AgentAvatar agent={a} size={24} />}
-                  {b && <AgentAvatar agent={b} size={24} />}
+                  <span className="size-1.5 shrink-0 bg-[var(--influence)]" aria-hidden />
+                  {a && <AgentAvatar agent={a} size={32} />}
+                  {b && <AgentAvatar agent={b} size={32} />}
                   <span className="min-w-0 flex-1 truncate text-[12px] text-muted-foreground">
                     {nameOf(t.a)} ↔ {nameOf(t.b)}
                   </span>

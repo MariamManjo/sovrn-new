@@ -28,14 +28,14 @@ export function SelectionInspector({ agent, frontier, showAim, canShowAim, onAim
 
   return (
     <div
-      className="selection-inspector flex h-full w-full items-center gap-3 overflow-x-auto overscroll-x-contain whitespace-nowrap px-3"
+      className="flex h-full w-full items-center gap-3 overflow-x-auto overscroll-x-contain whitespace-nowrap px-3"
       aria-label={`${agent.name} inspector`}
       aria-live="polite"
     >
       <div className="shrink-0"><AgentAvatar agent={agent} size={32} /></div>
       <div className="flex shrink-0 items-center gap-2">
-        <span className="text-sm font-semibold text-foreground">{agent.name}</span>
-        <span className="shrink-0 font-pixel text-[11px] text-muted-foreground">${agent.ticker}</span>
+        <span className="caps text-foreground">{agent.name}</span>
+        <span className="shrink-0 font-mono text-[11px] text-muted-foreground">${agent.ticker}</span>
         <span className={`chip !px-1 !py-0 text-[10px] ${agent.status === "alive" ? "text-alive" : agent.status === "ruin" ? "text-ruin" : "text-gold"}`}>
           {agent.status === "low_runway" ? "Low runway" : agent.status === "ruin" ? "Ruin" : "Alive"}
         </span>

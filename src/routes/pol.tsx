@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { agentsQuery, polQuery } from "@/lib/api/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
+import { SovrnRing } from "@/components/pixel/SovrnRing";
 import { aimOf } from "@/components/agents/AgentCard";
 
 export const Route = createFileRoute("/pol")({
@@ -20,22 +21,16 @@ export const Route = createFileRoute("/pol")({
   component: PolPage,
 });
 
-/** Pixel vault: a chunky safe with a glowing POL crystal inside. */
-function VaultSprite() {
+/** The logo ring around the POL core: a few pixels of POL glow. */
+function PolRing() {
   return (
-    <svg viewBox="0 0 48 40" className="pixelated w-24" role="img" aria-label="Locked POL vault">
-      <rect x="4" y="6" width="40" height="32" fill="var(--surface-2)" stroke="var(--line)" strokeWidth="1" />
-      <rect x="8" y="10" width="32" height="24" fill="var(--bg1)" stroke="var(--line)" strokeWidth="1" />
-      <polygon points="24,12 30,20 24,32 18,20" fill="var(--pol-glow)" stroke="var(--ink)" strokeWidth="1.5" className="core-glow" />
-      <rect x="22" y="17" width="3" height="3" fill="var(--text)" />
-      {([
-        [6, 8], [42, 8], [6, 36], [42, 36],
-      ] as const).map(([x, y]) => (
-        <rect key={`${x}-${y}`} x={x - 1} y={y - 1} width="2" height="2" fill="var(--text-mute)" />
-      ))}
-      <rect x="4" y="21" width="6" height="4" fill="var(--gold)" />
-      <rect x="38" y="21" width="6" height="4" fill="var(--gold)" />
-    </svg>
+    <SovrnRing box={32} r={11.5} dashes={12} scale={3} tone="pol">
+      <svg width={12} height={12} viewBox="0 0 4 4" shapeRendering="crispEdges" role="img" aria-label="Locked POL core" className="block">
+        <rect x={1} y={0} width={2} height={4} fill="var(--pol-glow)" />
+        <rect x={0} y={1} width={4} height={2} fill="var(--pol-glow)" />
+        <rect x={1} y={1} width={1} height={1} fill="#b4f0d7" />
+      </svg>
+    </SovrnRing>
   );
 }
 
@@ -54,16 +49,16 @@ function PolPage() {
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       {/* 1) Header */}
       <header className="mb-6">
-        <h1 className="text-[2rem] font-bold leading-tight">POL</h1>
+        <h1 className="caps-36">POL</h1>
         <p className="mt-1 text-muted-foreground">Earn a share by holding land. Point it. Never withdraw.</p>
       </header>
 
       {/* 2) Vault strip */}
       <section className="surface flex flex-wrap items-center gap-x-6 gap-y-3 p-4">
-        <VaultSprite />
+        <PolRing />
         <div>
-          <p className="font-pixel text-[11px] uppercase text-muted-foreground">POL in play</p>
-          <p className="mt-1 font-pixel text-xl text-[var(--pol-glow)]">{pol.vault.toLocaleString("en-US", { maximumFractionDigits: 4 })} POL</p>
+          <p className="caps text-muted-foreground">POL in play</p>
+          <p className="caps-24 mt-1 text-[var(--pol-glow)]">{pol.vault.toLocaleString("en-US", { maximumFractionDigits: 4 })} POL</p>
         </div>
         <span className="chip !border-[var(--gold)]/50 text-[10px] text-[var(--gold)]">
           <span className="inline-block size-1.5 bg-[var(--gold)]" aria-hidden />
@@ -81,7 +76,7 @@ function PolPage() {
       <section className="surface mt-4 hidden overflow-hidden md:block">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-line font-pixel text-[10px] uppercase text-muted-foreground">
+            <tr className="caps border-b border-line text-muted-foreground">
               <th className="px-4 py-2.5 text-left font-normal">Agent</th>
               <th className="px-4 py-2.5 text-right font-normal">Influence %</th>
               <th className="px-4 py-2.5 text-right font-normal">POL share</th>
@@ -99,18 +94,18 @@ function PolPage() {
                 >
                   <td className="px-4 py-2.5">
                     <Link to="/agent/$id" params={{ id: agent.id }} className="flex items-center gap-2.5 hover:underline">
-                      <AgentAvatar agent={agent} size={28} />
+                      <AgentAvatar agent={agent} size={32} />
                       <span className="font-semibold text-white">{agent.name}</span>
-                      <span className="font-pixel text-[10px] text-muted-foreground">${agent.ticker}</span>
+                      <span className="font-mono text-[10px] text-muted-foreground">${agent.ticker}</span>
                     </Link>
                   </td>
-                  <td className="px-4 py-2.5 text-right font-pixel text-[12px] text-white">{sharePct.toFixed(1)}%</td>
-                  <td className="px-4 py-2.5 text-right font-pixel text-[12px] text-[var(--pol-glow)]">
+                  <td className="px-4 py-2.5 text-right font-mono text-[12px] text-white">{sharePct.toFixed(1)}%</td>
+                  <td className="px-4 py-2.5 text-right font-mono text-[12px] text-[var(--pol-glow)]">
                     {sharePol.toLocaleString("en-US", { maximumFractionDigits: 4 })}
                   </td>
                   <td className="px-4 py-2.5">
                     {aim ? (
-                      <span className={`font-pixel text-[11px] ${isTop ? "text-[var(--pol)]" : "text-white"}`}>
+                      <span className={`font-mono text-[11px] ${isTop ? "text-[var(--pol)]" : "text-white"}`}>
                         ${aim}
                         {isTop && <span className="ml-1.5 text-[9px] uppercase text-[var(--pol)]">top aim</span>}
                       </span>
@@ -118,7 +113,7 @@ function PolPage() {
                       <span className="text-xs text-muted-foreground">— ruins</span>
                     )}
                   </td>
-                  <td className="px-4 py-2.5 text-right font-pixel text-[12px] text-white">{agent.regions}</td>
+                  <td className="px-4 py-2.5 text-right font-mono text-[12px] text-white">{agent.regions}</td>
                 </tr>
               );
             })}
@@ -141,23 +136,23 @@ function PolPage() {
                   <Link to="/agent/$id" params={{ id: agent.id }} className="font-semibold text-white hover:underline">
                     {agent.name}
                   </Link>
-                  <span className="ml-2 font-pixel text-[10px] text-muted-foreground">${agent.ticker}</span>
+                  <span className="ml-2 font-mono text-[10px] text-muted-foreground">${agent.ticker}</span>
                 </div>
                 {aim ? (
-                  <span className={`font-pixel text-[11px] ${isTop ? "text-[var(--pol)]" : "text-white"}`}>→ ${aim}</span>
+                  <span className={`font-mono text-[11px] ${isTop ? "text-[var(--pol)]" : "text-white"}`}>→ ${aim}</span>
                 ) : (
                   <span className="text-xs text-muted-foreground">— ruins</span>
                 )}
               </div>
               <div className="mt-2 flex gap-4 text-[11px] text-muted-foreground">
                 <span>
-                  Share <span className="font-pixel text-white">{sharePct.toFixed(1)}%</span>
+                  Share <span className="font-mono text-white">{sharePct.toFixed(1)}%</span>
                 </span>
                 <span>
-                  POL <span className="font-pixel text-[var(--pol-glow)]">{sharePol.toLocaleString("en-US", { maximumFractionDigits: 4 })}</span>
+                  POL <span className="font-mono text-[var(--pol-glow)]">{sharePol.toLocaleString("en-US", { maximumFractionDigits: 4 })}</span>
                 </span>
                 <span>
-                  Regions <span className="font-pixel text-white">{agent.regions}</span>
+                  Regions <span className="font-mono text-white">{agent.regions}</span>
                 </span>
               </div>
             </div>

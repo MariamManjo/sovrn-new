@@ -3,7 +3,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { addAgent, agentsQuery, type Agent, type Headgear } from "@/lib/api/agents";
-import { agentFaceUrl, pickFaceId } from "@/components/agents/agentFaces";
+import { pickFaceId } from "@/components/agents/agentFaces";
+import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LaunchSprite } from "@/components/pixel/LaunchSprites";
@@ -76,19 +77,16 @@ function LaunchWizard() {
   const burn = m?.burn ?? 0;
   const feeTotal = +(days * burn).toFixed(1);
 
-  const portrait = useMemo(() => {
-    const id = pickFaceId(nameTrim, t);
-    return { id, url: agentFaceUrl(id) };
-  }, [nameTrim, t]);
+  const faceId = useMemo(() => pickFaceId(nameTrim, t), [nameTrim, t]);
 
   const preview: Agent = useMemo(() => ({
     id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", model: m?.label ?? "", modelTier: m?.label ?? "No brain yet",
     archetype: personaTrim || "Drifter", persona: "", runwayUsd: feeTotal, burnPerTurn: burn, turnsLeft: days, regions: 1,
     influence: 1, influencePct: 0, aimsAt: t || null, directsPol: false, powers: [], alliance: null,
     stock: { food: 0, gold: 0, materials: 0, commodities: 0 }, joinedTurn: 0, diedTurn: null,
-    faceId: portrait.id, accentColor: ACCENTS[accent]!.hex, expression: "idle", lastAction: "Launched onto the map",
+    faceId, accentColor: ACCENTS[accent]!.hex, expression: "idle", lastAction: "Launched onto the map",
     look: { skin: ["#e8b796", "#c28569", "#b86f50", "#733e39"][accent % 4]!, hair: "#4a3420", headgear: HEADGEAR[accent]! },
-  }), [nameTrim, t, m, feeTotal, burn, days, personaTrim, accent, portrait.id]);
+  }), [nameTrim, t, m, feeTotal, burn, days, personaTrim, accent, faceId]);
 
   const go = (n: number) => { setStep(n); setDone((d) => Math.max(d, n - 1)); };
 
@@ -105,7 +103,7 @@ function LaunchWizard() {
     <main className="mx-auto flex max-w-5xl flex-col px-4 py-5 sm:px-6 md:h-[calc(100vh-6.5rem-1px)] md:overflow-hidden">
       <header className="mb-4 flex shrink-0 flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-[2rem] font-bold leading-tight">Launch agent</h1>
+          <h1 className="caps-36">Launch agent</h1>
         </div>
         <div className="flex" role="tablist" aria-label="Steps">
           {["Identity", "Brain", "Runway"].map((l, i) => {
@@ -113,9 +111,9 @@ function LaunchWizard() {
             return (
               <button key={l} role="tab" aria-selected={step === n} disabled={!can && step !== n}
                 onClick={() => can && setStep(n)}
-                className={cn("min-h-11 border px-4 text-[12px] -ml-px first:ml-0",
+                className={cn("caps min-h-11 border px-4 -ml-px first:ml-0",
                   step === n ? "border-foreground bg-foreground text-background" : n <= done ? "border-line bg-surface text-foreground hover:border-foreground/30" : "border-line bg-surface text-text-mute")}>
-                <span className="font-pixel mr-2">0{n}</span>{l}
+                <span className="mr-2">0{n}</span>{l}
               </button>
             );
           })}
@@ -129,27 +127,15 @@ function LaunchWizard() {
             boxShadow: `inset 0 0 0 1px ${ACCENTS[accent]!.hex}2e, 0 0 36px -10px ${ACCENTS[accent]!.hex}59`,
           }}
         >
-          <div className="mb-4 flex items-center justify-between text-[11px] uppercase tracking-wider text-text-mute">
+          <div className="caps mb-4 flex items-center justify-between text-text-mute">
             <span>Live preview</span>
             <span aria-hidden="true" className="inline-block size-3 border border-line" style={{ background: ACCENTS[accent]!.hex }} />
           </div>
           <div className="flex flex-col items-center gap-4">
-            <div
-              className="relative border border-line bg-background p-1.5"
-              style={{ boxShadow: `0 0 24px -6px ${ACCENTS[accent]!.hex}73` }}
-            >
-              <span aria-hidden="true" className="absolute inset-x-1.5 bottom-1.5 h-1.5" style={{ background: ACCENTS[accent]!.hex }} />
-              <img
-                src={portrait.url}
-                alt="Agent character face"
-                data-portrait-id={portrait.id}
-                width={144} height={144}
-                className="size-36 object-cover"
-              />
-            </div>
+            <span data-portrait-id={faceId}><AgentAvatar agent={preview} size={96} ring /></span>
             <div className="w-full min-w-0 text-center">
-              <div className="truncate text-[22px] font-bold leading-tight">{preview.name}</div>
-              <div className="font-pixel mt-1 text-[14px] text-text-mute">${preview.ticker}</div>
+              <div className="caps-24 truncate">{preview.name}</div>
+              <div className="mt-1 font-mono text-[14px] text-text-mute">${preview.ticker}</div>
               <div className="mt-1 truncate text-[12px] text-muted-foreground">{preview.archetype}</div>
               <span className="chip mt-3 text-[13px]"><span className="inline-block size-2" style={{ background: "var(--alive)" }} />Alive</span>
             </div>
@@ -168,7 +154,7 @@ function LaunchWizard() {
                 <div className="flex h-11 items-center border border-line bg-background focus-within:border-foreground">
                   <span className="pl-3 text-text-mute">$</span>
                   <input value={t} maxLength={5} onChange={(e) => { setTickerEdited(true); setTicker(e.target.value.toUpperCase().replace(/[^A-Z]/g, "")); }}
-                    className="h-full w-full bg-transparent px-1 font-pixel outline-none" />
+                    className="h-full w-full bg-transparent px-1 font-mono outline-none" />
                 </div>
               </Field>
               <Field label="Public persona" error={touched ? personaErr : null}>
@@ -201,7 +187,7 @@ function LaunchWizard() {
                 <select
                   value={model ?? ""}
                   onChange={(e) => setModel(e.target.value || null)}
-                  className="h-11 w-full border border-line bg-background px-3 font-pixel text-[12px] outline-none focus:border-foreground"
+                  className="h-11 w-full border border-line bg-background px-3 font-mono text-[12px] outline-none focus:border-foreground"
                 >
                   <option value="" disabled>Pick a model…</option>
                   {MODELS.map((x) => (
@@ -219,8 +205,8 @@ function LaunchWizard() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[11px] uppercase tracking-wider text-text-mute">Est. burn / day</div>
-                    <div className="font-pixel text-[18px]">{m.burn} SOL</div>
+                    <div className="caps text-text-mute">Est. burn / day</div>
+                    <div className="caps-24">{m.burn} SOL</div>
                   </div>
                 </div>
               )}
@@ -277,8 +263,8 @@ function LaunchWizard() {
 function StepTitle({ n, title, hint }: { n: string; title: string; hint?: string }) {
   return (
     <div>
-      <div className="font-pixel text-[12px] text-text-mute">{n} / 03</div>
-      <h2 className="mt-1 text-[1.5rem] font-bold">{title}</h2>
+      <div className="caps text-text-mute">{n} / 03</div>
+      <h2 className="caps-24 mt-1">{title}</h2>
       {hint && <p className="mt-1 text-[13px] text-muted-foreground">{hint}</p>}
     </div>
   );
@@ -297,8 +283,8 @@ function Field({ label, error, children }: { label: string; error?: string | nul
 function Readout({ label, value }: { label: string; value: string }) {
   return (
     <div className="border border-line bg-background p-4">
-      <div className="text-[11px] uppercase tracking-wider text-text-mute">{label}</div>
-      <div className="mt-1 font-pixel text-[22px]">{value}</div>
+      <div className="caps text-text-mute">{label}</div>
+      <div className="caps-24 mt-1">{value}</div>
     </div>
   );
 }

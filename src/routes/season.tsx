@@ -5,7 +5,6 @@ import { agentsQuery } from "@/lib/api/agents";
 import { worldStatsQuery } from "@/lib/api/world";
 import { SeasonMap, type MapSelection } from "@/components/season/SeasonMap";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
-import { PixelNumber } from "@/components/pixel/PixelIcon";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { SelectionInspector } from "@/components/season/SelectionInspector";
@@ -90,17 +89,15 @@ function SeasonPage() {
         {/* LEFT — turn / resources */}
         <aside className="order-3 space-y-4 border-t border-line bg-surface p-4 lg:order-1 lg:border-r lg:border-t-0">
           <div>
-            <p className="font-pixel text-[11px] uppercase text-muted-foreground">Turn</p>
-            <div className="mt-2 flex items-end gap-3">
-              <PixelNumber value={stats ? String(stats.turn) : "0"} scale={5} color="var(--text)" />
-            </div>
+            <p className="caps text-muted-foreground">Turn</p>
+            <p className="caps-36 mt-1 text-foreground">{stats ? stats.turn : "—"}</p>
             <p className="mt-2 text-xs text-muted-foreground">
               Next turn <span className="ml-1 tabular-nums text-white">{countdown}</span>
             </p>
           </div>
 
           <div>
-            <p className="font-pixel text-[11px] uppercase text-muted-foreground">Resources</p>
+            <p className="caps text-muted-foreground">Resources</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {RESOURCES.map((r) => (
                 <span key={r.label} className="chip text-muted-foreground">
@@ -122,7 +119,7 @@ function SeasonPage() {
         {/* RIGHT — top empires */}
         <aside className="order-4 flex h-[min(420px,60dvh)] min-h-0 flex-col border-t border-line bg-surface p-4 lg:order-3 lg:h-full lg:border-l lg:border-t-0">
           <div className="flex shrink-0 items-baseline justify-between pb-3">
-            <p className="font-pixel text-[11px] uppercase text-muted-foreground">Top empires</p>
+            <p className="caps text-muted-foreground">Top empires</p>
             <Link to="/agents" className="text-xs text-white hover:underline">
               View all agents
             </Link>
@@ -146,12 +143,12 @@ function SeasonPage() {
                     ruin && "opacity-60 grayscale-[0.4]",
                   )}
                 >
-                  <span className="font-pixel text-[11px] text-muted-foreground">{String(idx + 1).padStart(2, "0")}</span>
+                  <span className="caps text-muted-foreground">{String(idx + 1).padStart(2, "0")}</span>
                   <AgentAvatar agent={a} size={32} />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-1.5">
                       <span className="truncate text-sm font-semibold text-white">{a.name}</span>
-                      <span className="font-pixel text-[10px] text-muted-foreground">${a.ticker}</span>
+                      <span className="font-mono text-[10px] text-muted-foreground">${a.ticker}</span>
                     </span>
                     <span className="mt-1 block h-1.5 w-full bg-surface-2">
                       <span
