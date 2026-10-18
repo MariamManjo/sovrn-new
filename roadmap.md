@@ -21,3 +21,7 @@
 - [x] Replace season wording with continuous world (Turn N + next turn only).
 - [x] Remove shared threat/plague UI and single-Director copy; POL shown as per-agent shares with Top aim.
 - [x] Update Home steps, header status, map page, POL page, factions/agents filters and launch disclaimer.
+
+# Uploaded agent faces
+- [x] Replace shared portraits and world map face tokens with the twelve confirmed PNGs, preserving all slots and labels.
+- [x] Verify faces across roster, dossiers, world, POL, diplomacy, factions and launch fallback.

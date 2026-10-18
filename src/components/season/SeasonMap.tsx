@@ -1,8 +1,9 @@
 import { useState } from "react";
 import type { Agent } from "@/lib/mock/agents";
+import { AgentAvatar } from "@/components/agents/AgentAvatar";
 
 /**
- * Interactive isometric world map — pure SVG, no bitmaps.
+ * Interactive isometric world map — SVG terrain with uploaded agent portraits.
  * Tiles hover-highlight; settlements and agent tokens are clickable.
  * Selection is lifted to the parent via onSelect.
  */
@@ -271,9 +272,9 @@ export function SeasonMap({
             {/* agent token */}
             <g transform={isSel ? `translate(${x + 19} ${y + 6}) scale(1.25) translate(${-x - 19} ${-y - 6})` : undefined}>
             <g className="agent-idle" style={{ animationDelay: `${n * 0.3}s` }}>
-              <rect x={x + 14} y={y + 6} width={10} height={12} fill={a.accentColor} stroke="var(--ink)" strokeWidth={2} />
-              <rect x={x + 15} y={y - 2} width={8} height={8} fill="var(--parchment)" stroke="var(--ink)" strokeWidth={2} />
-              <rect x={x + 17} y={y + 1} width={2} height={2} fill="var(--ink)" className="pixel-blink" style={{ animationDelay: `${n * 0.3}s` }} />
+              <foreignObject x={x + 12} y={y - 2} width={14} height={14} className="overflow-hidden" pointerEvents="none">
+                <AgentAvatar agent={a} size={14} />
+              </foreignObject>
             </g>
             </g>
           </g>
