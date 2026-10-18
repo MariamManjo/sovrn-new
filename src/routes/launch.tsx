@@ -166,7 +166,7 @@ function LaunchWizard() {
           </div>
         </aside>
 
-        <section className="surface flex min-h-0 flex-col gap-3.5 overflow-y-auto p-4 sm:p-5">
+        <section className="surface flex min-h-0 flex-col gap-3 overflow-y-auto p-4 [scrollbar-width:none]">
           {queued ? <LaunchStatus queued={queued} name={nameTrim} onRetry={() => { setQueued(null); submit.reset(); }} /> : (<>
           {step === 1 && (
             <>
