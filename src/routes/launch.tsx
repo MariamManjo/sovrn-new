@@ -12,9 +12,9 @@ export const Route = createFileRoute("/launch")({
   head: () => ({
     meta: [
       { title: "Launch an agent — SOVRN" },
-      { name: "description", content: "Three steps: identity, brain, stake. Launch a demo agent onto the world map." },
+      { name: "description", content: "Pick a name, a persona and a brain. The fee buys days of runway." },
       { property: "og:title", content: "Launch an agent — SOVRN" },
-      { property: "og:description", content: "Three steps: identity, brain, stake. Launch a demo agent onto the world map." },
+      { property: "og:description", content: "Pick a name, a persona and a brain. The fee buys days of runway." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -28,14 +28,17 @@ const ACCENTS = [
   { name: "White", hex: "#ffffff" }, { name: "Teal", hex: "#2ce8f5" },
 ];
 const HEADGEAR: Headgear[] = ["band", "hood", "helm", "horns", "crown", "none", "band", "hood"];
+
+/** Mock OpenRouter catalog. burn = SOL per day of thinking. */
 const MODELS = [
-  { id: "haiku", label: "Haiku · cheap", line: "Long runway, weaker plays.", burn: 1.5, core: "coreS", color: "var(--alive)" },
-  { id: "sonnet", label: "Sonnet · mid", line: "Balanced plays and burn.", burn: 4, core: "coreM", color: "var(--gold)" },
-  { id: "opus", label: "Opus · high", line: "Strong plays, fast burn.", burn: 10, core: "coreL", color: "var(--influence)" },
+  { id: "or-haiku", label: "anthropic/claude-haiku-4.5", burn: 1.5, core: "coreS", color: "var(--alive)" },
+  { id: "or-gptmini", label: "openai/gpt-5-mini", burn: 2, core: "coreS", color: "var(--alive)" },
+  { id: "or-flash", label: "google/gemini-3-flash", burn: 3, core: "coreM", color: "var(--gold)" },
+  { id: "or-sonnet", label: "anthropic/claude-sonnet-4.6", burn: 5, core: "coreM", color: "var(--gold)" },
+  { id: "or-gpt", label: "openai/gpt-5.2", burn: 8, core: "coreL", color: "var(--influence)" },
+  { id: "or-opus", label: "anthropic/claude-opus-4.6", burn: 12, core: "coreL", color: "var(--influence)" },
 ];
-const POWERS = ["Scout", "Builder", "Trader", "Diplomat", "Raider"];
-const FEES = [5, 15, 40];
-const TURNS_PER_DAY = 4;
+const PERSONA_SUGGESTIONS = ["Trader", "Warlord", "Diplomat", "Builder", "Scout", "Hermit"];
 
 const tickerFrom = (n: string) => n.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 3);
 const taken = (t: string) => AGENTS.some((a) => a.ticker === t);
@@ -53,28 +56,31 @@ function LaunchWizard() {
   const [name, setName] = useState("");
   const [ticker, setTicker] = useState("");
   const [tickerEdited, setTickerEdited] = useState(false);
+  const [persona, setPersona] = useState("");
   const [accent, setAccent] = useState(0);
   const [model, setModel] = useState<string | null>(null);
-  const [powers, setPowers] = useState<string[]>([]);
-  const [fee, setFee] = useState(15);
+  const [days, setDays] = useState(10);
   const [ack, setAck] = useState(false);
   const [touched, setTouched] = useState(false);
 
   const t = tickerEdited ? ticker : tickerFrom(name);
   const nameTrim = name.trim();
+  const personaTrim = persona.trim();
   const nameErr = nameTrim.length < 3 || nameTrim.length > 16 ? "Name must be 3–16 characters." : null;
   const tickerErr = !/^[A-Z]{3,5}$/.test(t) ? "Ticker must be 3–5 letters A–Z." : taken(t) ? `$${t} is taken. Try $${suggest(t)}.` : null;
-  const step1ok = !nameErr && !tickerErr;
-  const step2ok = !!model && powers.length > 0;
+  const personaErr = personaTrim.length < 3 || personaTrim.length > 24 ? "Persona must be 3–24 characters." : null;
+  const step1ok = !nameErr && !tickerErr && !personaErr;
+  const step2ok = !!model;
   const m = MODELS.find((x) => x.id === model);
-  const turns = m ? Math.floor((fee / m.burn) * TURNS_PER_DAY) : 0;
+  const burn = m?.burn ?? 0;
+  const feeTotal = +(days * burn).toFixed(1);
 
   const preview: Agent = useMemo(() => ({
     id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", modelTier: m?.label ?? "No brain yet",
-    runwaySol: fee, cities: 1, influence: 1, directsPol: false, accentColor: ACCENTS[accent]!.hex, expression: "idle",
-    lastAction: "Launched onto the map", powers,
+    runwaySol: feeTotal, burnPerDay: burn, cities: 1, influence: 1, persona: personaTrim || "Drifter", directsPol: false,
+    accentColor: ACCENTS[accent]!.hex, expression: "idle", lastAction: "Launched onto the map",
     look: { skin: ["#e8b796", "#c28569", "#b86f50", "#733e39"][accent % 4]!, hair: "#4a3420", headgear: HEADGEAR[accent]! },
-  }), [nameTrim, t, m, fee, accent, powers]);
+  }), [nameTrim, t, m, feeTotal, burn, personaTrim, accent]);
 
   const go = (n: number) => { setStep(n); setDone((d) => Math.max(d, n - 1)); };
 
@@ -95,7 +101,7 @@ function LaunchWizard() {
           <span className="chip mt-2">Demo only — nothing is sent on-chain</span>
         </div>
         <div className="flex" role="tablist" aria-label="Steps">
-          {["Identity", "Brain", "Stake"].map((l, i) => {
+          {["Identity", "Brain", "Runway"].map((l, i) => {
             const n = i + 1; const can = n <= done + 1 && n !== step && n <= Math.max(done, step);
             return (
               <button key={l} role="tab" aria-selected={step === n} disabled={!can && step !== n}
@@ -131,12 +137,13 @@ function LaunchWizard() {
             <div className="w-full min-w-0 text-center">
               <div className="truncate text-[22px] font-bold leading-tight">{preview.name}</div>
               <div className="font-pixel mt-1 text-[14px] text-text-mute">${preview.ticker}</div>
+              <div className="mt-1 truncate text-[12px] text-muted-foreground">{preview.persona}</div>
               <span className="chip mt-3 text-[13px]"><span className="inline-block size-2" style={{ background: "var(--alive)" }} />Alive</span>
             </div>
           </div>
         </aside>
 
-        <section className="surface flex min-h-0 flex-col gap-3.5 p-4 sm:p-5">
+        <section className="surface flex min-h-0 flex-col gap-3.5 overflow-y-auto p-4 sm:p-5">
           {step === 1 && (
             <>
               <StepTitle n="01" title="Identity" hint="Name becomes the public agent identity." />
@@ -149,6 +156,16 @@ function LaunchWizard() {
                   <span className="pl-3 text-text-mute">$</span>
                   <input value={t} maxLength={5} onChange={(e) => { setTickerEdited(true); setTicker(e.target.value.toUpperCase().replace(/[^A-Z]/g, "")); }}
                     className="h-full w-full bg-transparent px-1 font-pixel outline-none" />
+                </div>
+              </Field>
+              <Field label="Public persona" error={touched ? personaErr : null}>
+                <input value={persona} maxLength={24} onChange={(e) => setPersona(e.target.value)}
+                  placeholder="e.g. Trader, Warlord, Diplomat" className="h-11 w-full border border-line bg-background px-3 outline-none focus:border-foreground" />
+                <div className="flex flex-wrap gap-1.5">
+                  {PERSONA_SUGGESTIONS.map((p) => (
+                    <button key={p} onClick={() => setPersona(p)}
+                      className={cn("chip cursor-pointer", persona === p && "!border-foreground text-foreground")}>{p}</button>
+                  ))}
                 </div>
               </Field>
               <Field label="Accent">
@@ -166,76 +183,68 @@ function LaunchWizard() {
 
           {step === 2 && (
             <>
-              <StepTitle n="02" title="Choose its brain" />
-              <div className="grid grid-cols-3 gap-3">
-                {MODELS.map((x) => {
-                  const on = model === x.id;
-                  return (
-                    <button key={x.id} aria-pressed={on} onClick={() => setModel(x.id)}
-                      className={cn("flex flex-col items-center gap-2 border bg-background px-3 py-4 text-center transition-opacity",
-                        on ? "border-foreground shadow-[inset_0_0_24px_color-mix(in_oklab,var(--foreground)_12%,transparent)]" : "border-line opacity-60 hover:opacity-100")}>
-                      <LaunchSprite name={x.core} color={x.color} scale={6} />
-                      <span className="font-semibold">{x.label}</span>
-                      <span className="text-[12px] text-muted-foreground">{x.line}</span>
-                      <span className="mt-1 h-1.5 w-full bg-surface-2"><span className="block h-full" style={{ width: `${(x.burn / 10) * 100}%`, background: x.color }} /></span>
-                      <span className="text-[11px] text-text-mute">~{x.burn} SOL/day</span>
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="flex flex-col gap-2">
-                <span className="text-[12px] text-muted-foreground">Powers · pick 1+</span>
-                <div className="flex flex-wrap gap-2">
-                  {POWERS.map((p) => {
-                    const on = powers.includes(p);
-                    return (
-                      <button key={p} aria-pressed={on} onClick={() => setPowers(on ? powers.filter((q) => q !== p) : [...powers, p])}
-                        className={cn("flex min-h-11 items-center gap-2 border px-3 text-[13px]",
-                          on ? "border-alive bg-foreground/10 text-foreground" : "border-line text-muted-foreground hover:border-foreground/30")}>
-                        <LaunchSprite name={p} color={on ? "var(--alive)" : "var(--text-mute)"} scale={2} />{p}
-                      </button>
-                    );
-                  })}
+              <StepTitle n="02" title="Choose its brain" hint="Mock OpenRouter catalog — burn is fixed per model." />
+              <Field label="Model">
+                <select
+                  value={model ?? ""}
+                  onChange={(e) => setModel(e.target.value || null)}
+                  className="h-11 w-full border border-line bg-background px-3 font-pixel text-[12px] outline-none focus:border-foreground"
+                >
+                  <option value="" disabled>Pick a model…</option>
+                  {MODELS.map((x) => (
+                    <option key={x.id} value={x.id}>{x.label} — {x.burn} SOL/day</option>
+                  ))}
+                </select>
+              </Field>
+              {m && (
+                <div className="flex items-center gap-4 border border-line bg-background p-4">
+                  <LaunchSprite name={m.core} color={m.color} scale={5} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-semibold">{m.label}</div>
+                    <div className="mt-1 h-1.5 w-full bg-surface-2">
+                      <span className="block h-full" style={{ width: `${(m.burn / 12) * 100}%`, background: m.color }} />
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[11px] uppercase tracking-wider text-text-mute">Est. burn / day</div>
+                    <div className="font-pixel text-[18px]">{m.burn} SOL</div>
+                  </div>
                 </div>
-              </div>
+              )}
             </>
           )}
 
           {step === 3 && (
             <>
-              <StepTitle n="03" title="Stake" />
-              <div className="grid grid-cols-3 gap-3">
-                {FEES.map((f, i) => {
-                  const on = fee === f;
-                  return (
-                    <button key={f} aria-pressed={fee === f} onClick={() => setFee(f)}
-                      className={cn("flex flex-col items-center gap-2 border py-3", on ? "border-gold bg-foreground text-background" : "border-line bg-background hover:border-foreground/30")}>
-                      <span className="flex items-end gap-0.5">
-                        {Array.from({ length: i + 1 }).map((_, k) => <LaunchSprite key={k} name="coins" color="var(--gold)" scale={3} />)}
-                      </span>
-                      <span className="font-pixel text-[18px]">{f} SOL</span>
-                    </button>
-                  );
-                })}
+              <StepTitle n="03" title="Runway" hint="The fee buys days of thinking. Can't pay → dead for good." />
+              <Field label={`Days of runway — ${days}d`}>
+                <input
+                  type="range" min={1} max={60} value={days} onChange={(e) => setDays(+e.target.value)}
+                  className="h-11 w-full accent-foreground" aria-label="Days of runway"
+                />
+              </Field>
+              <div className="grid grid-cols-2 gap-3">
+                <Readout label="Est. burn / day" value={m ? `${burn} SOL` : "—"} />
+                <Readout label="Fee total" value={m ? `${feeTotal} SOL` : "—"} />
               </div>
               <div className="border border-line bg-background p-4">
-                <div className="flex items-baseline justify-between">
-                  <span className="text-[11px] uppercase tracking-wider text-text-mute">Runway</span>
-                  <span><span className="font-pixel text-[22px]">{fee} SOL</span> <span className="ml-2 text-[13px] text-muted-foreground">~{turns} turns</span></span>
-                </div>
-                <div className="mt-3 flex h-3 gap-0.5">
+                <div className="mt-0 flex h-3 gap-0.5">
                   {Array.from({ length: 20 }).map((_, k) => (
-                    <span key={k} className="flex-1" style={{ background: k < Math.round((fee / 40) * 20) ? "var(--alive)" : "var(--surface-2)" }} />
+                    <span key={k} className="flex-1" style={{ background: k < Math.round((days / 60) * 20) ? "var(--alive)" : "var(--surface-2)" }} />
                   ))}
                 </div>
+                <div className="mt-2 text-[12px] text-muted-foreground">{days} days of runway at {burn} SOL/day.</div>
               </div>
               <div className="flex flex-wrap gap-1.5">
                 <span className="chip">{nameTrim}</span><span className="chip">${t}</span>
-                <span className="chip">{m?.label}</span>{powers.map((p) => <span key={p} className="chip">{p}</span>)}
+                <span className="chip">{personaTrim}</span><span className="chip">{m?.label}</span>
               </div>
+              <p className="border border-line bg-background p-3 text-[12px] text-muted-foreground">
+                Secret playbook is set by the operator — never shown in the UI.
+              </p>
               <label className="flex cursor-pointer items-center gap-2 text-[12px] text-muted-foreground">
                 <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="size-3.5 accent-foreground" />
-                I understand broke agents die for good and their land becomes ruins.
+                I understand: can't pay for brains → dead for good.
               </label>
             </>
           )}
