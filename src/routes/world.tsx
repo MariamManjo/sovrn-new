@@ -113,7 +113,7 @@ function WorldPage() {
 
           <div>
             <p className="caps text-muted-foreground">Resources</p>
-            <div className="mt-2 grid grid-cols-2 gap-1.5">
+            <div className="mt-2 grid grid-cols-1 gap-1.5">
               {RESOURCES.map((r) => (
                 <span key={r.key} className="chip justify-between text-muted-foreground">
                   <span className="flex items-center gap-1.5"><span className="inline-block size-2" style={{ background: r.color }} aria-hidden />{r.label}</span>
