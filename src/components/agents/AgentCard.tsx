@@ -4,9 +4,16 @@ import { AgentAvatar } from "./AgentAvatar";
 
 export const STATUS_META = {
   alive: { label: "Alive", color: "var(--alive)" },
-  low_runway: { label: "Low runway", color: "var(--gold)" },
-  ruin: { label: "Ruin", color: "var(--launch)" },
+  low_runway: { label: "Alive · low runway", color: "var(--gold)" },
+  ruin: { label: "Dead", color: "var(--launch)" },
 } as const;
+
+/** Mock: where each agent points its POL share (mirrors /pol). */
+const AIM_AT: Record<string, string | null> = {
+  vesper: "VSP", nyx: "NYX", helix: "HLX", mira: "MIR", orin: "VSP", sable: "VSP",
+  kite: "HLX", loom: "MIR", rook: "ROOK", dusk: "DSK", quill: null, ash: null,
+};
+export const aimOf = (a: Agent): string | null => (a.status === "ruin" ? null : (AIM_AT[a.id] ?? null));
 
 export function StatusChip({ agent }: { agent: Agent }) {
   const m = STATUS_META[agent.status];
@@ -33,22 +40,31 @@ function Meter({ label, value, pct, color }: { label: string; value: string; pct
 }
 
 export function AgentStats({ agent }: { agent: Agent }) {
-  const runColor = agent.status === "alive" ? "var(--alive)" : agent.status === "low_runway" ? "var(--gold)" : "var(--launch)";
+  const dead = agent.status === "ruin";
+  const daysLeft = dead || agent.burnPerDay === 0 ? 0 : agent.runwaySol / agent.burnPerDay;
+  const runColor = dead ? "var(--launch)" : daysLeft < 3 ? "var(--gold)" : "var(--alive)";
   return (
     <div className="flex flex-col gap-2">
-      <Meter label="Runway" value={`${agent.runwaySol.toFixed(1)} SOL`} pct={(agent.runwaySol / 80) * 100} color={runColor} />
+      <Meter
+        label="Runway"
+        value={dead ? "0d left" : `${agent.burnPerDay} SOL/d · ${daysLeft.toFixed(1)}d`}
+        pct={dead ? 0 : Math.min((daysLeft / 15) * 100, 100)}
+        color={runColor}
+      />
       <Meter label="Cities" value={String(agent.cities)} pct={(agent.cities / 6) * 100} color="var(--civ-earth)" />
-      <Meter label="Influence" value={String(agent.influence)} pct={agent.influence} color="var(--influence)" />
+      <Meter label="Influence" value={`${agent.influence}%`} pct={agent.influence} color="var(--influence)" />
     </div>
   );
 }
 
 export function AgentCard({ agent, rank }: { agent: Agent; rank: number }) {
+  const dead = agent.status === "ruin";
+  const aim = aimOf(agent);
   return (
     <Link
       to="/agent/$id"
       params={{ id: agent.id }}
-      className="surface flex flex-col gap-4 p-4 transition-transform hover:-translate-y-0.5 hover:border-foreground/20 focus-visible:outline focus-visible:outline-foreground"
+      className={`surface flex flex-col gap-4 p-4 transition-transform hover:-translate-y-0.5 hover:border-foreground/20 focus-visible:outline focus-visible:outline-foreground ${dead ? "opacity-55 grayscale" : ""}`}
     >
       <div className="flex gap-3">
         <div className="shrink-0 border border-line bg-background p-1">
@@ -62,12 +78,15 @@ export function AgentCard({ agent, rank }: { agent: Agent; rank: number }) {
             </div>
             <span className="font-pixel text-[11px] text-text-mute">#{String(rank).padStart(2, "0")}</span>
           </div>
-          <div className="mt-0.5 text-[12px] text-muted-foreground">{agent.modelTier}</div>
+          <div className="mt-0.5 text-[12px] text-muted-foreground">{agent.persona} · {agent.modelTier}</div>
           <div className="mt-2"><StatusChip agent={agent} /></div>
         </div>
       </div>
       <AgentStats agent={agent} />
-      <div className="truncate border-t border-line pt-3 text-[12px] text-muted-foreground">{agent.lastAction}</div>
+      <div className="flex items-center justify-between gap-2 border-t border-line pt-3 text-[12px] text-muted-foreground">
+        <span className="truncate">{agent.lastAction}</span>
+        {aim && <span className="shrink-0 font-pixel text-[10px] text-[var(--pol)]">→ ${aim}</span>}
+      </div>
     </Link>
   );
 }
