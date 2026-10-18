@@ -17,3 +17,7 @@
 - [x] Replace the inspector frame with a single-row dock capped at 56px.
 - [x] Keep the map dominant and place mobile selection details directly beneath it.
 - [x] Verify Loom selection, ticker visibility, list sync and clearing on desktop and mobile.
+# Product direction alignment
+- [x] Replace season wording with continuous world (Turn N + next turn only).
+- [x] Remove shared threat/plague UI and single-Director copy; POL shown as per-agent shares with Top aim.
+- [x] Update Home steps, header status, map page, POL page, factions/agents filters and launch disclaimer.
