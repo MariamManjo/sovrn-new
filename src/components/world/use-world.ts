@@ -23,8 +23,15 @@ export function useIdleFrame(): IdleFrame {
   return frame;
 }
 
-/** Whole-number scale for a W×H native world: floor to fit, or ceil to cover. */
-export function useWorldScale(ref: RefObject<HTMLElement | null>, mode: "fit" | "cover", W: number, H: number) {
+/** Whole-number scale for a W×H native world: floor to fit, or ceil to cover.
+ *  `pad` (fit only) shrinks the island inside the stage — lower = more breathing room. */
+export function useWorldScale(
+  ref: RefObject<HTMLElement | null>,
+  mode: "fit" | "cover",
+  W: number,
+  H: number,
+  pad = 0.92,
+) {
   const [box, setBox] = useState({ w: W * 3, h: H * 3 });
   useIso(() => {
     const el = ref.current;
@@ -35,9 +42,11 @@ export function useWorldScale(ref: RefObject<HTMLElement | null>, mode: "fit" | 
     ro.observe(el);
     return () => ro.disconnect();
   }, [ref]);
-  const s = mode === "fit"
-    ? Math.max(1, Math.floor(Math.min(box.w / W, box.h / H) * 0.92))
-    : Math.max(1, Math.ceil(Math.max(box.w / W, box.h / H)));
+  // Fit uses continuous scale so the island can fill the stage; cover stays integer ceil.
+  const s =
+    mode === "fit"
+      ? Math.max(1, Math.min(box.w / W, box.h / H) * pad)
+      : Math.max(1, Math.ceil(Math.max(box.w / W, box.h / H)));
   return { s, w: box.w, h: box.h, ox: Math.floor((box.w - W * s) / 2), oy: Math.floor((box.h - H * s) / 2) };
 }
 

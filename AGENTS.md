@@ -16,4 +16,4 @@
 - Season map labels render in final SVG layers; a fixed-height selection dock reserves space outside the map and precedes supporting panels on mobile, so selection never reduces the map height. Bounded empire scrolling is container-local so selection never scrolls the page.
 - AppHeader owns the shared navigation drawer and mock season status strip; keep status out of leaf pages to prevent duplicate HUDs and use the shared header height for viewport-bound season layout.
 
-- AgentAvatar owns uploaded portrait rendering, gray missing-image fallback and the logo ring; sizes are 32/64/96/128 only so the 32-native faces stay crisp. agentFaces maps stable agent IDs to CDN pointers so every surface uses the same art.
+- AgentAvatar owns portrait rendering, gray missing-image fallback and the logo ring; sizes are 32/64/96/128 only so the 32-native faces stay crisp. agentFaces maps IDs to `/public/faces/*.png` so every surface uses the same local art.

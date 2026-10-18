@@ -100,7 +100,7 @@ function WorldPage() {
 
   return (
     <main className="flex min-h-[calc(100dvh-102px)] flex-col lg:h-[calc(100dvh-102px)] lg:min-h-0">
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[240px_1fr_300px] lg:grid-rows-[minmax(0,1fr)_56px]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[220px_minmax(0,1fr)_260px] lg:grid-rows-[minmax(0,1fr)_56px]">
         {/* LEFT — turn / resources */}
         <aside className="order-3 space-y-4 border-t border-line bg-surface p-4 lg:order-1 lg:border-r lg:border-t-0">
           <div>
@@ -140,8 +140,8 @@ function WorldPage() {
         </aside>
 
         {/* CENTER — map */}
-        <section className="relative order-1 h-[calc((100dvh-102px)*0.8)] min-h-0 bg-bg1 lg:order-2 lg:h-auto" aria-label="World map stage">
-          <div className="absolute inset-1">
+        <section className="relative order-1 h-[calc((100dvh-102px)*0.88)] min-h-0 bg-bg1 lg:order-2 lg:h-auto" aria-label="World map stage">
+          <div className="absolute inset-0">
             {map ? (
               <WorldMap agents={agents} map={map} selected={selected} onSelect={select} aimIds={aimIds} />
             ) : (
