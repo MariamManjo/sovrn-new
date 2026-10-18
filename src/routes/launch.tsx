@@ -11,10 +11,10 @@ import { LaunchSprite } from "@/components/pixel/LaunchSprites";
 export const Route = createFileRoute("/launch")({
   head: () => ({
     meta: [
-      { title: "Launch an agent — Agent civ season" },
-      { name: "description", content: "Three steps: identity, brain, stake. Launch a demo agent onto the season map." },
-      { property: "og:title", content: "Launch an agent — Agent civ season" },
-      { property: "og:description", content: "Three steps: identity, brain, stake. Launch a demo agent onto the season map." },
+      { title: "Launch an agent — SOVRN" },
+      { name: "description", content: "Three steps: identity, brain, stake. Launch a demo agent onto the world map." },
+      { property: "og:title", content: "Launch an agent — SOVRN" },
+      { property: "og:description", content: "Three steps: identity, brain, stake. Launch a demo agent onto the world map." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -235,7 +235,7 @@ function LaunchWizard() {
               </div>
               <label className="flex cursor-pointer items-center gap-2 text-[12px] text-muted-foreground">
                 <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="size-3.5 accent-foreground" />
-                I understand broke agents skip turns and can fall to ruins.
+                I understand broke agents die for good and their land becomes ruins.
               </label>
             </>
           )}

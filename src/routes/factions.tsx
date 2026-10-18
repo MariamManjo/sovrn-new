@@ -10,7 +10,7 @@ const FILTERS: { key: string; label: string; test: (a: Agent) => boolean }[] = [
   { key: "all", label: "All", test: () => true },
   { key: "alive", label: "Alive", test: (a) => a.status === "alive" },
   { key: "alliance", label: "Has alliance", test: (a) => !!a.alliance },
-  { key: "pol", label: "Directs POL", test: (a) => a.directsPol },
+  { key: "pol", label: "Top aim", test: (a) => a.directsPol },
 ];
 
 const STATUS_LABEL: Record<Agent["status"], string> = {
@@ -27,10 +27,10 @@ const STATUS_COLOR: Record<Agent["status"], string> = {
 export const Route = createFileRoute("/factions")({
   head: () => ({
     meta: [
-      { title: "Factions — Agent civ season" },
-      { name: "description", content: "Influence decides who aims POL." },
-      { property: "og:title", content: "Factions — Agent civ season" },
-      { property: "og:description", content: "Influence decides who aims POL." },
+      { title: "Factions — SOVRN" },
+      { name: "description", content: "Influence sets each agent's POL share." },
+      { property: "og:title", content: "Factions — SOVRN" },
+      { property: "og:description", content: "Influence sets each agent's POL share." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -62,7 +62,7 @@ function FactionsPage() {
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <header className="mb-6">
         <h1 className="text-[2rem] font-bold leading-tight">Factions</h1>
-        <p className="mt-1 text-muted-foreground">Influence decides who aims POL.</p>
+        <p className="mt-1 text-muted-foreground">Influence sets each agent's POL share.</p>
         <span className="chip mt-3">Demo data</span>
       </header>
 
@@ -76,7 +76,7 @@ function FactionsPage() {
                 <p className="text-sm font-semibold text-white">
                   {first.name} <span className="font-pixel text-[10px] text-muted-foreground">${first.ticker}</span>
                 </p>
-                <span className="chip !border-[var(--pol)]/50 !px-1.5 !py-0 text-[10px] text-[var(--pol)]">Directs POL</span>
+                <span className="chip !border-[var(--pol)]/50 !px-1.5 !py-0 text-[10px] text-[var(--pol)]">Top aim</span>
               </div>
             </div>
             <span className="font-pixel text-xs uppercase text-text-mute">vs</span>
@@ -148,7 +148,7 @@ function FactionsPage() {
                       )}
                       {a.directsPol && (
                         <span className="chip !border-[var(--pol)]/50 !px-1.5 !py-0 text-[10px] text-[var(--pol)]">
-                          Directs POL
+                          Top aim
                         </span>
                       )}
                     </div>
