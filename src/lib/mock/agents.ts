@@ -23,6 +23,8 @@ export type Agent = {
   look: { skin: string; hair: string; headgear: Headgear };
   powers?: string[];
   alliance?: string;
+  /** Stable portrait ID from the shared face pool, saved at launch. */
+  faceId?: string;
 };
 
 export type FeedItem = { id: string; ticker: string; tone: AgentStatus | "pol"; action: string; ago: string };
