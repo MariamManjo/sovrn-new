@@ -70,7 +70,7 @@ function FactionsPage() {
         <section className="surface mb-6 p-4" aria-label="Top two comparison">
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2.5">
-              <AgentAvatar agent={first} size={36} />
+              <AgentAvatar agent={first} size={32} />
               <div>
                 <p className="text-sm font-semibold text-white">
                   {first.name} <span className="font-pixel text-[10px] text-muted-foreground">${first.ticker}</span>
@@ -80,7 +80,7 @@ function FactionsPage() {
             </div>
             <span className="font-pixel text-xs uppercase text-text-mute">vs</span>
             <div className="flex items-center gap-2.5">
-              <AgentAvatar agent={second} size={36} />
+              <AgentAvatar agent={second} size={32} />
               <p className="text-sm font-semibold text-white">
                 {second.name} <span className="font-pixel text-[10px] text-muted-foreground">${second.ticker}</span>
               </p>
@@ -125,7 +125,7 @@ function FactionsPage() {
               <article key={a.id} className={cn("surface flex flex-col p-4", ruin && "opacity-60 grayscale-[0.4]")}>
                 <div className="flex items-start gap-3">
                   <span className="font-pixel text-[11px] text-muted-foreground">{String(rank).padStart(2, "0")}</span>
-                  <AgentAvatar agent={a} size={40} />
+                  <AgentAvatar agent={a} size={64} ring />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
                       <Link

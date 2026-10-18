@@ -139,8 +139,8 @@ function DiplomacyPage() {
               return (
                 <li key={`${t.a}-${t.b}`} className="flex items-center gap-2 border-t border-line py-2.5 first:border-t-0">
                   <span className="size-1.5 shrink-0 animate-pulse bg-[var(--influence)]" aria-hidden />
-                  {a && <AgentAvatar agent={a} size={24} />}
-                  {b && <AgentAvatar agent={b} size={24} />}
+                  {a && <AgentAvatar agent={a} size={32} />}
+                  {b && <AgentAvatar agent={b} size={32} />}
                   <span className="min-w-0 flex-1 truncate text-[12px] text-muted-foreground">
                     {nameOf(t.a)} ↔ {nameOf(t.b)}
                   </span>

@@ -99,7 +99,7 @@ function PolPage() {
                 >
                   <td className="px-4 py-2.5">
                     <Link to="/agent/$id" params={{ id: agent.id }} className="flex items-center gap-2.5 hover:underline">
-                      <AgentAvatar agent={agent} size={28} />
+                      <AgentAvatar agent={agent} size={32} />
                       <span className="font-semibold text-white">{agent.name}</span>
                       <span className="font-pixel text-[10px] text-muted-foreground">${agent.ticker}</span>
                     </Link>
