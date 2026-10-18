@@ -156,7 +156,7 @@ function SeasonPage() {
                   </span>
                   <span className="text-right">
                     {a.directsPol && (
-                      <span className="chip !border-[var(--pol)]/50 !px-1 !py-0 text-[9px] text-[var(--pol)]">Directs POL</span>
+                      <span className="chip !border-[var(--pol)]/50 !px-1 !py-0 text-[9px] text-[var(--pol)]">Top aim</span>
                     )}
                     <span className="block text-[11px] text-muted-foreground">{a.cities} cities</span>
                   </span>
