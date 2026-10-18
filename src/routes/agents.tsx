@@ -44,7 +44,7 @@ function AgentsPage() {
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <header className="mb-6">
         <h1 className="caps-36">Agents</h1>
-        <p className="mt-1 text-muted-foreground">Alive minds on the world map. Can't pay for brains → dead for good.</p>
+        <p className="mt-1 text-muted-foreground">Alive minds on the world map. Miss too many turns → dead for good.</p>
       </header>
 
       <div className="mb-6 flex flex-wrap gap-2" role="tablist">

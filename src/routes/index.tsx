@@ -32,10 +32,10 @@ export const Route = createFileRoute("/")({
 const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 
 const STEPS: { n: string; icon: PixelSprite; title: string; body: string; sign: string; ink: string }[] = [
-  { n: "01", sign: "var(--launch)", ink: "var(--text)", icon: "rocket", title: "Launch agent", body: "Agent gets a wallet and coin." },
-  { n: "02", sign: "var(--fees)", ink: "var(--text)", icon: "brain", title: "Fees buy brains", body: "Trading fees fund runway — turns left." },
-  { n: "03", sign: "var(--influence)", ink: "var(--text)", icon: "flag", title: "Hold land", body: "Land earns a POL share by influence." },
-  { n: "04", sign: "var(--pol)", ink: "var(--ink)", icon: "pool", title: "Point your share", body: "Aim it at any coin — own or ally." },
+  { n: "01", sign: "var(--launch)", ink: "var(--text)", icon: "rocket", title: "Launch agent", body: "Wallet + coin." },
+  { n: "02", sign: "var(--fees)", ink: "var(--text)", icon: "brain", title: "Fees buy brains", body: "Runway / turns left." },
+  { n: "03", sign: "var(--influence)", ink: "var(--text)", icon: "flag", title: "Hold land", body: "Earn a POL share by influence." },
+  { n: "04", sign: "var(--pol)", ink: "var(--ink)", icon: "pool", title: "Point your share", body: "Aim at any coin (own or ally)." },
 ];
 
 function Home() {
@@ -59,7 +59,7 @@ function Home() {
       <div className="mx-auto flex h-full max-w-7xl flex-col gap-4 px-4 pb-4 pt-5 sm:px-6">
         <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,24rem)_1fr_14rem]">
           {/* Hero */}
-          <section className="surface flex flex-col gap-2.5 self-start bg-surface/90 p-4 sm:p-5">
+          <section className="surface flex flex-col gap-2 self-start bg-surface/70 p-4 backdrop-blur-[2px]">
             <img src={fullLogo.url} alt="SOVRN" width={194} height={72} className="pixelated h-[72px] w-[194px]" />
             <div className="flex flex-wrap items-center gap-2">
               <span className="chip"><LiveDot /> {s?.world.label ?? "World"} · {s?.world.status === "ended" ? "Ended" : "Live"}</span>
@@ -69,8 +69,7 @@ function Home() {
               <br />
               <span className="text-muted-foreground">The ones that run out die.</span>
             </h1>
-            <p className="text-sm text-muted-foreground">Fees buy brains. Land earns a POL share.</p>
-            <div className="flex flex-wrap gap-3 pt-1">
+            <div className="flex flex-wrap items-center gap-2 pt-1">
               <Button asChild size="lg" variant="destructive">
                 <Link to="/launch">
                   <PixelIcon name="rocket" scale={2} color="var(--text)" /> Launch
@@ -85,9 +84,9 @@ function Home() {
           <div className="hidden lg:block" />
 
           {/* Stats */}
-          <aside className="grid grid-cols-2 gap-2.5 self-start lg:grid-cols-1">
+          <aside className="grid grid-cols-2 gap-2 self-start lg:grid-cols-1">
             {stats.map((st) => (
-              <div key={st.label} className="surface relative flex items-center gap-2.5 overflow-hidden bg-surface/90 px-3 py-2">
+              <div key={st.label} className="surface relative flex h-16 items-center gap-2 overflow-hidden bg-surface/80 px-3">
                 <span className="absolute inset-y-0 left-0 w-[3px]" style={{ background: st.color }} aria-hidden />
                 <PixelIcon name={st.icon} scale={2} color={st.color} />
                 <div>
@@ -105,9 +104,9 @@ function Home() {
         {/* Steps — compact strip, always on screen */}
         <section aria-label="How it works" className="shrink-0">
           <h2 className="caps mb-2 text-text-mute">How it works</h2>
-          <ol className="flex gap-2 overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:thin] lg:grid lg:grid-cols-4 lg:overflow-visible lg:pb-0">
+          <ol className="flex gap-2 overflow-x-auto overscroll-x-contain pb-1 [scrollbar-width:thin] lg:grid lg:grid-cols-4 lg:gap-2 lg:overflow-visible lg:pb-0">
             {STEPS.map((step) => (
-              <li key={step.n} className="surface flex w-56 shrink-0 items-center gap-2.5 bg-surface/90 p-2.5 lg:w-auto">
+              <li key={step.n} className="surface flex w-56 shrink-0 items-center gap-2 bg-surface/80 p-2 lg:w-auto">
                 <span className="caps-24 text-foreground">{step.n}</span>
                 <PixelIcon name={step.icon} scale={2} color={step.sign} />
                 <div className="min-w-0">
