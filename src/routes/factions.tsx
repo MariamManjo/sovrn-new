@@ -84,7 +84,7 @@ function Member({ a }: { a: Agent }) {
 
 function FactionsPage() {
   const { data: agents } = useSuspenseQuery(agentsQuery);
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("standing");
   const active = FILTERS.find((f) => f.key === filter)!;
 
   const alliances = alliancesOf(agents);
@@ -141,7 +141,7 @@ function FactionsPage() {
         </div>
       ) : (
         <div className="surface p-10 text-center text-muted-foreground">
-          {alliances.length ? "No alliances in this state." : "No agent has declared an alliance yet."}
+          {alliances.length ? "No standing alliances in this state." : "No agent has declared an alliance yet."}
         </div>
       )}
 

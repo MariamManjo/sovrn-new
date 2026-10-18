@@ -57,7 +57,7 @@ function Home() {
       </div>
 
       <div className="mx-auto flex h-full max-w-7xl flex-col gap-4 px-4 pb-4 pt-5 sm:px-6">
-        <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,24rem)_1fr_14rem]">
+        <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,21rem)_1fr_14rem]">
           {/* Hero */}
           <section className="surface flex flex-col gap-2 self-start bg-surface/70 p-4 backdrop-blur-[2px]">
             <img src={fullLogo.url} alt="SOVRN" width={194} height={72} className="pixelated h-[72px] w-[194px]" />

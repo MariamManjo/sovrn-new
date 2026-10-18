@@ -101,13 +101,13 @@
   --shade: #0a0a0a;
   --surface: #111111;
   --surface-2: #161616;
-  --line: #2a2a2a;
+  --line: #333333;
   --panel: #4a3420;
   --panel-edge: #c28569;
   --map-slate: #5a6988; /* map ruin tiles only */
   --text: #ffffff;
   --text-dim: #a1a1a1;
-  --text-mute: #737373;
+  --text-mute: #9a9a9a;
   --parchment: #ead4aa;
   --alive: #63c74d;
   --alive-deep: #265c42;
@@ -165,7 +165,7 @@
   --secondary: var(--water-deep);
   --secondary-foreground: var(--text);
   --muted: var(--surface-2);
-  --muted-foreground: #a1a1a1;
+  --muted-foreground: #c8c8c8;
   --accent: var(--surface-2);
   --accent-foreground: var(--text);
   --destructive: var(--ruin);

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { agentsQuery, polQuery } from "@/lib/api/agents";
@@ -38,9 +39,12 @@ function PolPage() {
   const { data: agents } = useSuspenseQuery(agentsQuery);
   const { data: pol } = useSuspenseQuery(polQuery);
 
-  const rows = [...agents]
+  const [showRuins, setShowRuins] = useState(false);
+  const allRows = [...agents]
     .sort((a, b) => b.influencePct - a.influencePct)
     .map((a) => ({ agent: a, sharePct: a.influencePct, sharePol: (a.influencePct / 100) * pol.vault, aim: aimOf(a) }));
+  const ruinCount = allRows.filter((r) => r.agent.status === "ruin").length;
+  const rows = showRuins ? allRows : allRows.filter((r) => r.agent.status !== "ruin");
 
   // Top aim = the coin with the most POL share pointed at it, per /api/world/pol.
   const topAim = [...pol.aim].sort((a, b) => b.pct - a.pct)[0]?.ticker ?? null;
@@ -120,6 +124,12 @@ function PolPage() {
           </tbody>
         </table>
       </section>
+
+      {ruinCount > 0 && (
+        <button type="button" onClick={() => setShowRuins((v) => !v)} className="caps mt-3 min-h-11 border border-line px-4 text-muted-foreground hover:text-foreground">
+          {showRuins ? "Hide ruins" : `Show ruins · ${ruinCount}`}
+        </button>
+      )}
 
       {/* 3) Stacked rows — mobile */}
       <section className="mt-4 space-y-2 md:hidden">

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const FILTERS: { key: string; label: string; test: (a: Agent) => boolean }[] = [
   { key: "all", label: "All", test: () => true },
-  { key: "alive", label: "Alive", test: (a) => a.status === "alive" },
+  { key: "alive", label: "Alive", test: (a) => a.status !== "ruin" },
   { key: "low", label: "Low runway", test: (a) => a.status === "low_runway" },
   { key: "ruin", label: "Dead", test: (a) => a.status === "ruin" },
   { key: "pol", label: "Top aim", test: (a) => a.directsPol },
@@ -36,9 +36,11 @@ export const Route = createFileRoute("/agents")({
 function AgentsPage() {
   const { data: agents } = useSuspenseQuery(agentsQuery);
   const { data: feed } = useSuspenseQuery(feedQuery);
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("alive");
   const active = FILTERS.find((f) => f.key === filter)!;
-  const shown = agents.map((a, i) => ({ a, rank: i + 1 })).filter(({ a }) => active.test(a));
+  const ranked = agents.map((a, i) => ({ a, rank: i + 1 }));
+  const shown = ranked.filter(({ a }) => active.test(a));
+  const dead = filter === "alive" ? ranked.filter(({ a }) => a.status === "ruin") : [];
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
@@ -69,6 +71,7 @@ function AgentsPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_18rem]">
+        <div className="space-y-6">
         {shown.length ? (
           <div className="grid content-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {shown.map(({ a, rank }) => <AgentCard key={a.id} agent={a} rank={rank} />)}
@@ -76,17 +79,26 @@ function AgentsPage() {
         ) : (
           <div className="surface p-10 text-center text-muted-foreground">No agents in this state.</div>
         )}
+        {dead.length > 0 && (
+          <details className="surface p-4">
+            <summary className="caps min-h-11 cursor-pointer content-center text-muted-foreground">Dead / ruins · {dead.length}</summary>
+            <div className="mt-4 grid gap-4 opacity-60 sm:grid-cols-2 xl:grid-cols-3">
+              {dead.map(({ a, rank }) => <AgentCard key={a.id} agent={a} rank={rank} />)}
+            </div>
+          </details>
+        )}
+        </div>
 
-        <aside className="surface self-start p-4">
+        <aside className="surface self-start p-5 lg:sticky lg:top-28">
           <h2 className="caps mb-3 text-text-mute">Live activity</h2>
-          <ul className="flex flex-col">
+          <ul className="flex max-h-[30rem] flex-col overflow-y-auto overscroll-contain pr-1">
             {feed.map((f) => (
-              <li key={f.id} className="flex items-start gap-2 border-t border-line py-2.5 text-[13px] first:border-t-0">
+              <li key={f.id} className="flex items-start gap-2 border-t border-line py-3 text-sm first:border-t-0">
                 <span className="mt-1.5 inline-block size-1.5 shrink-0" style={{ background: TONE[f.tone] }} />
                 <span className="flex-1 text-muted-foreground">
                   <span className="font-semibold text-foreground">${f.ticker}</span> {f.action}
                 </span>
-                <span className="shrink-0 text-[11px] text-text-mute">{f.ago}</span>
+                <span className="shrink-0 text-xs tabular-nums text-text-mute">{f.ago}</span>
               </li>
             ))}
           </ul>
