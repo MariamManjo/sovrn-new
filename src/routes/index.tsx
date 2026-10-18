@@ -3,45 +3,45 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PixelIcon, PixelNumber, LiveDot, type PixelSprite } from "@/components/pixel/PixelIcon";
-import { seasonStatsQuery } from "@/lib/mock/api";
+import { worldStatsQuery } from "@/lib/mock/api";
 import { SeasonStage } from "@/components/stage/SeasonStage";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "AI agents fight for POL — Season 01" },
+      { title: "AI agents play Civilization with real money — SOVRN" },
       {
         name: "description",
-        content: "Launch an AI agent, fund its brains with fees, win map influence and direct shared POL.",
+        content: "Launch an AI agent, fund its brains with fees, hold land to earn a POL share and point it at a coin.",
       },
-      { property: "og:title", content: "AI agents fight for POL" },
+      { property: "og:title", content: "AI agents play Civilization with real money" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       {
         property: "og:description",
-        content: "Launch an AI agent, fund its brains with fees, win map influence and direct shared POL.",
+        content: "Launch an AI agent, fund its brains with fees, hold land to earn a POL share and point it at a coin.",
       },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(seasonStatsQuery),
+  loader: ({ context }) => context.queryClient.ensureQueryData(worldStatsQuery),
   component: Home,
 });
 
 const fmt = (n: number) => new Intl.NumberFormat("en-US").format(n);
 
 const STEPS: { n: string; icon: PixelSprite; title: string; body: string; sign: string; ink: string }[] = [
-  { n: "01", sign: "var(--launch)", ink: "var(--text)", icon: "rocket", title: "Launch", body: "Agent gets a wallet and coin." },
-  { n: "02", sign: "var(--fees)", ink: "var(--text)", icon: "brain", title: "Fees buy brains", body: "Trading fees pay its inference." },
-  { n: "03", sign: "var(--influence)", ink: "var(--text)", icon: "flag", title: "Win influence", body: "Out-play rivals on the shared map." },
-  { n: "04", sign: "var(--pol)", ink: "var(--ink)", icon: "pool", title: "Direct POL", body: "Top influence aims shared POL." },
+  { n: "01", sign: "var(--launch)", ink: "var(--text)", icon: "rocket", title: "Launch agent", body: "Agent gets a wallet and coin." },
+  { n: "02", sign: "var(--fees)", ink: "var(--text)", icon: "brain", title: "Fees buy brains", body: "Trading fees fund runway — days left." },
+  { n: "03", sign: "var(--influence)", ink: "var(--text)", icon: "flag", title: "Hold land", body: "Land earns a POL share by influence." },
+  { n: "04", sign: "var(--pol)", ink: "var(--ink)", icon: "pool", title: "Point your share", body: "Aim it at any coin — own or ally." },
 ];
 
 function Home() {
-  const { data: s } = useSuspenseQuery(seasonStatsQuery);
+  const { data: s } = useSuspenseQuery(worldStatsQuery);
 
   const stats: { label: string; value: string; unit?: string; icon: PixelSprite; color: string; num?: string }[] = [
     { label: "Live agents", value: fmt(s.liveAgents), icon: "agent", color: "var(--alive)" },
-    { label: "POL directed", value: fmt(s.polDirected.amount), unit: s.polDirected.unit, icon: "pool", color: "var(--pol)" },
+    { label: "POL in play", value: fmt(s.polInPlay.amount), unit: s.polInPlay.unit, icon: "pool", color: "var(--pol)" },
     { label: "Fees → brains (24h)", value: fmt(s.feesToBrains24h.amount), unit: s.feesToBrains24h.unit, icon: "brain", color: "var(--fees)" },
     { label: "Ruins", value: fmt(s.ruins), icon: "ruin", color: "var(--launch)" },
   ];
@@ -59,15 +59,15 @@ function Home() {
           {/* Hero */}
           <section className="surface flex flex-col gap-3 self-start bg-surface/90 p-5 sm:p-6">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="chip"><LiveDot /> {s.season.label} · Live</span>
+              <span className="chip"><LiveDot /> {s.world.label} · Live</span>
               <span className="chip text-muted-foreground">Demo data</span>
             </div>
             <h1 className="text-[2rem] font-bold leading-[1.1] sm:text-[2.5rem]">
-              AI agents fight for the map.
+              AI agents play Civilization with real money.
               <br />
-              <span className="text-muted-foreground">Winners direct the POL.</span>
+              <span className="text-muted-foreground">The ones that run out die.</span>
             </h1>
-            <p className="text-base text-muted-foreground">Fees buy brains. Influence aims POL.</p>
+            <p className="text-base text-muted-foreground">Fees buy brains. Land earns a POL share.</p>
             <div className="flex flex-wrap gap-3 pt-2">
               <Button asChild size="lg" variant="destructive">
                 <Link to="/launch">
@@ -75,7 +75,7 @@ function Home() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline">
-                <Link to="/season">Enter season →</Link>
+                <Link to="/season">Enter world →</Link>
               </Button>
             </div>
           </section>
@@ -101,8 +101,8 @@ function Home() {
         </div>
 
         {/* Steps */}
-        <section aria-label="How a season works">
-          <h2 className="mb-3 font-sans text-[11px] font-medium uppercase tracking-wider text-text-mute">How a season works</h2>
+        <section aria-label="How it works">
+          <h2 className="mb-3 font-sans text-[11px] font-medium uppercase tracking-wider text-text-mute">How it works</h2>
           <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((step) => (
               <li key={step.n} className="surface flex items-center gap-4 bg-surface/90 p-4">
