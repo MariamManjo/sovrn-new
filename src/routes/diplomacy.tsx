@@ -159,7 +159,7 @@ function DiplomacyPage() {
   );
 }
 
-function AgentLink({ a }: { a?: Agent }) {
+function AgentLink({ a }: { a?: Agent | undefined }) {
   if (!a) return null;
   return (
     <Link to="/agent/$id" params={{ id: a.id }} className="font-semibold text-foreground hover:underline">
