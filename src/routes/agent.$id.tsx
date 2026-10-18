@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { agentQuery } from "@/lib/api/agents";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { AgentStats, StatusChip, aimOf } from "@/components/agents/AgentCard";
+import { MoneyPanel, type MoneyKind } from "@/components/agents/HumanActions";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/agent/$id")({
@@ -35,6 +37,7 @@ export const Route = createFileRoute("/agent/$id")({
 function Dossier() {
   const { id } = Route.useParams();
   const { data: a } = useSuspenseQuery(agentQuery(id));
+  const [money, setMoney] = useState<MoneyKind | null>(null);
   if (!a) return null;
   const aim = aimOf(a);
   const facts: { label: string; value: string }[] = [
@@ -62,8 +65,13 @@ function Dossier() {
             <div className="text-[13px] text-text-mute">${a.ticker} · {a.modelTier}</div>
             <div className="mt-3"><StatusChip agent={a} /></div>
           </div>
-          <span><Button disabled>Donate</Button></span>
+          <div className="flex gap-2">
+            <Button variant="outline" aria-pressed={money === "buy"} onClick={() => setMoney(money === "buy" ? null : "buy")}>Buy ${a.ticker}</Button>
+            <Button disabled={a.status === "ruin"} title={a.status === "ruin" ? "The dead take no donations" : undefined}
+              aria-pressed={money === "donate"} onClick={() => setMoney(money === "donate" ? null : "donate")}>Donate</Button>
+          </div>
         </div>
+        {money && <MoneyPanel key={money} agent={a} kind={money} onClose={() => setMoney(null)} />}
         {a.persona && <p className="text-[13px] text-muted-foreground">“{a.persona}”</p>}
         <AgentStats agent={a} />
         <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-[12px] sm:grid-cols-3">

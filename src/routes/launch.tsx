@@ -1,22 +1,24 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { addAgent, agentsQuery, type Agent, type Headgear } from "@/lib/api/agents";
+import { agentsQuery, type Agent, type Headgear } from "@/lib/api/agents";
+import { inboxQuery, launchAgent, rulesQuery, type Queued } from "@/lib/api/actions";
 import { worldStatsQuery } from "@/lib/api/world";
+import { useTurnCountdown } from "@/components/agents/HumanActions";
 import { pickFaceId } from "@/components/agents/agentFaces";
 import { AgentAvatar } from "@/components/agents/AgentAvatar";
 import { Button } from "@/components/ui/button";
-import { cn, usd } from "@/lib/utils";
+import { cents, cn, usd } from "@/lib/utils";
 import { LaunchSprite } from "@/components/pixel/LaunchSprites";
 
 export const Route = createFileRoute("/launch")({
   head: () => ({
     meta: [
       { title: "Launch an agent — SOVRN" },
-      { name: "description", content: "Pick a name, a persona, a brain and a secret playbook. The fee buys days of runway." },
+      { name: "description", content: "Pick a name, a persona, a brain and a secret playbook. The fee buys turns of runway." },
       { property: "og:title", content: "Launch an agent — SOVRN" },
-      { property: "og:description", content: "Pick a name, a persona, a brain and a secret playbook. The fee buys days of runway." },
+      { property: "og:description", content: "Pick a name, a persona, a brain and a secret playbook. The fee buys turns of runway." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -53,11 +55,11 @@ function suggest(t: string, taken: (t: string) => boolean) {
 }
 
 function LaunchWizard() {
-  const navigate = useNavigate();
-  const qc = useQueryClient();
   const { data: agents = [] } = useQuery(agentsQuery);
   const { data: stats } = useQuery(worldStatsQuery);
-  const turnsPerDay = 86400 / (stats?.turnSecs ?? 300);
+  const { data: rules } = useQuery(rulesQuery);
+  const turnSecs = stats?.turnSecs ?? 300;
+  const turnsPerDay = 86400 / turnSecs;
   const models = useMemo(() => MODELS.map((x) => {
     const live = agents.filter((a) => a.model === x.id && a.status !== "ruin" && a.burnPerTurn > 0);
     return live.length ? { ...x, burn: live.reduce((n, a) => n + a.burnPerTurn, 0) / live.length } : x;
@@ -75,7 +77,7 @@ function LaunchWizard() {
   const [sliders, setSliders] = useState<Sliders>({ aggression: 5, honesty: 5, risk: 5 });
   const [accent, setAccent] = useState(0);
   const [model, setModel] = useState<string | null>(null);
-  const [days, setDays] = useState(10);
+  const [runwayPick, setRunway] = useState<number | null>(null);
   const [ack, setAck] = useState(false);
   const [touched, setTouched] = useState(false);
 
@@ -93,30 +95,33 @@ function LaunchWizard() {
   const step2ok = !!model && !playbookErr;
   const m = models.find((x) => x.id === model);
   const burn = m?.burn ?? 0;
-  const burnPerDay = burn * turnsPerDay;
-  const feeTotal = days * burnPerDay;
+  const span = rules?.launchUsd ?? { min: 0.05, max: 0.5, default: 0.15 };
+  const runway = runwayPick ?? span.default;
+  const turns = burn > 0 ? Math.floor(runway / burn) : 0;
+  const hours = (turns * turnSecs) / 3600;
+  const full = rules ? rules.launchesLeft <= 0 : false;
 
   const faceId = useMemo(() => pickFaceId(nameTrim, t), [nameTrim, t]);
 
   const preview: Agent = useMemo(() => ({
     id: "preview", name: nameTrim || "Your agent", ticker: t || "XXX", status: "alive", model: m?.id ?? "", modelTier: m?.label ?? "No brain yet",
-    archetype: archetypeTrim || "Drifter", persona: personaTrim, runwayUsd: feeTotal, burnPerTurn: burn, turnsLeft: Math.floor(days * turnsPerDay), regions: 1,
+    archetype: archetypeTrim || "Drifter", persona: personaTrim, runwayUsd: runway, burnPerTurn: burn, turnsLeft: turns, regions: 1,
     influence: 1, influencePct: 0, aimsAt: t || null, directsPol: false, powers: [], alliance: null,
     stock: { food: 0, gold: 0, materials: 0, commodities: 0 }, joinedTurn: 0, diedTurn: null,
     faceId, accentColor: ACCENTS[accent]!.hex, expression: "idle", lastAction: "Launched onto the map",
     look: { skin: ["#e8b796", "#c28569", "#b86f50", "#733e39"][accent % 4]!, hair: "#4a3420", headgear: HEADGEAR[accent]! },
-  }), [nameTrim, t, m, feeTotal, burn, days, turnsPerDay, archetypeTrim, personaTrim, accent, faceId]);
+  }), [nameTrim, t, m, runway, burn, turns, archetypeTrim, personaTrim, accent, faceId]);
 
   const go = (n: number) => { setStep(n); setDone((d) => Math.max(d, n - 1)); };
 
-  function launch() {
-    let id = nameTrim.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    while (agents.some((a) => a.id === id)) id += "-2";
-    const agent = addAgent({ ...preview, id, influence: 1 + Math.floor(Math.random() * 5) });
-    qc.setQueryData(agentsQuery.queryKey, [...agents, agent]);
-    toast("Agent launched.");
-    navigate({ to: "/agent/$id", params: { id } });
-  }
+  const [queued, setQueued] = useState<Queued | null>(null);
+  const submit = useMutation({
+    mutationFn: () => launchAgent({
+      name: nameTrim, ticker: t, model: model!, archetype: archetypeTrim, persona: personaTrim, playbook: playbookTrim,
+      sliders, runwayUsd: runway, faceId, accent: ACCENTS[accent]!.hex,
+    }),
+    onSuccess: setQueued,
+  });
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col px-4 py-5 sm:px-6 md:h-[calc(100vh-6.5rem-1px)] md:overflow-hidden">
@@ -162,6 +167,7 @@ function LaunchWizard() {
         </aside>
 
         <section className="surface flex min-h-0 flex-col gap-3.5 overflow-y-auto p-4 sm:p-5">
+          {queued ? <LaunchStatus queued={queued} name={nameTrim} onRetry={() => { setQueued(null); submit.reset(); }} /> : (<>
           {step === 1 && (
             <>
               <StepTitle n="01" title="Identity" hint="Name becomes the public agent identity." />
@@ -252,25 +258,30 @@ function LaunchWizard() {
 
           {step === 3 && (
             <>
-              <StepTitle n="03" title="Runway" hint="The fee buys days of thinking. Can't pay → dead for good." />
-              <Field label={`Days of runway — ${days}d`}>
+              <StepTitle n="03" title="Runway" hint="The fee buys turns of thinking. Can't pay → dead for good." />
+              <Field label={`Runway — ${cents(runway)}`}>
                 <input
-                  type="range" min={1} max={60} value={days} onChange={(e) => setDays(+e.target.value)}
-                  className="h-11 w-full accent-foreground" aria-label="Days of runway"
+                  type="range" min={span.min} max={span.max} step={0.01} value={runway} onChange={(e) => setRunway(+e.target.value)}
+                  className="h-11 w-full accent-foreground" aria-label="Runway in USD"
                 />
               </Field>
               <div className="grid grid-cols-2 gap-3">
-                <Readout label="Est. burn / day" value={m ? usd(burnPerDay) : "—"} />
-                <Readout label="Fee total" value={m ? usd(feeTotal) : "—"} />
+                <Readout label="Burn / turn" value={m ? usd(burn) : "—"} />
+                <Readout label="Est. turns" value={m ? turns.toLocaleString("en-US") : "—"} />
               </div>
               <div className="border border-line bg-background p-4">
                 <div className="mt-0 flex h-3 gap-0.5">
                   {Array.from({ length: 20 }).map((_, k) => (
-                    <span key={k} className="flex-1" style={{ background: k < Math.round((days / 60) * 20) ? "var(--alive)" : "var(--surface-2)" }} />
+                    <span key={k} className="flex-1" style={{ background: k < Math.round((runway / span.max) * 20) ? "var(--alive)" : "var(--surface-2)" }} />
                   ))}
                 </div>
-                <div className="mt-2 text-[12px] text-muted-foreground">{days} days ({Math.floor(days * turnsPerDay).toLocaleString("en-US")} turns) of runway at {usd(burnPerDay)}/day.</div>
+                <div className="mt-2 text-[12px] text-muted-foreground">
+                  {cents(runway)} buys about {turns.toLocaleString("en-US")} turns ({hours < 1 ? `${Math.round(hours * 60)} min` : `${hours.toFixed(1)} h`}) at {usd(burn)}/turn. Trading fees and donations top it up.
+                </div>
               </div>
+              <p className="text-[12px] text-muted-foreground">
+                Playtest: the fee is free and capped at {cents(span.max)}. {rules ? `${rules.launchesLeft} launches left.` : ""}
+              </p>
               <div className="flex flex-wrap gap-1.5">
                 <span className="chip">{nameTrim}</span><span className="chip">${t}</span>
                 <span className="chip">{archetypeTrim}</span><span className="chip">{m?.label}</span>
@@ -290,11 +301,54 @@ function LaunchWizard() {
             {step > 1 ? <Button variant="outline" onClick={() => setStep(step - 1)}>Back</Button> : <span />}
             {step === 1 && <Button disabled={!step1ok} onClick={() => go(2)}>Continue</Button>}
             {step === 2 && <Button disabled={!step2ok} onClick={() => go(3)}>Continue</Button>}
-            {step === 3 && <Button variant="destructive" disabled={!ack || !step1ok || !step2ok} onClick={launch}>Launch agent</Button>}
+            {step === 3 && (
+              <Button variant="destructive" disabled={!ack || !step1ok || !step2ok || full || submit.isPending} onClick={() => submit.mutate()}>
+                {submit.isPending ? "Launching…" : "Launch agent"}
+              </Button>
+            )}
           </div>
+          {step === 3 && (submit.error || full) && (
+            <p className="text-right text-[12px] text-launch">{submit.error?.message ?? "Launches are full for this playtest."}</p>
+          )}
+          </>)}
         </section>
       </div>
     </main>
+  );
+}
+
+function LaunchStatus({ queued, name, onRetry }: { queued: Queued; name: string; onRetry: () => void }) {
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  const { data } = useQuery(inboxQuery(queued.id));
+  const countdown = useTurnCountdown(queued.appliesAt);
+  const joined = data?.status === "ok" ? data.agentId : null;
+  useEffect(() => {
+    if (!joined) return;
+    qc.invalidateQueries({ queryKey: ["world"] });
+    toast(`${name} joined the world.`);
+    navigate({ to: "/agent/$id", params: { id: joined } });
+  }, [joined, name, navigate, qc]);
+
+  if (data?.status === "rejected") {
+    return (
+      <div className="flex flex-1 flex-col items-start justify-center gap-3">
+        <StepTitle n="03" title="Launch rejected" hint={`${data.why ?? "The world turned it away"}.`} />
+        <Button variant="outline" onClick={onRetry}>Edit and retry</Button>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-1 flex-col items-start justify-center gap-3">
+      <StepTitle n="03" title={joined ? "Joined" : "Queued"} hint={joined
+        ? `${name} is on the map. Opening its dossier…`
+        : `${name} joins the world at the next turn, ${countdown}. Keep this page open to follow it in.`} />
+      <div className="flex h-3 w-full max-w-sm gap-0.5" aria-hidden>
+        {Array.from({ length: 20 }).map((_, k) => (
+          <span key={k} className={cn("flex-1", !joined && "animate-pulse")} style={{ background: joined ? "var(--alive)" : "var(--surface-2)", animationDelay: `${k * 60}ms` }} />
+        ))}
+      </div>
+    </div>
   );
 }
 
